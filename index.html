@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siêu Chiến Binh - Kỷ Nguyên Thần Thánh v4.0</title>
+    <title>Siêu Chiến Binh - Kỷ Nguyên Thần Thánh v4.1 (Full Edition)</title>
     <style>
-        :root { --bg: #0f172a; --primary: #3b82f6; --secondary: #10b981; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; --glass: rgba(30, 41, 59, 0.85); --border: rgba(255, 255, 255, 0.15); }
+        :root { --bg: #0f172a; --primary: #3b82f6; --secondary: #10b981; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; --glass: rgba(30, 41, 59, 0.9); --border: rgba(255, 255, 255, 0.15); }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; }
         
@@ -20,105 +20,107 @@
         .btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); filter: brightness(1.2); }
         .btn:disabled { filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; }
         
-        #menu-screen h1 { font-size: 4.5rem; text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; margin-bottom: 2rem; text-shadow: 0px 5px 15px rgba(96,165,250,0.3); }
+        #menu-screen h1 { font-size: 4rem; text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; margin-bottom: 2rem; text-shadow: 0px 5px 15px rgba(96,165,250,0.3); text-align: center; }
         
+        /* Info Modal / Screen */
+        .info-container { width: 90%; max-width: 1000px; height: 85%; background: rgba(15,23,42,0.95); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
+        .info-scroll { flex: 1; overflow-y: auto; margin-top: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-right: 5px; }
+        .info-card { background: rgba(30,41,59,0.8); padding: 15px; border-radius: 10px; border: 1px solid #334155; }
+        .info-card h3 { color: #60a5fa; margin-bottom: 6px; font-size: 1.1rem; }
+        .info-card p { font-size: 0.8rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 4px; }
+
         /* Ban Pick */
-        .phase-header { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
-        .timer { font-size: 3rem; color: var(--danger); font-weight: 900; margin-bottom: 15px; }
-        .hero-pool { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 1000px; margin-bottom: 20px; }
-        .hero-card { background: linear-gradient(180deg, #334155, #1e293b); border: 2px solid #475569; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; transition: 0.2s; }
-        .hero-card:hover:not(.banned) { border-color: #94a3b8; transform: translateY(-5px); }
+        .phase-header { font-size: 2rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .timer { font-size: 3rem; color: var(--danger); font-weight: 900; margin-bottom: 15px; text-align: center; }
+        .hero-pool { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 1050px; margin-bottom: 20px; }
+        .hero-card { background: linear-gradient(180deg, #334155, #1e293b); border: 2px solid #475569; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; transition: 0.2s; height: 110px; justify-content: center; }
+        .hero-card:hover:not(.banned) { border-color: #94a3b8; transform: translateY(-3px); }
         .hero-card.selected-t1 { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
         .hero-card.selected-t2 { border-color: var(--danger); box-shadow: 0 0 15px var(--danger); }
-        .hero-card.banned { filter: grayscale(100%) brightness(0.4); pointer-events: none; }
-        .hero-card.banned::after { content: 'LOCKED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); color: #ef4444; font-weight: 900; font-size: 1rem; border: 2px solid #ef4444; padding: 2px; background: rgba(0,0,0,0.8); }
-        .hero-abbr { width: 45px; height: 45px; border-radius: 50%; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; font-weight: 900; color: #e2e8f0; border: 2px solid #64748b; margin-bottom: 5px; }
-        .hero-name { font-size: 0.75rem; font-weight: 700; text-align: center; color: #cbd5e1; }
-        .hero-role { font-size: 0.6rem; padding: 2px 5px; background: #475569; border-radius: 4px; margin-top: 3px; }
+        .hero-card.banned { filter: grayscale(100%) brightness(0.3); pointer-events: none; }
+        .hero-card.banned::after { content: 'LOCKED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); color: #ef4444; font-weight: 900; font-size: 0.9rem; border: 2px solid #ef4444; padding: 2px 4px; background: rgba(0,0,0,0.9); }
+        .hero-abbr { width: 42px; height: 42px; border-radius: 50%; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; color: #e2e8f0; border: 2px solid #64748b; margin-bottom: 6px; }
+        .hero-name { font-size: 0.7rem; font-weight: 700; text-align: center; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .hero-role { font-size: 0.55rem; padding: 1px 4px; background: #475569; border-radius: 3px; margin-top: 3px; color: #f8fafc; }
 
-        /* Info Screen */
-        .info-container { width: 90%; max-width: 1100px; height: 80%; background: rgba(15,23,42,0.95); border-radius: 16px; padding: 20px; overflow-y: auto; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .info-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-top: 15px; }
-        .info-item { background: rgba(30,41,59,0.8); padding: 15px; border-radius: 10px; border: 1px solid #334155; }
-        .info-item h3 { color: #60a5fa; margin-bottom: 8px; border-bottom: 1px solid #334155; padding-bottom: 5px; }
-        .info-item p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 4px; }
-        
         /* Battle */
         .battle-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border); }
-        .team-title { font-size: 1.5rem; font-weight: 900; padding: 8px 25px; border-radius: 8px; }
+        .team-title { font-size: 1.4rem; font-weight: 900; padding: 6px 20px; border-radius: 8px; }
         .tt-1 { background: linear-gradient(90deg, #1d4ed8, #3b82f6); } .tt-2 { background: linear-gradient(-90deg, #b91c1c, #ef4444); }
         
         .arena { display: flex; width: 100%; flex: 1; padding: 20px 50px; justify-content: space-between; }
-        .team-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-content: center; width: 40%; }
+        .team-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-content: center; width: 42%; }
         .team2-side { direction: rtl; }
         
-        .entity { background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; width: 160px; padding: 12px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .entity.active-turn { border-color: var(--warning); box-shadow: 0 0 25px rgba(245, 158, 11, 0.5); transform: scale(1.05) translateY(-5px); z-index: 5; }
+        .entity { background: rgba(30,41,59,0.85); border: 2px solid #475569; border-radius: 12px; width: 155px; padding: 10px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
+        .entity.active-turn { border-color: var(--warning); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); transform: scale(1.05) translateY(-5px); z-index: 5; }
         .entity.dead { filter: grayscale(100%) opacity(0.3); pointer-events: none; }
         
-        .e-abbr { width: 55px; height: 55px; border-radius: 50%; background: #0f172a; font-size: 1.5rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 3px solid #64748b; margin-bottom: 8px; }
-        .tt-1 .e-abbr, #team1-side .e-abbr { border-color: var(--primary); } .tt-2 .e-abbr, #team2-side .e-abbr { border-color: var(--danger); }
+        .e-abbr { width: 50px; height: 50px; border-radius: 50%; background: #0f172a; font-size: 1.4rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 3px solid #64748b; margin-bottom: 6px; }
+        .tt-1 ~ .arena #team1-side .e-abbr { border-color: var(--primary); } 
+        .tt-2 ~ .arena #team2-side .e-abbr { border-color: var(--danger); }
         
-        .e-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; direction: ltr; }
-        .bar-wrap { width: 100%; background: #0f172a; height: 10px; border-radius: 5px; margin-bottom: 4px; overflow: hidden; position: relative; border: 1px solid #334155; }
+        .e-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; direction: ltr; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
+        .bar-wrap { width: 100%; background: #0f172a; height: 9px; border-radius: 4px; margin-bottom: 3px; overflow: hidden; position: relative; border: 1px solid #334155; }
         .hp-bar { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); transition: 0.3s; }
-        .shield-bar { height: 100%; background: rgba(255,255,255,0.7); position: absolute; top: 0; right: 0; transition: 0.3s; }
+        .shield-bar { height: 100%; background: rgba(255,255,255,0.8); position: absolute; top: 0; right: 0; transition: 0.3s; }
         .en-bar { height: 100%; background: linear-gradient(90deg, #9333ea, #a855f7); transition: 0.3s; }
-        .stats-text { font-size: 0.65rem; color: #94a3b8; font-weight: 600; direction: ltr; margin-bottom: 5px; text-align: center;}
+        .stats-text { font-size: 0.6rem; color: #94a3b8; font-weight: 600; direction: ltr; margin-bottom: 4px; text-align: center; }
         
-        .buff-zone { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; min-height: 20px; width: 100%; }
-        .b-icon { padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: 700; color: white; white-space: nowrap; box-shadow: 0 1px 3px rgba(0,0,0,0.5); text-transform: capitalize; direction: ltr; }
-        .bg-buff { background: var(--primary); } .bg-debuff { background: var(--danger); } .bg-mark { background: var(--warning); color: #000; }
+        .buff-zone { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; min-height: 18px; width: 100%; }
+        .b-pill { padding: 1px 5px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; color: white; white-space: nowrap; direction: ltr; }
+        .bg-buff { background: #2563eb; } .bg-debuff { background: #dc2626; } .bg-mark { background: #d97706; color: #fff; }
         
-        .controls { width: 100%; background: rgba(15,23,42,0.95); padding: 15px; display: flex; justify-content: center; gap: 20px; border-top: 1px solid var(--border); z-index: 10;}
-        .skill-btn { flex: 1; max-width: 250px; background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; padding: 12px; color: white; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .controls { width: 100%; background: rgba(15,23,42,0.95); padding: 15px; display: flex; justify-content: center; gap: 20px; border-top: 1px solid var(--border); z-index: 10; }
+        .skill-btn { flex: 1; max-width: 260px; background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; padding: 12px; color: white; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
         .skill-btn:hover:not(:disabled) { background: #334155; border-color: var(--primary); transform: translateY(-3px); }
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .sk-name { font-size: 1rem; font-weight: 800; color: #60a5fa; margin-bottom: 4px; }
+        .sk-name { font-size: 1rem; font-weight: 800; color: #60a5fa; margin-bottom: 3px; }
         .sk-desc { font-size: 0.7rem; color: #cbd5e1; text-align: center; }
         
-        .combat-log { position: absolute; bottom: 100px; left: 50%; transform: translateX(-50%); width: 500px; height: 130px; background: rgba(0,0,0,0.8); border: 1px solid #334155; border-radius: 10px; padding: 10px; overflow-y: auto; font-size: 0.75rem; font-family: monospace; z-index: 5; }
-        .log-row { margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .combat-log { position: absolute; bottom: 105px; left: 50%; transform: translateX(-50%); width: 550px; height: 120px; background: rgba(0,0,0,0.85); border: 1px solid #334155; border-radius: 10px; padding: 10px; overflow-y: auto; font-size: 0.75rem; font-family: monospace; z-index: 5; }
+        .log-row { margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 3px; }
         .c-t1 { color: #60a5fa; font-weight: bold; } .c-t2 { color: #f87171; font-weight: bold; } .c-sys { color: #a78bfa; font-style: italic; }
         
-        .dmg-text { position: absolute; font-weight: 900; font-size: 1.8rem; text-shadow: 0 0 5px #000, 0 0 10px #000; animation: floatTxt 1s forwards ease-out; z-index: 100; pointer-events: none; white-space: nowrap; }
-        @keyframes floatTxt { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.3); } }
+        .dmg-text { position: absolute; font-weight: 900; font-size: 1.6rem; text-shadow: 0 0 5px #000, 0 0 10px #000; animation: floatTxt 1s forwards ease-out; z-index: 100; pointer-events: none; white-space: nowrap; }
+        @keyframes floatTxt { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-55px) scale(1.3); } }
         
         #end-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.9); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        #end-overlay h2 { font-size: 4rem; margin-bottom: 20px; text-transform: uppercase; }
-        #end-overlay p { font-size: 1.5rem; color: #cbd5e1; }
+        #end-overlay h2 { font-size: 3.5rem; margin-bottom: 15px; text-transform: uppercase; }
+        #end-overlay p { font-size: 1.4rem; color: #cbd5e1; }
     </style>
 </head>
 <body>
 
-    <!-- OVERLAYS & MENUS -->
     <div id="end-overlay">
         <h2 id="end-title">ĐỘI 1 CHIẾN THẮNG</h2>
-        <p>Tự động quay về sau <span id="end-cd" style="color:var(--warning); font-weight:bold;">5</span>s</p>
+        <p>Quay về màn hình chính sau <span id="end-cd" style="color:var(--warning); font-weight:bold;">5</span> giây...</p>
     </div>
 
+    <!-- MAIN MENU SCREEN -->
     <div id="menu-screen" class="screen active">
-        <h1>Siêu Chiến Binh</h1>
-        <div class="glass-panel" style="text-align: center;">
-            <p style="margin-bottom: 25px; font-size: 1.1rem; color: #cbd5e1;">Turn-Base Chiến Thuật - Kỷ Nguyên Thần Thánh v4.0</p>
-            <div style="display:flex; gap: 15px; justify-content: center;">
+        <h1>SIÊU CHIẾN BINH</h1>
+        <div class="glass-panel" style="text-align: center; min-width: 420px;">
+            <p style="margin-bottom: 25px; font-size: 1.1rem; color: #cbd5e1;">Turn-Base Chiến Thuật - Kỷ Nguyên Thần Thánh v4.1</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
                 <button class="btn btn-primary" onclick="App.enterBP()">BẮT ĐẦU CHIẾN ĐẤU</button>
-                <button class="btn btn-info" onclick="App.show('info-screen'); App.renderInfo();">THÔNG SỐ & KỸ NĂNG</button>
+                <button class="btn btn-info" onclick="App.show('info-screen')">THÔNG SỐ & KỸ NĂNG</button>
             </div>
         </div>
     </div>
 
+    <!-- INFO SCREEN -->
     <div id="info-screen" class="screen">
         <div class="info-container">
-            <h2 style="color: white; border-bottom: 2px solid #334155; padding-bottom: 10px; display:flex; justify-content:space-between;">
-                TỪ ĐIỂN TƯỚNG
-                <button class="btn btn-danger" style="padding: 5px 15px; font-size: 0.9rem;" onclick="App.show('menu-screen')">ĐÓNG</button>
-            </h2>
-            <div class="info-grid" id="info-grid"></div>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 10px;">
+                <h2 style="color: #60a5fa;">TỪ ĐIỂN TƯỚNG & HIỆU ỨNG CHI TIẾT</h2>
+                <button class="btn btn-danger" style="padding: 6px 16px; font-size: 0.85rem;" onclick="App.show('menu-screen')">Quay Lại</button>
+            </div>
+            <div class="info-scroll" id="info-grid"></div>
         </div>
     </div>
 
-    <!-- BAN / PICK -->
+    <!-- BAN / PICK SCREEN -->
     <div id="bp-screen" class="screen">
         <div class="glass-panel" style="display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1100px;">
             <div class="phase-header" id="bp-title">...</div>
@@ -128,18 +130,18 @@
                 <button class="btn btn-danger" id="bp-btn" onclick="App.confirmBP()">Xác Nhận</button>
                 <button class="btn" id="bp-skip" style="background:#475569;" onclick="App.skipBP()">Bỏ Qua (Đồng thuận)</button>
             </div>
-            <div style="margin-top: 20px; width: 100%; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
-                <div style="color: #60a5fa;"><strong>Đội 1:</strong> <span id="bp-t1-list"></span></div>
-                <div style="color: #f87171;"><strong>Đội 2:</strong> <span id="bp-t2-list"></span></div>
+            <div style="margin-top: 20px; width: 100%; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 12px 20px; border-radius: 8px;">
+                <div style="color: #60a5fa;"><strong>Đội 1:</strong> <span id="bp-t1-list">Chưa chọn</span></div>
+                <div style="color: #f87171;"><strong>Đội 2:</strong> <span id="bp-t2-list">Chưa chọn</span></div>
             </div>
         </div>
     </div>
 
-    <!-- BATTLE -->
+    <!-- BATTLE SCREEN -->
     <div id="battle-screen" class="screen">
         <div class="battle-header">
             <div class="team-title tt-1">ĐỘI 1</div>
-            <div id="turn-banner" style="font-size: 1.5rem; font-weight: 900; color: #f59e0b; text-transform: uppercase;">Chuẩn bị...</div>
+            <div id="turn-banner" style="font-size: 1.4rem; font-weight: 900; color: #f59e0b; text-transform: uppercase;">Đang chuẩn bị...</div>
             <div class="team-title tt-2">ĐỘI 2</div>
         </div>
         <div class="arena">
@@ -158,22 +160,22 @@
     </div>
 
 <script>
-/** ENGINE V4.0 - Đã bao gồm Balance Patch & Tướng Mới */
+/** DATABASE 14 TƯỚNG HOÀN CHỈNH */
 const DB = [
-    { id: 'jiren', abbr: 'JR', name: 'Jiren', role: 'ATK', hp: 235549000, atk: 18750000, def: 3000, spd: 150, en: 4.6, desc: 'Đánh lẻ hàng sau, Cuồng Nộ lật kèo khi HP <40%.' },
-    { id: 'goku_xeno', abbr: 'GX', name: 'Goku (Xeno)', role: 'DEF', hp: 290000000, atk: 13500000, def: 6550, spd: 145, en: 3, desc: 'Bảo vệ đồng minh, chia sẻ ST, tự hồi sinh 50% HP 1 lần.' },
-    { id: 'cooler', abbr: 'CG', name: 'Cooler (Gold)', role: 'DEF', hp: 285000000, atk: 13830000, def: 5780, spd: 145, en: 4, desc: 'Hồi sinh lực cực mạnh khi dính debuff, xóa buff địch.' },
-    { id: 'broly_sp', abbr: 'BS', name: 'Broly (SP)', role: 'ATK', hp: 224500000, atk: 20000000, def: 4300, spd: 150, en: 3, desc: 'Miễn khống chế khi HP cao, sát thương bạo kích tột đỉnh, cấm hồi sinh.' },
-    { id: 'zamasu', abbr: 'ZC', name: 'Zamasu', role: 'SKL', hp: 276688000, atk: 14348000, def: 4200, spd: 155, en: 4.4, desc: 'Tốc độ cực cao, đánh thường gây chảy máu diện rộng, khống chế Terror.' },
-    { id: 'vegeta_ssg', abbr: 'VS', name: 'Vegeta (SSG)', role: 'ATK', hp: 219000000, atk: 18654000, def: 3500, spd: 150, en: 2, desc: 'Tốc độ nhanh nhất, buff Né Tránh và tạo Giáp ảo.' },
-    { id: 'vegeta_xeno', abbr: 'VX', name: 'Vegeta (Xeno)', role: 'ATK', hp: 245989000, atk: 19450000, def: 4100, spd: 150, en: 4, desc: 'Phá giáp tuyệt đối lượt 1, dồn Sức Mạnh tăng ST lên tới 300%.' },
-    { id: 'madara', abbr: 'MD', name: 'Madara (Lục đạo)', role: 'ATK', hp: 235888000, atk: 17900000, def: 4200, spd: 150, en: 3, desc: 'AOE Siêu khống chế 53% Choáng. Hồi EN khi bị đánh.' },
-    { id: 'zhuang_fa', abbr: 'ZF', name: 'Zhuang Fa', role: 'SKL', hp: 261000000, atk: 19450000, def: 6400, spd: 156, en: 8, desc: 'Hút đòn đánh, phản sát thương, tạo nọc độc %Max HP.' },
-    { id: 'omega', abbr: 'OS', name: 'Omega Shenron', role: 'DEF', hp: 300000000, atk: 12880000, def: 5000, spd: 145, en: 5, desc: 'Lá chắn bất tử trước đòn Bạo Kích, phản khống chế.' },
-    { id: 'pain', abbr: 'PT', name: 'Pain Thiên Đạo', role: 'SKL', hp: 275600000, atk: 16890000, def: 4100, spd: 150, en: 4, desc: 'Giảm 30-50% ST của địch, Né tránh/Dịch chuyển liên tục.' },
-    { id: 'vegito', abbr: 'VG', name: 'Vegito', role: 'SKL', hp: 278590000, atk: 15890000, def: 5800, spd: 150, en: 3, desc: 'DoT Bleeding2 không thể cản phá. Tự tạo khiên siêu lớn.' },
-    { id: 'timekaishin', abbr: 'TK', name: 'TimeKaishin', role: 'SKL', hp: 285873000, atk: 15670000, def: 5800, spd: 150, en: 4, desc: 'Hồi máu đội hình bằng ST gây ra, buff Giáp, Tỉ lệ chí mạng & Thủ.' },
-    { id: 'itachi', abbr: 'IT', name: 'Itachi (Uế Thổ)', role: 'DEF', hp: 300000000, atk: 17550000, def: 5000, spd: 145, en: 3, desc: 'Dấu ấn [Fire] khắc chế ST diện rộng, Bất tử 3 hiệp khi hết HP.' }
+    { id: 'jiren', abbr: 'JR', name: 'Jiren', role: 'ATK', hp: 235549000, atk: 18750000, def: 3000, spd: 150, en: 4.6, desc: 'Đánh thường hồi 1.8 EN, áp [Severe wound]. Cuồng nộ tăng sát thương khi HP < 40%.' },
+    { id: 'goku_xeno', abbr: 'GX', name: 'Goku (Xeno)', role: 'DEF', hp: 290000000, atk: 13500000, def: 6550, spd: 145, en: 3, desc: 'Bảo vệ đồng minh yếu nhất, chia sẻ 25% sát thương nhận vào, tự hồi sinh 50% HP.' },
+    { id: 'cooler', abbr: 'CG', name: 'Cooler (Gold)', role: 'DEF', hp: 285000000, atk: 13830000, def: 5780, spd: 145, en: 4, desc: 'Hồi phục 190% ATK + 0.8% HP tối đa khi dính debuff. Xóa bỏ buff của mục tiêu.' },
+    { id: 'broly_sp', abbr: 'BS', name: 'Broly (SP)', role: 'ATK', hp: 224500000, atk: 20000000, def: 4300, spd: 150, en: 3, desc: 'Miễn nhiễm mọi hiệu ứng khi HP > 80%, cấm hồi sinh kẻ địch bị hạ gục.' },
+    { id: 'zamasu', abbr: 'ZC', name: 'Zamasu', role: 'SKL', hp: 276688000, atk: 14348000, def: 4200, spd: 155, en: 4.4, desc: 'Đánh thường toàn đội 92% ATK kèm Chảy Máu. Khống chế Terror diện rộng.' },
+    { id: 'vegeta_ssg', abbr: 'VS', name: 'Vegeta (SSG)', role: 'ATK', hp: 219000000, atk: 18654000, def: 3500, spd: 150, en: 2, desc: 'SPD cao, tạo giáp ảo 185% ATK và buff tỷ lệ Né Tránh cho đồng minh.' },
+    { id: 'vegeta_xeno', abbr: 'VX', name: 'Vegeta (Xeno)', role: 'ATK', hp: 245989000, atk: 19450000, def: 4100, spd: 150, en: 4, desc: 'Phá vỡ 100% DEF lượt đầu, tích lũy 10 tầng Sức Mạnh cho 100% bạo kích.' },
+    { id: 'madara', abbr: 'MD', name: 'Madara (Lục đạo)', role: 'ATK', hp: 235888000, atk: 17900000, def: 4200, spd: 150, en: 3, desc: 'Tuyệt kỹ 300% ATK AoE kèm 53% Choáng 2 hiệp. Hồi EN khi nhận sát thương.' },
+    { id: 'zhuang_fa', abbr: 'ZF', name: 'Zhuang Fa', role: 'SKL', hp: 261000000, atk: 19450000, def: 6400, spd: 156, en: 8, desc: 'Hút 80% đòn đánh, phản sát thương 50%, áp Nọc Độc rút % HP tối đa.' },
+    { id: 'omega', abbr: 'OS', name: 'Omega Shenron', role: 'DEF', hp: 300000000, atk: 12880000, def: 5000, spd: 145, en: 5, desc: 'Lá chắn 50% HP miễn nhiễm tuyệt đối với sát thương Bạo Kích.' },
+    { id: 'pain', abbr: 'PT', name: 'Pain Thiên Đạo', role: 'SKL', hp: 275600000, atk: 16890000, def: 4100, spd: 150, en: 4, desc: 'Giảm 30-50% ST địch, tăng tỷ lệ Dịch Chuyển/Né tránh mỗi khi bị tấn công.' },
+    { id: 'vegito', abbr: 'VG', name: 'Vegito', role: 'SKL', hp: 278590000, atk: 15890000, def: 5800, spd: 150, en: 3, desc: 'Sở hữu Bleeding2 độc lập gây 44% ATK mỗi hiệp không thể bị xóa bỏ.' },
+    { id: 'timekaishin', abbr: 'TK', name: 'TimeKaishin', role: 'SKL', hp: 285873000, atk: 15670000, def: 5800, spd: 150, en: 4, desc: 'Hồi HP toàn đội dựa trên tổng ST gây ra, cấp khiên và buff Crit/DEF.' },
+    { id: 'itachi', abbr: 'IT', name: 'Itachi (Uế Thổ)', role: 'DEF', hp: 300000000, atk: 17550000, def: 5000, spd: 145, en: 3, desc: 'Áp dấu ấn [Fire] phản sát thương, Bất tử 3 hiệp và nạp đầy 4 EN khi cạn HP.' }
 ];
 
 class Buff {
@@ -184,16 +186,15 @@ class Hero {
     constructor(d, team, idx) {
         this.id = d.id; this.abbr = d.abbr; this.name = d.name; this.team = team; this.idx = idx; this.role = d.role;
         this.uid = `${team}-${idx}-${this.id}`;
-        this.baseHp = d.hp; this.maxHp = d.hp; this.hp = d.hp; 
+        this.maxHp = d.hp; this.hp = d.hp; 
         this.atk = d.atk; this.def = d.def; this.spd = d.spd;
         this.en = 0; this.maxEn = d.en;
         
-        // Advanced Base
-        this.critR = this.role === 'ATK' ? 0.13 : 0; // ATK role base buff
+        // Advanced
+        this.critR = this.role === 'ATK' ? 0.13 : 0; // ATK class base 13% crit
         this.critD = 1.5; this.armorP = 0; this.dmgRed = 0; this.dodge = 0; 
         this.healBonus = 0; this.dmgBonus = 0;
         this.shield = 0; this.buffs = []; this.dead = false; this.cantRevive = false;
-
         this.mem = { vxPower:0, zfTaunt:0.8, painDodge:0 };
         this.applyGodSkills();
     }
@@ -207,7 +208,7 @@ class Hero {
         if(this.id==='vegeta_ssg'){ this.atk*=1.25; this.armorP+=0.10; this.spd*=1.10; }
         if(this.id==='vegeta_xeno'){ this.maxHp*=1.25; this.armorP+=0.08; this.critD+=0.15; this.def*=1.10; }
         if(this.id==='madara'){ this.def*=1.20; this.critR+=0.08; this.dmgRed+=0.07; }
-        if(this.id==='zhuang_fa'){ this.atk*=1.30; this.maxHp*=1.20; this.dmgRed+=0.08; }
+        if(this.id==='zhuang_fa'){ this.atk*=1.30; this.maxHp*=0.87; this.dmgRed+=0.08; } // Giảm 13% HP theo yêu cầu mới
         if(this.id==='omega'){ this.dmgRed+=0.06; this.armorP+=0.15; }
         if(this.id==='pain'){ this.maxHp*=1.10; this.def*=1.10; }
         if(this.id==='vegito'){ this.atk*=1.25; this.maxHp*=1.14; this.dmgBonus+=0.30; }
@@ -223,8 +224,8 @@ class Hero {
         this.dom.querySelector('.en-bar').style.width = `${Math.min(100, this.en/this.maxEn*100)}%`;
         this.dom.querySelector('.stats-text').innerHTML = `HP: ${Math.floor(this.hp).toLocaleString()}<br>EN: ${this.en.toFixed(1)}/${this.maxEn.toFixed(1)}`;
         
-        let bfHtml = this.shield > 0 ? `<div class="b-icon bg-mark">Shield</div>` : '';
-        this.buffs.forEach(b => bfHtml += `<div class="b-icon ${b.type==='buff'?'bg-buff':(b.type==='debuff'?'bg-debuff':'bg-mark')}">${b.name}</div>`);
+        let bfHtml = this.shield > 0 ? `<div class="b-pill bg-mark">Lá Chắn</div>` : '';
+        this.buffs.forEach(b => bfHtml += `<div class="b-pill ${b.type==='buff'?'bg-buff':(b.type==='debuff'?'bg-debuff':'bg-mark')}">${b.name}</div>`);
         this.dom.querySelector('.buff-zone').innerHTML = bfHtml;
     }
 
@@ -241,7 +242,7 @@ class Hero {
         let dRate = this.dodge + (this.id==='pain' ? this.mem.painDodge : 0);
         if(dodgeable && Math.random() < dRate) {
             Battle.float(this.dom, "NÉ TRÁNH", "#ffffff");
-            if(this.id==='pain' && source) source.addBuff(new Buff('Pain-Debuff', 'debuff', 2));
+            if(this.id==='pain' && source) source.addBuff(new Buff('Giảm ST', 'debuff', 2));
             return 0;
         }
         if(this.id==='pain') this.mem.painDodge = Math.min(0.6, this.mem.painDodge + 0.15);
@@ -256,7 +257,7 @@ class Hero {
             if(source.id==='itachi' && source.hp < source.maxHp*0.5) sDmgBonus += Math.min(0.8, Math.floor((source.maxHp-source.hp)/(source.maxHp*0.08))*0.1);
         }
 
-        let dynDef = this.def * (this.has('DefUp') ? 1.3 : 1);
+        let dynDef = this.def * (this.has('DEF Tăng') ? 1.3 : 1);
         let actualDef = dynDef * Math.max(0, 1 - (source ? source.armorP : 0));
         if(this.has('Terror')) actualDef *= 0.7; 
         if(this.has('VX-ArmorBreak')) actualDef = 0; 
@@ -266,12 +267,12 @@ class Hero {
 
         let isCrit = false;
         if(source) {
-            let cr = source.critR + (source.has('CritUp') ? 0.15 : 0);
+            let cr = source.critR + (source.has('Tỉ lệ Bạo Kích') ? 0.15 : 0);
             if(source.id==='vegeta_xeno' && source.mem.vxPower >= 10 && !isSkill) cr = 1.0;
             if(Math.random() < cr) { 
                 isCrit = true; 
                 let cd = source.critD;
-                if(source.role === 'ATK' && isSkill) cd = 3.0; // ATK class active crit rule
+                if(source.role === 'ATK' && isSkill) cd = 3.0; // ATK class active crit rule (300% ST)
                 dmg *= cd; 
             }
         }
@@ -279,13 +280,13 @@ class Hero {
         if(this.id==='omega' && this.shield > 0 && isCrit) { isCrit = false; dmg /= (source.role==='ATK'&&isSkill?3.0:1.5); }
 
         let tRed = this.dmgRed;
-        if(isSkill && Math.random() < 0.15) { tRed += 0.3; Battle.float(this.dom, "CHỐNG ĐỠ", "#a78bfa"); } // Global 15% chance to reduce skill dmg
+        if(isSkill && Math.random() < 0.15) { tRed += 0.3; Battle.float(this.dom, "CHỐNG ĐỠ", "#a78bfa"); } // 15% giảm 30% ST kỹ năng
         if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) tRed += 0.2;
         if(this.has('Bảo vệ')) tRed += 0.15;
         if(Battle.getTeam(this.team).some(h=>h.id==='zamasu')) tRed += 0.05;
         if(source && source.has('GokuDebuff')) tRed += 0.1;
         if(source && source.has('Thiên đạo')) tRed += 0.3;
-        if(source && source.has('Pain-Debuff')) tRed += 0.3;
+        if(source && source.has('Giảm ST')) tRed += 0.3;
         if(source && source.has('Ma đạo')) dmg *= 0.75; 
 
         dmg *= Math.max(0, 1 - tRed);
@@ -295,16 +296,16 @@ class Hero {
             if(gk && !gk.dead) { let split = dmg*0.25; dmg -= split; gk.takeDirect(split, source); }
         }
 
-        // Zhuang Fa Light Stacks Process
+        // Zhuang Fa Light Stacks Process (Đủ 3 cộng dồn reset, gây Choáng 1 hiệp)
         if(source && source.id==='zhuang_fa') {
-            let light = this.buffs.find(b=>b.name==='Ánh sáng');
+            let light = this.buffs.find(b=>b.name==='Ánh Sáng');
             if(light) {
                 light.data.stacks = (light.data.stacks||1)+1;
                 if(light.data.stacks >= 3) {
-                    this.buffs = this.buffs.filter(b=>b.name!=='Ánh sáng');
+                    this.buffs = this.buffs.filter(b=>b.name!=='Ánh Sáng');
                     this.addBuff(new Buff('Choáng','debuff',1));
                 }
-            } else this.addBuff(new Buff('Ánh sáng','debuff',99,{stacks:1}));
+            } else this.addBuff(new Buff('Ánh Sáng','debuff',99,{stacks:1}));
         }
 
         this.takeDirect(dmg, source, isCrit);
@@ -324,7 +325,6 @@ class Hero {
         Battle.float(this.dom, `-${Math.floor(dmg)}`, isCrit ? '#ef4444' : '#f59e0b');
         this.dom.classList.add('anim-hurt'); setTimeout(()=>this.dom.classList.remove('anim-hurt'), 300);
 
-        // Itachi Fire Reflection - Hook when target deals dmg
         if(source && source.has('Fire')) {
             let fb = source.buffs.find(b=>b.name==='Fire');
             if(fb) {
@@ -334,36 +334,33 @@ class Hero {
             }
         }
 
-        // TimeKaishin Protection Heal
-        if(this.has('Protection(TK)')) {
-            let p = this.buffs.find(x=>x.name==='Protection(TK)');
+        if(this.has('Protection')) {
+            let p = this.buffs.find(x=>x.name==='Protection');
             this.heal(p.data.val);
         }
 
-        // TK God 1 EN gain when taking hit
         if(this.id==='timekaishin') this.gainEn(this.hp > this.maxHp*0.8 ? 0.4 : 0.9);
 
-        // ZhuangFa / Madara reactive logic
         if(source && this.id==='zhuang_fa' && !this.dead) {
-            source.addBuff(new Buff('Nọc độc', 'debuff', 99, {val: 0.009}));
+            source.addBuff(new Buff('Nọc Độc', 'debuff', 99, {val: 0.009}));
             if(Math.random()<0.6) {
-                this.addBuff(new Buff('Trả thù', 'buff', 1)); this.gainEn(1);
+                this.addBuff(new Buff('Trả Thù', 'buff', 1)); this.gainEn(1);
                 source.takeDirect(dmg * 0.5, this);
             }
         }
         if(source && this.id==='madara' && !this.dead) {
-            this.gainEn(0.5); source.addBuff(new Buff('Nọc độc', 'debuff', 99, {val: 0.009}));
+            this.gainEn(0.5); source.addBuff(new Buff('Nọc Độc', 'debuff', 99, {val: 0.009}));
         }
 
         if(this.hp <= 0) {
             if(this.id === 'itachi' && this.mem.immortal) {
                 this.hp = 1; this.mem.immortal = false;
-                this.addBuff(new Buff('Bất tử', 'buff', 3)); this.gainEn(4);
+                this.addBuff(new Buff('Bất Tử', 'buff', 3)); this.gainEn(4);
                 Battle.log(`${this.name} Kích hoạt Bất Tử!`, this.team, 'c-sys');
-            } else if (!this.has('Bất tử')) {
+            } else if (!this.has('Bất Tử')) {
                 this.die(source);
             } else {
-                this.hp = 1; // Limit at 1 if immortal
+                this.hp = 1;
             }
         }
         
@@ -389,7 +386,6 @@ class Hero {
     gainShield(amt) {
         if(this.dead) return;
         this.shield += amt * Battle.gbShield;
-        if(this.id==='omega' && !this.mem.omSh) { this.maxHp *= 1.05; this.heal(this.maxHp*0.05); this.mem.omSh = true; }
         this.updateUI();
     }
 
@@ -402,9 +398,9 @@ class Hero {
     die(killer) {
         this.dead = true; this.hp = 0; this.dom.classList.add('dead');
         Battle.log(`${this.name} tử trận!`, this.team, 'c-sys');
-        if(killer && (killer.id==='broly_sp' || killer.has('Dũng cảm'))) this.cantRevive = true;
+        if(killer && (killer.id==='broly_sp' || killer.has('Dũng Cảm'))) this.cantRevive = true;
         if(killer && killer.id==='jiren' && this.has('Severe wound')) this.cantRevive = true;
-        Battle.getAll().filter(h=>h.id==='broly_sp').forEach(b => { b.heal(b.maxHp*0.12); b.addBuff(new Buff('Dũng cảm', 'buff', 99)); });
+        Battle.getAll().filter(h=>h.id==='broly_sp').forEach(b => { b.heal(b.maxHp*0.12); b.addBuff(new Buff('Dũng Cảm', 'buff', 99)); });
         this.updateUI();
     }
 
@@ -419,8 +415,8 @@ class Hero {
         }
         let b2 = this.buffs.find(b=>b.name==='Bleeding2');
         if(b2) this.takeDirect(b2.data.dmg, null);
-        let poison = this.buffs.find(b=>b.name==='Nọc độc');
-        if(poison) this.takeDirect(this.maxHp * poison.data.val * this.buffs.filter(b=>b.name==='Nọc độc').length, null);
+        let poison = this.buffs.find(b=>b.name==='Nọc Độc');
+        if(poison) this.takeDirect(this.maxHp * poison.data.val * this.buffs.filter(b=>b.name==='Nọc Độc').length, null);
         let severe = this.buffs.find(b=>b.name==='Severe wound' && b.dur <= 0);
         if(severe) { this.mem.sevL=true; this.takeDirect((this.mem.sevWound||0) * 0.4, null); this.mem.sevWound = 0; this.mem.sevL=false; }
 
@@ -475,11 +471,11 @@ const Battle = {
             {n:"Liên Hoàn", act:()=>{this.gbHeal=1.4;}}, {n:"Trâu Bò", act:()=>{this.getAll().forEach(h=>{h.maxHp*=1.3;h.hp=h.maxHp;});}}
         ];
         let ev = evs[Math.floor(Math.random()*evs.length)];
-        this.log(`SỰ KIỆN RANDOM 5s: [${ev.n}]`, 0, 'c-sys'); ev.act();
+        this.log(`SỰ KIỆN 5 GIÂY: [${ev.n}]`, 0, 'c-sys'); ev.act();
 
         this.getAll().forEach(h => {
             if(h.id==='broly_sp') h.dmgBonus += 0.65;
-            if(h.id==='omega') { h.gainShield(h.maxHp*0.5); } // Shield = 50% max HP, doesn't consume HP
+            if(h.id==='omega') { h.gainShield(h.maxHp*0.5); }
             if(h.id==='vegeta_xeno') { h.addBuff(new Buff('Bảo vệ','buff',2)); h.mem.vxSh=2; }
         });
 
@@ -539,18 +535,17 @@ const Battle = {
         hero.onTurnStart();
         if(hero.dead) return this.nextTurn();
         
-        // Stun logic Check (Skip turn)
+        // Kiểm tra Choáng và Terror bỏ lượt chuẩn xác 100%
         let isStun = hero.has('Choáng');
         let terror = hero.buffs.find(b=>b.name==='Terror');
         if(terror && Math.random()<0.5) isStun = true;
         
         if(isStun) {
-            this.log(`${hero.name} mất lượt do bị Khống Chế!`, hero.team, 'c-sys');
-            setTimeout(()=>this.nextTurn(), 800); return;
+            this.log(`${hero.name} bị Choáng/Terror, mất lượt hành động!`, hero.team, 'c-sys');
+            setTimeout(()=>this.nextTurn(), 900); return;
         }
         
-        let btnSk = document.getElementById('btn-skill');
-        btnSk.disabled = hero.en < hero.maxEn;
+        document.getElementById('btn-skill').disabled = hero.en < hero.maxEn;
         document.getElementById('desc-atk').innerText = "Hồi: " + (hero.id==='timekaishin'?1.4:(hero.id==='zamasu'?1.4:(hero.id==='jiren'?1.8:1.0))) + " EN";
         document.getElementById('desc-skill').innerText = `Cần ${hero.maxEn} EN`;
     },
@@ -580,7 +575,7 @@ const Battle = {
         if(h.id==='goku_xeno') { p=1.0; enGain=0.9; }
         if(h.id==='cooler') { p=0.99; enGain=1.2; }
         if(h.id==='broly_sp') { enGain=1.0; if(!h.has('FirstHit')){h.addBuff(new Buff('FirstHit','mark',99)); h.gainShield(h.maxHp*0.1);} }
-        if(h.id==='zamasu') { mode='all'; p=0.92; enGain=1.4; } // Zamasu buffed
+        if(h.id==='zamasu') { mode='all'; p=0.92; enGain=1.4; }
         if(h.id==='vegeta_ssg') { p=0.88; enGain=0.8; }
         if(h.id==='vegeta_xeno') { mode='all'; p=0.99; enGain=1.6; if(!h.mem.vxFH) { mode='minHp'; p=1.89; h.mem.vxFH=true; } }
         if(h.id==='madara') { p=0.95; enGain=1.0; }
@@ -601,7 +596,7 @@ const Battle = {
             if(h.id==='vegeta_ssg' && Math.random()<0.2) t.addBuff(new Buff('Choáng','debuff',1));
             if(h.id==='vegeta_xeno' && h.mem.vxFH && mode==='minHp') t.addBuff(new Buff('VX-ArmorBreak','debuff',5));
             if(h.id==='madara') t.addBuff(new Buff('Ma đạo','debuff',2));
-            if(h.id==='zhuang_fa' && Math.random()<0.3) t.addBuff(new Buff('Ánh sáng','debuff',99));
+            if(h.id==='zhuang_fa' && Math.random()<0.3) t.addBuff(new Buff('Ánh Sáng','debuff',99));
             if(h.id==='vegito') t.addBuff(new Buff('Bleeding2','debuff',3,{dmg:atk*0.4}));
             if(h.id==='itachi') t.addBuff(new Buff('Bleeding','debuff',2,{dmg:atk*0.1}));
         });
@@ -639,7 +634,7 @@ const Battle = {
             h.gainShield(atk*1.85); h.dodge += 0.2; this.getTeam(h.team).forEach(a=>a.dodge+=0.09);
         }
         else if(h.id==='vegeta_xeno') {
-            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); t.addBuff(new Buff('Dũng cảm','debuff',99)); });
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); t.addBuff(new Buff('Dũng Cảm','debuff',99)); });
             h.mem.vxPower = Math.min(10, h.mem.vxPower + 1);
         }
         else if(h.id==='madara') {
@@ -656,7 +651,7 @@ const Battle = {
             if(Math.random() < (h.mem.omFS?1.0:0.6)) { t.addBuff(new Buff('Terror','debuff',2)); h.dmgRed += 0.3; } h.mem.omFS = false;
         }
         else if(h.id==='pain') {
-            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); if(Math.random()<0.33) t.addBuff(new Buff('Terror','debuff',2)); if(Math.random()<0.33) t.addBuff(new Buff('Thiên đạo','debuff',3)); });
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); if(Math.random()<0.33) t.addBuff(new Buff('Terror','debuff',2)); if(Math.random()<0.33) t.addBuff(new Buff('Thiên Đạo','debuff',3)); });
             h.addBuff(new Buff('ControlApply','mark',2));
         }
         else if(h.id==='vegito') {
@@ -665,13 +660,13 @@ const Battle = {
         else if(h.id==='timekaishin') {
             let tot = 0; this.getTar(h,'all').forEach(t=>{ tot += t.receiveDamage(atk*0.71, h, true); });
             this.getTeam(h.team).forEach(a=>{
-                a.heal(tot*0.5); a.gainShield(h.maxHp*0.08); a.addBuff(new Buff('CritUp','buff',2)); a.addBuff(new Buff('DefUp','buff',4));
-                if(a.id !== h.id) a.addBuff(new Buff('Protection(TK)','buff',99,{val: h.maxHp*0.08}));
+                a.heal(tot*0.5); a.gainShield(h.maxHp*0.08); a.addBuff(new Buff('Tỉ lệ Bạo Kích','buff',2)); a.addBuff(new Buff('DEF Tăng','buff',4));
+                if(a.id !== h.id) a.addBuff(new Buff('Protection','buff',99,{val: h.maxHp*0.08}));
             });
         }
         else if(h.id==='itachi') {
             let tot = 0; this.getTar(h,'all').forEach(t=>{ tot += t.receiveDamage(atk*1.8, h, true); t.addBuff(new Buff('Fire','debuff',4,{atk: h.atk})); });
-            h.addBuff(new Buff('Gian xảo','buff',99)); h.heal(tot*0.2);
+            h.addBuff(new Buff('Gian Xảo','buff',99)); h.heal(tot*0.2);
         }
         setTimeout(()=>this.nextTurn(), 1200);
     }
@@ -684,10 +679,10 @@ const App = {
     renderInfo() {
         const g = document.getElementById('info-grid'); g.innerHTML = '';
         DB.forEach(h => {
-            g.innerHTML += `<div class="info-item">
+            g.innerHTML += `<div class="info-card">
                 <h3>[${h.role}] ${h.name}</h3>
-                <p><strong>HP:</strong> ${h.hp.toLocaleString()} | <strong>ATK:</strong> ${h.atk.toLocaleString()} | <strong>EN:</strong> ${h.en}</p>
-                <p><strong>Hiệu ứng kỹ năng:</strong> ${h.desc}</p>
+                <p><strong>Chỉ số cơ bản:</strong> HP: ${h.hp.toLocaleString()} | ATK: ${h.atk.toLocaleString()} | SPD: ${h.spd}</p>
+                <p><strong>Bộ kỹ năng & Tác dụng:</strong> ${h.desc}</p>
             </div>`;
         });
     },
@@ -711,8 +706,8 @@ const App = {
             };
             pool.appendChild(c);
         });
-        document.getElementById('bp-t1-list').innerText = this.p1.map(id=>DB.find(x=>x.id===id).name).join(', ');
-        document.getElementById('bp-t2-list').innerText = this.p2.map(id=>DB.find(x=>x.id===id).name).join(', ');
+        document.getElementById('bp-t1-list').innerText = this.p1.length ? this.p1.map(id=>DB.find(x=>x.id===id).name).join(', ') : 'Chưa chọn';
+        document.getElementById('bp-t2-list').innerText = this.p2.length ? this.p2.map(id=>DB.find(x=>x.id===id).name).join(', ') : 'Chưa chọn';
     },
     
     startT() {
@@ -722,8 +717,8 @@ const App = {
     
     skipBP() { this.phase++; this.renderBP(); this.startT(); },
     confirmBP() {
-        let sel = document.querySelector('.hero-card.selected-t1, .hero-card.selected-t2');
-        if(!sel && this.phase>2) return alert("Phải chọn 1 tướng!");
+        let sel = document.querySelector('.hero-card.selected-t1, .hero-card.selected-t1.selected-t2') || document.querySelector('.hero-card.selected-t1, .hero-card.selected-t2');
+        if(!sel && this.phase>2) return alert("Vui lòng chọn 1 tướng!");
         let id = sel ? sel.dataset.id : null;
         if(this.phase<=2) { if(id) this.bans.push(id); }
         else { if(this.phase%2!==0) this.p1.push(id); else this.p2.push(id); }
@@ -738,6 +733,9 @@ const App = {
         this.confirmBP();
     }
 };
+
+// Khởi chạy render từ điển ngay khi load script
+App.renderInfo();
 </script>
 </body>
 </html>
