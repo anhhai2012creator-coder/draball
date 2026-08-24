@@ -3,954 +3,709 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siêu Chiến Binh - Turn Base Tactics</title>
+    <title>Siêu Chiến Binh - Kỷ Nguyên Thần Thánh</title>
     <style>
-        :root {
-            --bg-color: #f0f4f8;
-            --primary: #4a90e2;
-            --secondary: #50e3c2;
-            --danger: #ff4b4b;
-            --warning: #f5a623;
-            --dark: #2c3e50;
-            --light: #ffffff;
-            --glass-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: rgba(255, 255, 255, 0.4);
-            --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-        }
-
-        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        
-        body { background: linear-gradient(135deg, #e0c3fc 0%, #8ec5fc 100%); min-height: 100vh; overflow: hidden; color: var(--dark); }
-
-        /* Screens */
-        .screen { display: none; width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; flex-direction: column; align-items: center; justify-content: center; z-index: 10; }
+        :root { --bg: #0f172a; --primary: #3b82f6; --secondary: #10b981; --danger: #ef4444; --warning: #f59e0b; --dark: #1e293b; --text: #f8fafc; --glass: rgba(30, 41, 59, 0.7); --border: rgba(255, 255, 255, 0.1); }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: radial-gradient(circle at center, #1e293b 0%, #0f172a 100%); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; }
+        .screen { display: none; width: 100%; height: 100%; position: absolute; top: 0; left: 0; flex-direction: column; align-items: center; justify-content: center; z-index: 10; backdrop-filter: blur(5px); }
         .screen.active { display: flex; }
-
-        /* Modern UI Components */
-        .glass-panel { background: var(--glass-bg); backdrop-filter: blur(10px); border: 1px solid var(--glass-border); border-radius: 20px; box-shadow: var(--shadow); padding: 20px; }
-        .btn { padding: 12px 24px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s ease; text-transform: uppercase; letter-spacing: 1px; }
-        .btn-primary { background: linear-gradient(45deg, var(--primary), #6ab0ff); color: white; box-shadow: 0 4px 15px rgba(74, 144, 226, 0.4); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(74, 144, 226, 0.6); }
-        .btn-danger { background: linear-gradient(45deg, var(--danger), #ff7676); color: white; }
-        .btn:disabled { filter: grayscale(100%); cursor: not-allowed; opacity: 0.6; }
-
-        /* Main Menu */
-        #menu-screen h1 { font-size: 4rem; margin-bottom: 2rem; color: #fff; text-shadow: 2px 2px 10px rgba(0,0,0,0.2); text-align: center;}
+        .glass-panel { background: var(--glass); border: 1px solid var(--border); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 25px; }
+        .btn { padding: 12px 28px; border: none; border-radius: 8px; font-size: 16px; font-weight: 700; cursor: pointer; transition: 0.3s; text-transform: uppercase; letter-spacing: 1px; color: white; }
+        .btn-primary { background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); }
+        .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
+        .btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); filter: brightness(1.2); }
+        .btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; box-shadow: none; }
         
-        /* Ban/Pick Phase */
-        .phase-header { font-size: 2rem; margin-bottom: 10px; text-align: center; font-weight: bold; }
-        .timer { font-size: 3rem; color: var(--danger); font-weight: 900; margin-bottom: 20px; text-shadow: 1px 1px 5px rgba(255,75,75,0.3); }
-        .hero-pool { display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; max-width: 800px; margin-bottom: 20px; }
-        .hero-card { width: 120px; height: 160px; background: white; border-radius: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; border: 3px solid transparent; position: relative; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .hero-card:hover { transform: scale(1.05); }
-        .hero-card.selected-t1 { border-color: var(--primary); }
-        .hero-card.selected-t2 { border-color: var(--danger); }
-        .hero-card.banned { filter: grayscale(100%); opacity: 0.5; pointer-events: none; }
-        .hero-card.banned::after { content: 'BANNED'; position: absolute; color: red; font-weight: bold; transform: rotate(-45deg); font-size: 1.2rem; }
-        .hero-avatar { font-size: 3rem; margin-bottom: 10px; }
-        .hero-name { font-size: 0.9rem; font-weight: bold; text-align: center; padding: 0 5px; }
-        .hero-role { font-size: 0.7rem; color: #666; background: #eee; padding: 2px 5px; border-radius: 5px; margin-top: 5px; }
-
+        #menu-screen h1 { font-size: 4.5rem; text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; text-shadow: 0px 5px 15px rgba(96,165,250,0.3); margin-bottom: 2rem; }
+        
+        /* Ban Pick Screen */
+        .phase-header { font-size: 2.2rem; font-weight: 800; margin-bottom: 15px; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+        .timer { font-size: 3.5rem; color: var(--danger); font-weight: 900; margin-bottom: 20px; text-shadow: 0 0 20px rgba(239,68,68,0.6); }
+        .hero-pool { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; max-width: 900px; margin-bottom: 25px; }
+        .hero-card { background: linear-gradient(180deg, #334155, #1e293b); border: 2px solid #475569; border-radius: 12px; padding: 15px; display: flex; flex-direction: column; align-items: center; cursor: pointer; transition: 0.2s; position: relative; }
+        .hero-card:hover:not(.banned) { border-color: #94a3b8; transform: translateY(-5px); }
+        .hero-card.selected-t1 { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
+        .hero-card.selected-t2 { border-color: var(--danger); box-shadow: 0 0 15px var(--danger); }
+        .hero-card.banned { filter: grayscale(100%) brightness(0.4); pointer-events: none; }
+        .hero-card.banned::after { content: 'LOCKED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-30deg); color: #ef4444; font-weight: 900; font-size: 1.2rem; letter-spacing: 2px; border: 2px solid #ef4444; padding: 2px 5px; background: rgba(0,0,0,0.7); }
+        .hero-abbr { width: 50px; height: 50px; border-radius: 50%; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: 900; color: #e2e8f0; border: 2px solid #64748b; margin-bottom: 10px; }
+        .hero-name { font-size: 0.85rem; font-weight: 700; text-align: center; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        
         /* Battle Screen */
-        #battle-screen { justify-content: space-between; padding: 20px; }
-        .battle-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 10px 30px; }
-        .team-title { font-size: 1.5rem; font-weight: bold; padding: 5px 15px; border-radius: 10px; color: white; }
-        .tt-1 { background: var(--primary); }
-        .tt-2 { background: var(--danger); }
+        .battle-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; border-radius: 0 0 20px 20px; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .team-title { font-size: 1.5rem; font-weight: 900; padding: 8px 25px; border-radius: 8px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
+        .tt-1 { background: linear-gradient(90deg, #1d4ed8, #3b82f6); box-shadow: 0 0 15px rgba(59,130,246,0.5); }
+        .tt-2 { background: linear-gradient(-90deg, #b91c1c, #ef4444); box-shadow: 0 0 15px rgba(239,68,68,0.5); }
         
-        .arena { display: flex; width: 100%; flex: 1; gap: 20px; position: relative; perspective: 1000px; }
-        .team-side { flex: 1; display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 15px; padding: 20px; align-items: center; justify-items: center; }
+        .arena { display: flex; width: 100%; flex: 1; position: relative; padding: 20px 50px; justify-content: space-between; }
+        .team-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; align-content: center; width: 40%; }
         .team2-side { direction: rtl; }
-
-        /* In-battle Hero Entity */
-        .entity { width: 140px; height: 180px; background: white; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; align-items: center; padding: 10px; position: relative; transition: 0.3s; }
-        .entity.active-turn { box-shadow: 0 0 20px 5px var(--warning); transform: translateY(-10px); }
-        .entity.dead { filter: grayscale(100%); opacity: 0.3; }
-        .e-avatar { font-size: 3.5rem; margin-bottom: 5px; }
-        .e-name { font-size: 0.8rem; font-weight: bold; width: 100%; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; direction: ltr; }
         
-        /* Bars */
-        .bar-container { width: 100%; height: 8px; background: #ddd; border-radius: 4px; margin-top: 5px; overflow: hidden; }
-        .hp-bar { height: 100%; background: #2ecc71; transition: width 0.3s; }
-        .en-bar { height: 100%; background: #9b59b6; transition: width 0.3s; }
-        .hp-text { font-size: 0.65rem; text-align: center; width: 100%; margin-top: 2px; direction: ltr;}
+        .entity { background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; width: 160px; padding: 12px; position: relative; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 25px rgba(0,0,0,0.4); display: flex; flex-direction: column; align-items: center; }
+        .entity.active-turn { border-color: var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.6); transform: scale(1.05) translateY(-10px); z-index: 5; }
+        .entity.dead { filter: grayscale(100%) opacity(0.4); pointer-events: none; }
         
-        .status-icons { display: flex; gap: 2px; margin-top: 5px; flex-wrap: wrap; justify-content: center; height: 20px; width: 100%; }
-        .status-icon { width: 16px; height: 16px; border-radius: 50%; font-size: 10px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; }
-        .buff-icon { background: var(--primary); }
-        .debuff-icon { background: var(--danger); }
-
-        /* Controls */
-        .controls { width: 100%; height: 150px; display: flex; gap: 20px; align-items: center; justify-content: center; }
-        .skill-btn { width: 250px; height: 80px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 15px; border: none; cursor: pointer; background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.1); transition: 0.2s; }
-        .skill-btn:hover:not(:disabled) { background: #f8f9fa; transform: scale(1.05); }
-        .skill-title { font-weight: bold; font-size: 1.1rem; color: var(--dark); }
-        .skill-desc { font-size: 0.8rem; color: #666; margin-top: 5px; text-align: center; padding: 0 10px;}
-
-        /* Combat Log */
-        .combat-log { position: absolute; bottom: 160px; left: 50%; transform: translateX(-50%); width: 600px; height: 120px; background: rgba(0,0,0,0.7); border-radius: 10px; color: white; padding: 10px; overflow-y: auto; font-size: 0.85rem; z-index: 5; border: 1px solid rgba(255,255,255,0.2); }
-        .log-entry { margin-bottom: 4px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 2px; }
-        .log-t1 { color: #6ab0ff; font-weight: bold; }
-        .log-t2 { color: #ff7676; font-weight: bold; }
-        .log-dmg { color: #f5a623; }
-        .log-heal { color: #50e3c2; }
-
-        /* Floating Text & Animations */
-        .floating-text { position: absolute; font-weight: bold; font-size: 1.5rem; text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000; pointer-events: none; animation: floatUp 1s forwards ease-out; z-index: 20; }
-        @keyframes floatUp { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-50px) scale(1.2); } }
+        .e-abbr { width: 60px; height: 60px; border-radius: 50%; background: #0f172a; color: #fff; font-size: 1.8rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 3px solid #64748b; margin-bottom: 8px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        .tt-1 .e-abbr, #team1-side .e-abbr { border-color: var(--primary); }
+        .tt-2 .e-abbr, #team2-side .e-abbr { border-color: var(--danger); }
         
-        .popup-event { position: fixed; top: 30%; left: 50%; transform: translate(-50%, -50%); background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 100; text-align: center; color: white; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: translate(-50%, -50%) scale(0); } 100% { transform: translate(-50%, -50%) scale(1); } }
+        .e-name { font-size: 0.85rem; font-weight: 700; margin-bottom: 8px; color: #e2e8f0; direction: ltr; }
+        .bar-wrap { width: 100%; background: #0f172a; height: 10px; border-radius: 5px; margin-bottom: 4px; overflow: hidden; border: 1px solid #334155; position: relative; }
+        .hp-bar { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); transition: width 0.3s; }
+        .shield-bar { height: 100%; background: rgba(255,255,255,0.7); position: absolute; top: 0; right: 0; transition: width 0.3s; }
+        .en-bar { height: 100%; background: linear-gradient(90deg, #9333ea, #a855f7); transition: width 0.3s; }
+        .stats-text { font-size: 0.65rem; color: #94a3b8; font-weight: 600; direction: ltr; margin-bottom: 5px; }
         
-        .attack-anim { animation: atkMove 0.3s alternate 2; }
-        @keyframes atkMove { 100% { transform: scale(1.1) translateY(-20px); z-index: 10; } }
-        .hurt-anim { animation: shake 0.3s; }
-        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
+        .buff-zone { display: flex; gap: 2px; flex-wrap: wrap; justify-content: center; min-height: 18px; }
+        .b-icon { width: 16px; height: 16px; border-radius: 4px; font-size: 9px; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; text-shadow: 0 1px 1px #000; }
+        .bg-buff { background: var(--primary); } .bg-debuff { background: var(--danger); } .bg-mark { background: var(--warning); }
+        
+        .controls { width: 100%; background: rgba(15,23,42,0.95); padding: 20px; display: flex; justify-content: center; gap: 20px; border-top: 1px solid var(--border); }
+        .skill-btn { flex: 1; max-width: 300px; background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; padding: 15px; color: white; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .skill-btn:hover:not(:disabled) { background: #334155; border-color: var(--primary); transform: translateY(-3px); }
+        .skill-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+        .sk-name { font-size: 1.1rem; font-weight: 800; color: #60a5fa; margin-bottom: 5px; }
+        .sk-desc { font-size: 0.75rem; color: #cbd5e1; text-align: center; }
+        
+        .combat-log { position: absolute; bottom: 120px; left: 50%; transform: translateX(-50%); width: 600px; height: 140px; background: rgba(0,0,0,0.8); border: 1px solid #334155; border-radius: 12px; padding: 10px 15px; overflow-y: auto; font-size: 0.8rem; font-family: monospace; z-index: 20; color: #e2e8f0; }
+        .log-row { margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .c-t1 { color: #60a5fa; font-weight: bold; } .c-t2 { color: #f87171; font-weight: bold; }
+        .c-dmg { color: #f59e0b; } .c-heal { color: #34d399; } .c-sys { color: #a78bfa; font-style: italic; }
+        
+        .dmg-text { position: absolute; font-weight: 900; font-size: 1.8rem; text-shadow: 0 0 5px #000, 0 0 10px #000; animation: floatTxt 1s forwards ease-out; z-index: 100; pointer-events: none; }
+        @keyframes floatTxt { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.3); } }
+        .anim-atk { animation: atkJump 0.4s ease; }
+        @keyframes atkJump { 0%, 100% { transform: scale(1.05) translateY(-10px); } 50% { transform: scale(1.15) translateY(-30px); z-index: 50; } }
+        .anim-hurt { animation: shakeHurt 0.3s; }
+        @keyframes shakeHurt { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-8px) rotate(-3deg); filter: brightness(2) red;} 75% {transform: translateX(8px) rotate(3deg);} }
     </style>
 </head>
 <body>
 
-    <!-- MAIN MENU -->
     <div id="menu-screen" class="screen active">
-        <h1>SIÊU CHIẾN BINH</h1>
+        <h1>Siêu Chiến Binh</h1>
         <div class="glass-panel" style="text-align: center;">
-            <p style="margin-bottom: 20px; font-size: 1.2rem;">Chế độ chiến thuật - Turn Base (2 Người chơi)</p>
-            <button class="btn btn-primary" onclick="GameApp.startBanPhase()">Vào Trận Chiến</button>
+            <p style="margin-bottom: 25px; font-size: 1.2rem; color: #cbd5e1;">Turn-Base Chiến Thuật - Kỷ Nguyên Thần Thánh</p>
+            <button class="btn btn-primary" onclick="App.enterBP()">BẮT ĐẦU TRẬN CHIẾN</button>
         </div>
     </div>
 
-    <!-- BAN/PICK SCREEN -->
     <div id="bp-screen" class="screen">
-        <div class="glass-panel" style="width: 90%; max-width: 1000px; display: flex; flex-direction: column; align-items: center;">
-            <div class="phase-header" id="bp-title">CẤM TƯỚNG - ĐỘI 1</div>
-            <div class="timer" id="bp-timer">25</div>
+        <div class="glass-panel" style="display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1000px;">
+            <div class="phase-header" id="bp-title">...</div>
+            <div class="timer" id="bp-timer">30</div>
             <div class="hero-pool" id="bp-pool"></div>
             <div style="display: flex; gap: 20px;">
-                <button class="btn btn-danger" id="bp-action-btn" onclick="GameApp.confirmBPAction()">Xác Nhận Cấm</button>
-                <button class="btn" id="bp-skip-btn" onclick="GameApp.skipBPPhase()">Bỏ Qua (Cả 2 đồng ý)</button>
+                <button class="btn btn-danger" id="bp-btn" onclick="App.confirmBP()">Xác Nhận</button>
+                <button class="btn" id="bp-skip" style="background:#475569;" onclick="App.skipBP()">Bỏ Qua (Đồng thuận)</button>
             </div>
-            <div style="margin-top: 20px; width: 100%; display: flex; justify-content: space-between;">
-                <div><strong>Đội 1:</strong> <span id="t1-picks"></span></div>
-                <div><strong>Đội 2:</strong> <span id="t2-picks"></span></div>
+            <div style="margin-top: 30px; width: 100%; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px;">
+                <div style="color: #60a5fa;"><strong>Đội 1 (Blue):</strong> <span id="bp-t1-list"></span></div>
+                <div style="color: #f87171;"><strong>Đội 2 (Red):</strong> <span id="bp-t2-list"></span></div>
             </div>
         </div>
     </div>
 
-    <!-- BATTLE SCREEN -->
     <div id="battle-screen" class="screen">
-        <div class="battle-header glass-panel">
+        <div class="battle-header">
             <div class="team-title tt-1">ĐỘI 1</div>
-            <div style="font-weight: bold; font-size: 1.2rem;" id="turn-indicator">Đang chuẩn bị...</div>
+            <div id="turn-banner" style="font-size: 1.5rem; font-weight: 900; color: #f59e0b; text-transform: uppercase; letter-spacing: 2px;">Chuẩn bị...</div>
             <div class="team-title tt-2">ĐỘI 2</div>
         </div>
-        
-        <div class="arena" id="arena">
+        <div class="arena">
             <div class="team-side" id="team1-side"></div>
             <div class="team-side team2-side" id="team2-side"></div>
         </div>
-
         <div class="combat-log" id="combat-log"></div>
-
-        <div class="controls glass-panel">
-            <button class="skill-btn" id="btn-normal" onclick="BattleEngine.castNormal()">
-                <div class="skill-title">Đánh Thường</div>
-                <div class="skill-desc" id="desc-normal">Gây ST lên mục tiêu</div>
+        <div class="controls">
+            <button class="skill-btn" id="btn-atk" onclick="Battle.useNormal()">
+                <div class="sk-name">Đánh Thường</div><div class="sk-desc" id="desc-atk">Hồi Năng Lượng</div>
             </button>
-            <button class="skill-btn" id="btn-active" onclick="BattleEngine.castActive()">
-                <div class="skill-title">Kỹ Năng Chủ Động</div>
-                <div class="skill-desc" id="desc-active">Cần EN để kích hoạt</div>
+            <button class="skill-btn" id="btn-skill" onclick="Battle.useSkill()">
+                <div class="sk-name">Tuyệt Kỹ Cố Hữu</div><div class="sk-desc" id="desc-skill">Cần Max EN</div>
             </button>
         </div>
     </div>
 
-    <script>
-        // ==========================================
-        // DATABASE & DEFINITIONS
-        // ==========================================
-        const HERO_DB = [
-            { id: 'jiren', name: 'Jiren', avatar: '👽', role: 'ATK', 
-              baseHp: 235549000, baseAtk: 18750000, baseDef: 3000, spd: 150, maxEn: 4.6,
-              desc: 'Tấn công hàng sau, bạo kích mạnh mẽ, cuồng bạo khi thấp máu.' },
-            { id: 'goku', name: 'Goku (Xeno)', avatar: '🐒', role: 'DEF', 
-              baseHp: 290000000, baseAtk: 13500000, baseDef: 6550, spd: 145, maxEn: 3,
-              desc: 'Bảo vệ đồng đội, né tránh cao, hồi phục siêu mạnh khi nguy hiểm.' },
-            { id: 'cooler', name: 'Cooler (Gold)', avatar: '🤖', role: 'DEF', 
-              baseHp: 285000000, baseAtk: 13830000, baseDef: 5780, spd: 145, maxEn: 4,
-              desc: 'Choáng mục tiêu, xóa buff kẻ địch, miễn nhiễm giảm hồi máu.' },
-            { id: 'broly', name: 'Broly (SP)', avatar: '🟢', role: 'ATK', 
-              baseHp: 224500000, baseAtk: 20000000, baseDef: 4300, spd: 150, maxEn: 3,
-              desc: 'Sát thương tăng tiến, cấm hồi sinh, lá chắn nội tại.' },
-            { id: 'zamasu', name: 'Zamasu (Collapse)', avatar: '🗡️', role: 'SKL', 
-              baseHp: 276688000, baseAtk: 14348000, baseDef: 4200, spd: 155, maxEn: 4.4,
-              desc: 'Sát thương diện rộng, chảy máu, khống chế diện rộng, giảm sức mạnh.' }
+<script>
+/** 
+ * SIÊU CHIẾN BINH ENGINE 
+ * Deep Turn-base Architecture v3.0 (God Era)
+ */
+
+const DB = [
+    { id: 'jiren', abbr: 'JR', name: 'Jiren', role: 'ATK', hp: 235549000, atk: 18750000, def: 3000, spd: 150, en: 4.6 },
+    { id: 'goku_xeno', abbr: 'GX', name: 'Goku (Xeno)', role: 'DEF', hp: 290000000, atk: 13500000, def: 6550, spd: 145, en: 3 },
+    { id: 'cooler', abbr: 'CG', name: 'Cooler (Gold)', role: 'DEF', hp: 285000000, atk: 13830000, def: 5780, spd: 145, en: 4 },
+    { id: 'broly_sp', abbr: 'BS', name: 'Broly (SP)', role: 'ATK', hp: 224500000, atk: 20000000, def: 4300, spd: 150, en: 3 },
+    { id: 'zamasu', abbr: 'ZC', name: 'Zamasu (Collapse)', role: 'SKL', hp: 276688000, atk: 14348000, def: 4200, spd: 155, en: 4.4 },
+    // NEW HEROES
+    { id: 'vegeta_ssg', abbr: 'VS', name: 'Vegeta (SSG)', role: 'ATK', hp: 219000000, atk: 18654000, def: 3500, spd: 150, en: 2 },
+    { id: 'vegeta_xeno', abbr: 'VX', name: 'Vegeta (Xeno)', role: 'ATK', hp: 245989000, atk: 19450000, def: 4100, spd: 150, en: 4 },
+    { id: 'madara', abbr: 'MD', name: 'Madara (Lục đạo)', role: 'ATK', hp: 235888000, atk: 17900000, def: 4200, spd: 150, en: 3 },
+    { id: 'zhuang_fa', abbr: 'ZF', name: 'Zhuang Fa', role: 'SKL', hp: 300000000, atk: 19450000, def: 6400, spd: 156, en: 8 },
+    { id: 'omega', abbr: 'OS', name: 'Omega Shenron', role: 'DEF', hp: 300000000, atk: 12880000, def: 5000, spd: 145, en: 5 },
+    { id: 'pain', abbr: 'PT', name: 'Pain Thiên Đạo', role: 'SKL', hp: 275600000, atk: 16890000, def: 4100, spd: 150, en: 4 },
+    { id: 'vegito', abbr: 'VG', name: 'Vegito', role: 'SKL', hp: 278590000, atk: 15890000, def: 5800, spd: 150, en: 3 }
+];
+
+class Buff {
+    constructor(name, type, dur, data={}) { this.name=name; this.type=type; this.dur=dur; this.data=data; }
+}
+
+class Hero {
+    constructor(d, team, idx) {
+        this.id = d.id; this.abbr = d.abbr; this.name = d.name; this.team = team; this.idx = idx; this.uid = `${team}-${idx}-${this.id}`;
+        this.baseHp = d.hp; this.baseAtk = d.atk; this.baseDef = d.def; this.baseSpd = d.spd;
+        this.maxHp = d.hp; this.hp = d.hp; this.atk = d.atk; this.def = d.def; this.spd = d.spd;
+        this.en = 0; this.maxEn = d.en;
+        
+        // Advanced
+        this.critR = 0; this.critD = 1.5; this.armorP = 0; this.dmgRed = 0; this.dodge = 0; 
+        this.healBonus = 0; this.dmgBonus = 0;
+        this.shield = 0; this.buffs = []; this.dead = false; this.cantRevive = false;
+
+        // Memories for complex passives
+        this.mem = { sevWound:0, brolyStk:0, madaraStk:0, vxPower:0, vxFirstHit:false, vxShieldTurn:0, zfTaunt:0.8, omegaFirstSk:true, painDodge:0 };
+
+        this.applyGodSkills();
+    }
+
+    applyGodSkills() {
+        if(this.id==='jiren'){ this.maxHp*=1.15; this.atk*=1.08; this.dmgRed+=0.05; this.armorP+=0.45; this.critR+=0.23; }
+        if(this.id==='goku_xeno'){ this.dodge+=0.09; this.armorP+=0.06; }
+        if(this.id==='cooler'){ this.atk*=1.25; this.dodge+=0.05; }
+        if(this.id==='broly_sp'){ this.maxHp*=1.25; this.armorP+=0.30; this.critR+=1.28; }
+        if(this.id==='zamasu'){ this.atk*=1.10; this.maxHp*=1.08; this.dodge+=0.07; }
+        if(this.id==='vegeta_ssg'){ this.atk*=1.25; this.armorP+=0.10; this.spd*=1.10; }
+        if(this.id==='vegeta_xeno'){ this.maxHp*=1.25; this.armorP+=0.08; this.critD+=0.15; this.def*=1.10; }
+        if(this.id==='madara'){ this.def*=1.20; this.critR+=0.08; this.dmgRed+=0.07; }
+        if(this.id==='zhuang_fa'){ this.atk*=1.30; this.maxHp*=1.20; this.dmgRed+=0.08; }
+        if(this.id==='omega'){ this.dmgRed+=0.06; this.armorP+=0.15; }
+        if(this.id==='pain'){ this.maxHp*=1.10; this.def*=1.10; } // Pain god1 done in skill logic
+        if(this.id==='vegito'){ this.atk*=1.25; this.maxHp*=1.14; this.dmgBonus+=0.30; }
+        this.hp = this.maxHp;
+    }
+
+    updateUI() {
+        if(!this.dom) return;
+        this.dom.querySelector('.hp-bar').style.width = `${Math.max(0, this.hp/this.maxHp*100)}%`;
+        this.dom.querySelector('.shield-bar').style.width = `${Math.min(100, this.shield/this.maxHp*100)}%`;
+        this.dom.querySelector('.en-bar').style.width = `${Math.min(100, this.en/this.maxEn*100)}%`;
+        this.dom.querySelector('.stats-text').innerHTML = `HP: ${Math.floor(this.hp).toLocaleString()}<br>EN: ${this.en.toFixed(1)}/${this.maxEn.toFixed(1)}`;
+        
+        let bfHtml = this.shield > 0 ? `<div class="b-icon bg-mark" title="Shield">S</div>` : '';
+        this.buffs.forEach(b => bfHtml += `<div class="b-icon ${b.type==='buff'?'bg-buff':(b.type==='debuff'?'bg-debuff':'bg-mark')}" title="${b.name}">${b.name[0]}</div>`);
+        this.dom.querySelector('.buff-zone').innerHTML = bfHtml;
+    }
+
+    has(name) { return this.buffs.some(b=>b.name===name); }
+    addBuff(b) {
+        if(this.dead) return;
+        if(this.id==='broly_sp' && this.hp > this.maxHp*0.8 && b.type==='debuff') return Battle.log(`${this.name} miễn nhiễm debuff!`, this.team, 'c-sys');
+        this.buffs.push(b); this.updateUI();
+    }
+
+    receiveDamage(raw, source, isSkill=false, dodgeable=true) {
+        if(this.dead) return 0;
+        
+        // Pain Dodge hook
+        let dRate = this.dodge + (this.id==='pain' ? this.mem.painDodge : 0);
+        if(dodgeable && Math.random() < dRate) {
+            Battle.float(this.dom, "NÉ TRÁNH", "#ffffff");
+            if(this.id==='pain' && source) { source.addBuff(new Buff('Giảm ST', 'debuff', 2, {val:0.2})); Battle.log(`Pain né và giảm ST của ${source.name}`, this.team); }
+            return 0;
+        }
+        if(this.id==='pain') this.mem.painDodge = Math.min(0.6, this.mem.painDodge + 0.15); // passive 2
+
+        let sDmgBonus = source ? source.dmgBonus : 0;
+        
+        // Source Passives Hook
+        if(source) {
+            if(source.id==='jiren' && source.hp < source.maxHp*0.3) sDmgBonus += ((source.maxHp-source.hp)/source.maxHp)*2; 
+            if(source.id==='vegeta_ssg' && this.atk < source.atk) sDmgBonus += 0.40;
+            if(source.id==='vegeta_ssg' && isSkill && this.hp/this.maxHp < 0.45) sDmgBonus += 0.22;
+            if(source.id==='vegeta_xeno' && !isSkill) sDmgBonus += (source.mem.vxPower * 0.30);
+            if(source.id==='vegeta_xeno' && isSkill && this.hp/this.maxHp > 0.7) sDmgBonus += 0.40;
+            if(source.id==='pain' && source.has('ControlApply')) sDmgBonus += 0.0; // Pain reduces target dmg, handled below
+        }
+
+        let actualDef = this.def * Math.max(0, 1 - (source ? source.armorP : 0));
+        if(this.has('Terror')) actualDef *= 0.7; // Zamasu passive synergy
+        if(this.has('VX-ArmorBreak')) actualDef = 0; // Vegeta Xeno First Hit
+
+        let dmg = (raw * (1 + sDmgBonus)) - actualDef;
+        if(dmg < 1) dmg = 1;
+
+        let isCrit = false;
+        if(source) {
+            let cr = source.critR;
+            if(source.id==='vegeta_xeno' && source.mem.vxPower >= 10 && !isSkill) cr = 1.0;
+            if(Math.random() < cr) { isCrit = true; dmg *= source.critD; }
+        }
+        
+        // Omega Shenron Crit Immunity on Shield
+        if(this.id==='omega' && this.shield > 0 && isCrit) {
+            isCrit = false; dmg /= (source ? source.critD : 1.5);
+            Battle.log(`${this.name} chặn Bạo Kích bằng Lá Chắn!`, this.team, 'c-sys');
+        }
+
+        // Target Passives Hook (DMG Reduction)
+        let tRed = this.dmgRed;
+        if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) tRed += 0.2;
+        if(this.has('Bảo vệ')) tRed += 0.15;
+        if(Battle.getTeam(this.team).some(h=>h.id==='zamasu')) tRed += 0.05;
+        if(source && source.has('GokuDebuff')) tRed += 0.1;
+        if(source && source.has('Thiên đạo')) tRed += 0.3;
+        if(source && source.has('Pain-Debuff')) tRed += 0.3; // Pain passive 1
+        
+        // Madara debuff directly affects raw, simulated by dmg reduction here for simplicity
+        if(source && source.has('Ma đạo')) dmg *= 0.75; 
+
+        dmg *= Math.max(0, 1 - tRed);
+
+        // Goku Bảo Vệ Share
+        if(this.has('Bảo vệ') && this.id !== 'goku_xeno') {
+            let goku = Battle.getTeam(this.team).find(h=>h.id==='goku_xeno');
+            if(goku && !goku.dead) {
+                let sDmg = dmg * 0.25; dmg -= sDmg;
+                goku.takeDirect(sDmg, source);
+                Battle.log(`Goku nhận hộ ${Math.floor(sDmg)} ST`, this.team, 'c-sys');
+            }
+        }
+
+        this.takeDirect(dmg, source, isCrit);
+        return dmg;
+    }
+
+    takeDirect(dmg, source, isCrit=false) {
+        if(this.dead) return;
+        
+        if(this.has('Severe wound')) this.mem.sevWound += dmg;
+        
+        if(this.shield > 0) {
+            if(this.shield >= dmg) { this.shield -= dmg; dmg = 0; }
+            else { dmg -= this.shield; this.shield = 0; }
+        }
+
+        this.hp -= dmg;
+        Battle.float(this.dom, `-${Math.floor(dmg)}`, isCrit ? '#ef4444' : '#f59e0b');
+        this.dom.classList.add('anim-hurt'); setTimeout(()=>this.dom.classList.remove('anim-hurt'), 300);
+
+        // Post-damage Hooks
+        if(source && source.id==='zhuang_fa' && source.has('Trả thù')) {
+            // Reflect skipped to avoid loop
+        } else if(source && this.id==='zhuang_fa' && !this.dead) {
+            source.addBuff(new Buff('Nọc độc', 'debuff', 99, {val: 0.009})); // 0.9% max hp
+            if(Math.random()<0.6) {
+                this.addBuff(new Buff('Trả thù', 'buff', 1, {})); this.gainEn(1);
+                source.takeDirect(dmg * 0.5, this);
+                Battle.log(`${this.name} phản lại ${Math.floor(dmg*0.5)} ST!`, this.team, 'c-sys');
+            }
+        }
+
+        if(source && this.id==='madara' && !this.dead) {
+            this.gainEn(0.5);
+            source.addBuff(new Buff('Nọc độc', 'debuff', 99, {val: 0.009}));
+        }
+
+        if(source && this.id==='omega' && this.shield > 0 && Math.random()<0.4) {
+            source.addBuff(new Buff('Terror', 'debuff', 2, {}));
+        }
+
+        if(this.hp <= 0) this.die(source);
+        else {
+            if(this.id==='goku_xeno' && this.hp < this.maxHp*0.5 && !this.mem.gkHealed) {
+                this.mem.gkHealed = true; this.heal(this.maxHp*0.5);
+            }
+            if(this.id==='vegito' && this.hp < this.maxHp*0.5 && !this.mem.vgShield) {
+                this.mem.vgShield = true; this.gainShield(this.atk*2.75); this.mem.vgEn = true;
+            }
+        }
+        this.updateUI();
+    }
+
+    heal(amt) {
+        if(this.dead) return;
+        if(this.has('Anti-heal') && this.id !== 'cooler' && this.id !== 'zhuang_fa') return;
+        
+        let hBonus = this.healBonus;
+        if(this.id==='zhuang_fa' && this.hp < this.maxHp*0.4) hBonus += 0.2;
+        if(this.id==='omega') hBonus += 0.2; // Passive 1
+        
+        amt *= (1 + hBonus) * Battle.gbHeal;
+        this.hp = Math.min(this.maxHp, this.hp + amt);
+        Battle.float(this.dom, `+${Math.floor(amt)}`, '#34d399');
+        this.updateUI();
+    }
+
+    gainShield(amt) {
+        if(this.dead) return;
+        amt *= Battle.gbShield;
+        this.shield += amt;
+        if(this.id==='omega') { this.maxHp *= 1.05; this.heal(this.maxHp*0.05); } // God1
+        this.updateUI();
+    }
+
+    gainEn(amt) {
+        if(this.dead) return;
+        if(this.id==='vegeta_xeno' && this.has('Bảo vệ')) return; // Passive 1 limit
+        this.en = Math.min(this.maxEn, this.en + amt);
+        this.updateUI();
+    }
+
+    die(killer) {
+        this.dead = true; this.hp = 0; this.dom.classList.add('dead');
+        Battle.log(`${this.name} tử trận!`, this.team, 'c-sys');
+        if(killer && (killer.id==='broly_sp' || killer.has('Dũng cảm'))) this.cantRevive = true;
+        if(killer && killer.id==='jiren' && this.has('Severe wound')) this.cantRevive = true;
+
+        Battle.getAll().filter(h=>h.id==='broly_sp').forEach(b => {
+            b.heal(b.maxHp*0.12); b.addBuff(new Buff('Dũng cảm', 'buff', 99, {}));
+        });
+        this.updateUI();
+    }
+
+    onTurnStart() {
+        if(this.dead) return;
+        
+        // DOTs
+        let bleeding = this.buffs.find(b=>b.name==='Bleeding');
+        if(bleeding) this.takeDirect(bleeding.data.dmg, null);
+        
+        let b2 = this.buffs.find(b=>b.name==='Bleeding2');
+        if(b2) this.takeDirect(b2.data.dmg, null);
+
+        let poison = this.buffs.find(b=>b.name==='Nọc độc');
+        if(poison) {
+            let pDmg = this.maxHp * poison.data.val;
+            let stacks = this.buffs.filter(b=>b.name==='Nọc độc').length;
+            this.takeDirect(pDmg * Math.min(8, stacks), null);
+        }
+
+        let severe = this.buffs.find(b=>b.name==='Severe wound' && b.dur <= 0);
+        if(severe) {
+            this.takeDirect(this.mem.sevWound * 0.4, null); this.mem.sevWound = 0;
+        }
+
+        this.buffs.forEach(b=>b.dur--);
+        this.buffs = this.buffs.filter(b=>b.dur>0);
+
+        if(this.dead) return;
+
+        // Hero Specific Turn Start
+        if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) this.heal(this.atk*1.8);
+        if(this.id==='broly_sp') {
+            if(this.hp > this.maxHp*0.8) this.gainEn(2);
+            this.mem.brolyStk++; if(this.mem.brolyStk%2===0 && this.dmgBonus < 1.4) this.dmgBonus += 0.25;
+        }
+        if(this.id==='vegeta_xeno') {
+            this.mem.vxPower = Math.min(10, this.mem.vxPower + 1);
+            if(this.mem.vxShieldTurn > 0) this.mem.vxShieldTurn--;
+            else this.buffs = this.buffs.filter(b=>b.name!=='Bảo vệ');
+        }
+
+        this.updateUI();
+    }
+}
+
+const Battle = {
+    t1: [], t2: [], queue: [], curIdx: -1, 
+    gbAtk: 1, gbShield: 1, gbHeal: 1,
+    
+    init(p1, p2) {
+        this.t1 = p1.map((id,i) => new Hero(DB.find(x=>x.id===id), 1, i));
+        this.t2 = p2.map((id,i) => new Hero(DB.find(x=>x.id===id), 2, i));
+        this.render();
+        this.startEvent();
+    },
+    
+    render() {
+        const build = (h) => {
+            let el = document.createElement('div'); el.className = 'entity'; el.id = h.uid;
+            el.innerHTML = `<div class="e-abbr">${h.abbr}</div><div class="e-name">${h.name}</div>
+                <div class="bar-wrap"><div class="hp-bar" style="width:100%"></div><div class="shield-bar" style="width:0%"></div></div>
+                <div class="bar-wrap"><div class="en-bar" style="width:0%"></div></div>
+                <div class="stats-text"></div><div class="buff-zone"></div>`;
+            h.dom = el; h.updateUI(); return el;
+        };
+        document.getElementById('team1-side').innerHTML=''; document.getElementById('team2-side').innerHTML='';
+        this.t1.forEach(h => document.getElementById('team1-side').appendChild(build(h)));
+        this.t2.forEach(h => document.getElementById('team2-side').appendChild(build(h)));
+    },
+    
+    startEvent() {
+        let evs = [
+            {n:"Hoả Lực", act:()=>{this.gbAtk=1.3;}}, {n:"Lá Chắn", act:()=>{this.gbShield=1.8;}},
+            {n:"Liên Hoàn", act:()=>{this.gbHeal=1.4;}}, {n:"Trâu Bò", act:()=>{this.getAll().forEach(h=>{h.maxHp*=1.3;h.hp=h.maxHp;});}}
         ];
+        let ev = evs[Math.floor(Math.random()*evs.length)];
+        this.log(`SỰ KIỆN: ${ev.n} kích hoạt!`, 0, 'c-sys'); ev.act();
 
-        // ==========================================
-        // CLASSES (CORE LOGIC)
-        // ==========================================
-        class Buff {
-            constructor(name, type, duration, effectData) {
-                this.name = name; // Tên hiển thị
-                this.type = type; // 'buff' | 'debuff' | 'mark'
-                this.duration = duration; // Số lượt
-                this.effectData = effectData; // Object chứa data
-            }
+        // Start passives
+        this.getAll().forEach(h => {
+            if(h.id==='broly_sp') h.dmgBonus += 0.65;
+            if(h.id==='omega') { h.shield = h.maxHp*0.5; h.hp *= 0.5; h.updateUI(); }
+            if(h.id==='vegeta_xeno') { h.addBuff(new Buff('Bảo vệ','buff',2)); h.mem.vxShieldTurn=2; }
+        });
+
+        // First strike random logic
+        let fTeam = Math.random()<0.5 ? this.t1 : this.t2;
+        let fastest = fTeam.reduce((m,h)=>h.spd>m.spd?h:m, fTeam[0]);
+        fastest.spd += 1000;
+        
+        setTimeout(() => { this.calcQueue(); this.nextTurn(); }, 1500);
+    },
+    
+    calcQueue() { this.queue = this.getAll().sort((a,b)=>b.spd - a.spd); this.curIdx = -1; },
+    getAll() { return [...this.t1, ...this.t2].filter(h=>!h.dead); },
+    getTeam(t) { return (t===1?this.t1:this.t2).filter(h=>!h.dead); },
+    getEnemies(t) { return (t===1?this.t2:this.t1).filter(h=>!h.dead); },
+    
+    log(msg, t, cls='') {
+        let el = document.getElementById('combat-log');
+        let pre = t===1 ? `<span class="c-t1">[Đội 1]</span>` : (t===2 ? `<span class="c-t2">[Đội 2]</span>` : '');
+        el.innerHTML += `<div class="log-row ${cls}">${pre} ${msg}</div>`;
+        el.scrollTop = el.scrollHeight;
+    },
+    
+    float(el, txt, color) {
+        let f = document.createElement('div'); f.className='dmg-text'; f.style.color=color; f.innerText=txt;
+        f.style.left = (Math.random()*40+20) + 'px'; el.appendChild(f);
+        setTimeout(()=>f.remove(), 1000);
+    },
+    
+    nextTurn() {
+        if(this.getTeam(1).length===0) return alert("ĐỘI 2 CHIẾN THẮNG!");
+        if(this.getTeam(2).length===0) return alert("ĐỘI 1 CHIẾN THẮNG!");
+        
+        document.querySelectorAll('.entity').forEach(e=>e.classList.remove('active-turn'));
+        this.curIdx++; if(this.curIdx >= this.queue.length) { this.calcQueue(); this.curIdx=0; }
+        
+        let hero = this.queue[this.curIdx];
+        if(hero.dead) return this.nextTurn();
+        
+        hero.dom.classList.add('active-turn');
+        let banner = document.getElementById('turn-banner');
+        banner.innerText = `LƯỢT CỦA: ${hero.name}`; banner.style.color = hero.team===1 ? '#60a5fa' : '#f87171';
+        
+        hero.onTurnStart();
+        if(hero.dead) return this.nextTurn();
+        
+        if(hero.has('Choáng') || hero.has('Terror')) { // Simulating Terror stun 50% implicitly for speed
+            this.log(`${hero.name} bị Khống Chế, mất lượt!`, hero.team, 'c-sys');
+            setTimeout(()=>this.nextTurn(), 1000); return;
+        }
+        
+        document.getElementById('btn-skill').disabled = hero.en < hero.maxEn;
+    },
+
+    getTar(hero, mode='rand') {
+        let ens = this.getEnemies(hero.team); if(ens.length===0) return null;
+        
+        // Zhuang Fa Taunt
+        let zf = ens.find(e=>e.id==='zhuang_fa');
+        if(zf && Math.random() < zf.mem.zfTaunt) return [zf];
+        
+        if(mode==='back') { let b = ens.filter(e=>e.idx>0); if(b.length) return [b[Math.floor(Math.random()*b.length)]]; }
+        if(mode==='all') return ens;
+        if(mode==='minHp') return [ens.reduce((m,e)=>e.maxHp<m.maxHp?e:m, ens[0])];
+        if(mode==='maxAtk') return [ens.reduce((m,e)=>e.atk>m.atk?e:m, ens[0])];
+        
+        return [ens[Math.floor(Math.random()*ens.length)]];
+    },
+
+    anim(hero) { hero.dom.classList.add('anim-atk'); setTimeout(()=>hero.dom.classList.remove('anim-atk'), 400); },
+
+    // CORE ATTACK LOGIC MAP
+    useNormal() {
+        let h = this.queue[this.curIdx]; this.anim(h);
+        let atk = h.atk * this.gbAtk;
+        
+        // Vegeta Xeno Endless Spread
+        if(h.id==='vegeta_xeno' && h.has('Bảo vệ')) {
+            this.log(`${h.name} tung Lan Toả Vô Tận!`, h.team);
+            this.getEnemies(h.team).forEach(e => e.receiveDamage(atk*0.5, h, false));
         }
 
-        class Hero {
-            constructor(dbData, team, index) {
-                this.id = dbData.id;
-                this.name = dbData.name;
-                this.avatar = dbData.avatar;
-                this.team = team;
-                this.index = index;
-                this.uid = `${team}-${index}-${this.id}`;
-                
-                // Base Stats
-                this.maxHp = dbData.baseHp;
-                this.hp = this.maxHp;
-                this.atk = dbData.baseAtk;
-                this.def = dbData.baseDef;
-                this.spd = dbData.spd;
-                this.en = 0;
-                this.maxEn = dbData.maxEn;
-                
-                // Advanced Stats
-                this.critRate = 0;
-                this.critDmg = 1.5;
-                this.armorPierce = 0;
-                this.dmgReduction = 0;
-                this.dodgeRate = 0;
-                this.healBonus = 0;
-                this.shieldBonus = 0;
-                this.bonusDmg = 0; // % tăng ST
-                
-                this.buffs = [];
-                this.shield = 0;
-                this.isDead = false;
-                
-                // Flags & Memory
-                this.damageTakenDuringSevereWound = 0;
-                this.passiveDisabled = false;
-                this.zamasuStunCooldown = 0;
-                this.gokuHealed = false; // Trigger once per battle for 50% passive? Let's say once per battle to avoid loop
-                this.brolyDmgStacks = 0;
-                this.jirenCritStacks = 0;
-                this.brolyEnTurnCount = 0;
-                
-                this.initGodSkills();
-            }
+        let mode = 'rand'; let p = 1.0; let enGain = 1.0;
+        if(h.id==='jiren') { mode='back'; p=0.98; enGain=1.8; }
+        if(h.id==='goku_xeno') { p=1.0; enGain=0.9; }
+        if(h.id==='cooler') { p=0.99; enGain=1.2; }
+        if(h.id==='broly_sp') { enGain=1.0; if(!h.has('FH')){h.addBuff(new Buff('FH','mark',99)); h.gainShield(h.maxHp*0.1);} }
+        if(h.id==='zamasu') { mode='all'; p=0.88; enGain=1.3; }
+        if(h.id==='vegeta_ssg') { p=0.88; enGain=0.8; }
+        if(h.id==='vegeta_xeno') { mode='all'; p=0.99; enGain=1.6; if(!h.mem.vxFirstHit) { mode='minHp'; p=1.89; h.mem.vxFirstHit=true; } }
+        if(h.id==='madara') { p=0.95; enGain=1.0; }
+        if(h.id==='zhuang_fa') { mode='all'; p=0.80; enGain=1.0; }
+        if(h.id==='omega') { p=0.90; enGain=1.8; }
+        if(h.id==='pain') { mode='all'; p=0.45; enGain=1.2; }
+        if(h.id==='vegito') { p=0.98; enGain= 0.9 + (h.mem.vgEn?0.5:0); }
 
-            initGodSkills() {
-                // Áp dụng kỹ năng Thần ngay từ đầu
-                if(this.id === 'jiren') {
-                    this.maxHp *= 1.15; this.atk *= 1.08; this.dmgReduction += 0.05;
-                    this.hp = this.maxHp;
-                    this.armorPierce += 0.45; // Passive 1
-                    this.critRate += 0.23; // Passive 2
-                }
-                else if(this.id === 'goku') {
-                    this.dodgeRate += 0.09; this.armorPierce += 0.06;
-                }
-                else if(this.id === 'cooler') {
-                    this.atk *= 1.25; this.dodgeRate += 0.05;
-                }
-                else if(this.id === 'broly') {
-                    this.maxHp *= 1.25; this.critRate += 0.08; this.hp = this.maxHp;
-                    this.armorPierce += 0.30;
-                    this.critRate += 1.0; // Passive 3: +100% crit rate base
-                    this.critRate += 0.20; // Passive 2
-                }
-                else if(this.id === 'zamasu') {
-                    this.atk *= 1.10; this.maxHp *= 1.08; this.hp = this.maxHp;
-                    this.dodgeRate += 0.07;
-                }
-            }
+        let targets = this.getTar(h, mode);
+        if(!targets) return;
+        
+        this.log(`${h.name} Đánh Thường!`, h.team);
+        targets.forEach(t => {
+            t.receiveDamage(atk*p, h, false);
+            // Procs
+            if(h.id==='jiren') t.addBuff(new Buff('Severe wound','debuff',2));
+            if(h.id==='zamasu') { t.addBuff(new Buff('Bleeding','debuff',2,{dmg:atk*0.1})); if(Math.random()<0.8) t.addBuff(new Buff('Choáng','debuff',1)); }
+            if(h.id==='vegeta_ssg' && Math.random()<0.2) t.addBuff(new Buff('Choáng','debuff',1));
+            if(h.id==='vegeta_xeno' && h.mem.vxFirstHit && mode==='minHp') t.addBuff(new Buff('VX-ArmorBreak','debuff',5));
+            if(h.id==='madara') t.addBuff(new Buff('Ma đạo','debuff',2));
+            if(h.id==='zhuang_fa' && Math.random()<0.3) t.addBuff(new Buff('Ánh sáng','debuff',99));
+            if(h.id==='vegito') t.addBuff(new Buff('Bleeding2','debuff',3,{dmg:atk*0.4}));
+        });
+        h.gainEn(enGain);
+        setTimeout(()=>this.nextTurn(), 1000);
+    },
 
-            updateStatsDisplay() {
-                if(!this.domElement) return;
-                const hpBar = this.domElement.querySelector('.hp-bar');
-                const enBar = this.domElement.querySelector('.en-bar');
-                const hpText = this.domElement.querySelector('.hp-text');
-                
-                hpBar.style.width = `${Math.max(0, (this.hp / this.maxHp) * 100)}%`;
-                enBar.style.width = `${Math.min(100, (this.en / this.maxEn) * 100)}%`;
-                hpText.innerHTML = `${Math.floor(this.hp).toLocaleString()}<br>EN: ${this.en.toFixed(1)}/${this.maxEn}`;
-                
-                // Update icons
-                const iconContainer = this.domElement.querySelector('.status-icons');
-                iconContainer.innerHTML = '';
-                if(this.shield > 0) iconContainer.innerHTML += `<div class="status-icon buff-icon" title="Shield">S</div>`;
-                this.buffs.forEach(b => {
-                    const c = b.type === 'buff' ? 'buff-icon' : 'debuff-icon';
-                    const letter = b.name.charAt(0).toUpperCase();
-                    iconContainer.innerHTML += `<div class="status-icon ${c}" title="${b.name}">${letter}</div>`;
-                });
-            }
+    useSkill() {
+        let h = this.queue[this.curIdx]; if(h.en < h.maxEn) return;
+        h.en = 0; h.updateUI(); this.anim(h);
+        let atk = h.atk * this.gbAtk;
 
-            hasBuff(name) { return this.buffs.some(b => b.name === name); }
-            hasDebuff() { return this.buffs.some(b => b.type === 'debuff'); }
-
-            addBuff(buff) {
-                if(this.isDead) return;
-                // Broly immune > 80%
-                if(this.id === 'broly' && this.hp > this.maxHp * 0.8 && buff.type === 'debuff') {
-                    BattleEngine.log(`${this.name} miễn nhiễm hiệu ứng xấu nhờ Kỹ Năng Thần!`, this.team);
-                    return;
-                }
-                this.buffs.push(buff);
-                this.updateStatsDisplay();
-            }
-
-            removeBuff(name) {
-                this.buffs = this.buffs.filter(b => b.name !== name);
-                this.updateStatsDisplay();
-            }
-
-            clearBuffsByType(type) {
-                this.buffs = this.buffs.filter(b => b.type !== type);
-                this.updateStatsDisplay();
-            }
-
-            takeDamage(source, rawDamage, isSkill = false, allowDodge = true) {
-                if(this.isDead) return 0;
-                
-                // Dodge check
-                if(allowDodge && Math.random() < this.dodgeRate) {
-                    BattleEngine.showFloatingText(this.domElement, "NÉ TRÁNH", "#ffffff");
-                    BattleEngine.log(`${this.name} đã né đòn!`, this.team);
-                    return 0;
-                }
-
-                // Jiren Beserk Calc for Source
-                let finalDmgBonus = source.bonusDmg;
-                if(source.id === 'jiren' && source.hp < source.maxHp * 0.3) {
-                    let missingPct = (source.maxHp - source.hp) / source.maxHp * 100;
-                    finalDmgBonus += (missingPct / 0.5) * 0.01; // 1% per 0.5% missing
-                }
-
-                // Armor Pierce
-                let actualDef = this.def * Math.max(0, 1 - source.armorPierce);
-                
-                // Zamasu Terror passive
-                if(this.hasBuff('Terror')) actualDef *= 0.7; // giảm 30%
-
-                let damage = (rawDamage * (1 + finalDmgBonus)) - actualDef;
-                if(damage < 1) damage = 1;
-
-                // Crit Check
-                let isCrit = Math.random() < source.critRate;
-                if(isCrit) damage *= source.critDmg;
-
-                // DMG Reduction
-                let totalReduction = this.dmgReduction;
-                if(this.id === 'cooler' && this.hasDebuff()) totalReduction += 0.2;
-                if(this.hasBuff('Bảo vệ')) totalReduction += 0.15;
-                if(BattleEngine.getAliveHeroes(this.team).some(h => h.id === 'zamasu')) totalReduction += 0.05; // Zamasu passive 3
-                if(source.id === 'goku' && this.hasBuff('GokuDebuff')) damage *= 0.9; // Goku skill effect
-                
-                damage *= Math.max(0, 1 - totalReduction);
-
-                // Goku Bảo Vệ split
-                if(this.hasBuff('Bảo vệ')) {
-                    let goku = BattleEngine.getAliveHeroes(this.team).find(h => h.id === 'goku');
-                    if(goku && !goku.isDead) {
-                        let split = damage * 0.25;
-                        damage -= split;
-                        goku.receiveDirectDamage(split, source);
-                        BattleEngine.log(`Goku chịu hộ ${Math.floor(split).toLocaleString()} ST cho ${this.name}`, this.team);
-                    }
-                }
-
-                this.receiveDirectDamage(damage, source, isCrit);
-                return damage;
-            }
-
-            receiveDirectDamage(damage, source, isCrit = false) {
-                if(this.isDead) return;
-
-                // Severe wound tracking
-                if(this.hasBuff('Severe wound')) {
-                    this.damageTakenDuringSevereWound += damage;
-                }
-
-                // Shield
-                if(this.shield > 0) {
-                    if(this.shield >= damage) {
-                        this.shield -= damage;
-                        damage = 0;
-                    } else {
-                        damage -= this.shield;
-                        this.shield = 0;
-                    }
-                }
-
-                this.hp -= damage;
-                BattleEngine.showFloatingText(this.domElement, `-${Math.floor(damage).toLocaleString()}${isCrit?'!':''}`, isCrit ? "#ff4b4b" : "#f5a623");
-                this.domElement.classList.add('hurt-anim');
-                setTimeout(() => this.domElement.classList.remove('hurt-anim'), 300);
-
-                if(this.hp <= 0) {
-                    this.hp = 0;
-                    this.die(source);
-                } else {
-                    // Goku passive 3 check
-                    if(this.id === 'goku' && this.hp < this.maxHp * 0.5 && !this.gokuHealed) {
-                        this.gokuHealed = true;
-                        this.heal(this.maxHp * 0.5);
-                        BattleEngine.log(`${this.name} tự hồi phục 50% HP (Nội tại)!`, this.team);
-                    }
-                }
-                this.updateStatsDisplay();
-            }
-
-            heal(amount) {
-                if(this.isDead) return;
-                if(this.id !== 'cooler' && this.hasBuff('Anti-heal')) return;
-                
-                amount *= (1 + this.healBonus);
-                amount *= BattleEngine.globalHealMult;
-
-                this.hp = Math.min(this.maxHp, this.hp + amount);
-                BattleEngine.showFloatingText(this.domElement, `+${Math.floor(amount).toLocaleString()}`, "#50e3c2");
-                this.updateStatsDisplay();
-            }
-
-            gainShield(amount) {
-                if(this.isDead) return;
-                amount *= BattleEngine.globalShieldMult;
-                this.shield += amount;
-                this.updateStatsDisplay();
-            }
-
-            gainEn(amount) {
-                if(this.isDead) return;
-                this.en = Math.min(this.maxEn, this.en + amount);
-                this.updateStatsDisplay();
-            }
-
-            die(killer) {
-                this.isDead = true;
-                this.domElement.classList.add('dead');
-                BattleEngine.log(`${this.name} đã bị hạ gục!`, this.team);
-                this.hp = 0;
-                this.updateStatsDisplay();
-
-                // Broly Dũng Cảm flag handling
-                if(killer && killer.id === 'broly') {
-                    this.passiveDisabled = true; // Cannot revive
-                }
-                if(this.hasBuff('Severe wound') && killer && killer.id === 'jiren') {
-                    this.passiveDisabled = true;
-                }
-
-                // Global event: Any hero dies -> Broly heals
-                let allBrolys = BattleEngine.getAllAlive().filter(h => h.id === 'broly');
-                allBrolys.forEach(b => {
-                    b.heal(b.maxHp * 0.12);
-                    b.addBuff(new Buff('Dũng cảm', 'buff', 99, {}));
-                    BattleEngine.log(`${b.name} hồi máu và nhận Dũng Cảm nhờ nội tại!`, b.team);
-                });
-            }
-
-            onTurnStart() {
-                if(this.isDead) return;
-                
-                // Decrease buff durations
-                this.buffs.forEach(b => b.duration--);
-                
-                // Bleeding Zamasu
-                let bleeding = this.buffs.find(b => b.name === 'Bleeding');
-                if(bleeding) {
-                    let dmg = bleeding.effectData.dmg;
-                    if(BattleEngine.getAllAlive().some(h => h.id === 'zamasu' && h.team !== this.team)) {
-                        dmg *= 1.2; // Zamasu God Skill 1
-                    }
-                    BattleEngine.log(`${this.name} chịu ${Math.floor(dmg)} ST từ Chảy Máu.`, this.team);
-                    this.receiveDirectDamage(dmg, null);
-                }
-
-                // Severe Wound Explode
-                let severe = this.buffs.find(b => b.name === 'Severe wound' && b.duration <= 0);
-                if(severe) {
-                    let mult = 0.2 + 0.2; // base + god skill
-                    let popDmg = this.damageTakenDuringSevereWound * mult;
-                    BattleEngine.log(`Vết thương sâu của ${this.name} bùng nổ gây ${Math.floor(popDmg)} ST!`, this.team);
-                    this.receiveDirectDamage(popDmg, null);
-                    this.damageTakenDuringSevereWound = 0;
-                }
-
-                // Clean expired buffs
-                this.buffs = this.buffs.filter(b => b.duration > 0);
-
-                if(this.isDead) return;
-
-                // Cooler Passive 1
-                if(this.id === 'cooler' && this.hasDebuff()) {
-                    this.heal(this.atk * 1.8);
-                    BattleEngine.log(`${this.name} hồi máu nhờ có debuff!`, this.team);
-                }
-
-                // Broly Passive 2
-                if(this.id === 'broly') {
-                    if(this.hp > this.maxHp * 0.8) this.gainEn(2);
-                    this.brolyEnTurnCount++;
-                    if(this.brolyEnTurnCount % 2 === 0 && this.brolyDmgStacks < 3) {
-                        this.brolyDmgStacks++;
-                        this.bonusDmg += 0.25;
-                    }
-                }
-
-                // Zamasu Stun cooldown
-                if(this.zamasuStunCooldown > 0) this.zamasuStunCooldown--;
-
-                this.updateStatsDisplay();
+        this.log(`${h.name} tung TUYỆT KỸ!`, h.team, 'c-sys');
+        
+        if(h.id==='jiren') {
+            let t = this.getTar(h,'back')[0]; t.receiveDamage(atk*2.75, h, true);
+            if(h.critR < 0.6) h.critR += 0.15;
+        }
+        else if(h.id==='goku_xeno') {
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*0.55, h, true); t.addBuff(new Buff('GokuDebuff','debuff',3)); });
+            h.heal(h.maxHp*0.04);
+            if(h.hp > h.maxHp*0.5) {
+                let pals = this.getTeam(h.team).filter(a=>a.id!=='goku_xeno');
+                if(pals.length) { pals.reduce((m,a)=>a.hp<m.hp?a:m, pals[0]).addBuff(new Buff('Bảo vệ','buff',1)); }
             }
         }
+        else if(h.id==='cooler') {
+            let t = this.getTar(h,'back')[0]; t.receiveDamage(atk*3.52, h, true); // 320 * 1.1 (God2)
+            if(Math.random()<0.4) t.addBuff(new Buff('Choáng','debuff',1));
+            if(Math.random()<0.6) t.buffs = t.buffs.filter(b=>b.type!=='buff');
+        }
+        else if(h.id==='broly_sp') {
+            let t = this.getTar(h)[0]; h.critR+=0.3; t.receiveDamage(atk*2.75, h, true);
+        }
+        else if(h.id==='zamasu') {
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); if(Math.random()<0.3) t.addBuff(new Buff('Terror','debuff',2)); });
+        }
+        else if(h.id==='vegeta_ssg') {
+            this.getTar(h,'all').forEach(t=> t.receiveDamage(atk*1.0, h, true));
+            h.gainShield(atk*1.85); h.dodge += 0.2;
+            this.getTeam(h.team).forEach(a=>a.dodge+=0.09);
+        }
+        else if(h.id==='vegeta_xeno') {
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*1.1, h, true); t.addBuff(new Buff('Dũng cảm','debuff',99)); });
+            h.mem.vxPower = Math.min(10, h.mem.vxPower + 1);
+        }
+        else if(h.id==='madara') {
+            let oldCrit = h.critR; h.critR += 0.3;
+            this.getTar(h,'all').forEach(t=>{ t.receiveDamage(atk*3.0, h, true); if(Math.random()<0.53) t.addBuff(new Buff('Choáng','debuff',2)); });
+            h.critR = oldCrit;
+        }
+        else if(h.id==='zhuang_fa') {
+            let pals = this.getTeam(h.team);
+            let lowest = pals.reduce((m,a)=>a.hp<m.hp?a:m, pals[0]);
+            lowest.heal(atk*2.0 + lowest.maxHp*0.01);
+        }
+        else if(h.id==='omega') {
+            let t = this.getTar(h,'maxAtk')[0]; t.receiveDamage(atk*2.75, h, true);
+            let chance = h.mem.omegaFirstSk ? 1.0 : 0.6; h.mem.omegaFirstSk = false;
+            if(Math.random() < chance) { t.addBuff(new Buff('Terror','debuff',2)); h.dmgRed += 0.3; }
+        }
+        else if(h.id==='pain') {
+            let chance = 0.3 * 1.1; // God1
+            this.getTar(h,'all').forEach(t=>{ 
+                t.receiveDamage(atk*1.1, h, true); 
+                if(Math.random()<chance) t.addBuff(new Buff('Terror','debuff',2));
+                if(Math.random()<chance) t.addBuff(new Buff('Thiên đạo','debuff',3));
+            });
+            h.addBuff(new Buff('ControlApply','mark',2));
+        }
+        else if(h.id==='vegito') {
+            this.getTar(h,'all').forEach(t=>{ 
+                t.receiveDamage(atk*0.75, h, true); 
+                t.addBuff(new Buff('Bleeding','debuff',2,{dmg:atk*0.1})); t.addBuff(new Buff('Bleeding','debuff',2,{dmg:atk*0.1})); t.addBuff(new Buff('Bleeding','debuff',2,{dmg:atk*0.1}));
+                let b2dmg = atk*0.4 * 1.1; // God1
+                t.addBuff(new Buff('Bleeding2','debuff',3,{dmg:b2dmg}));
+            });
+        }
 
-        // ==========================================
-        // BATTLE ENGINE
-        // ==========================================
-        const BattleEngine = {
-            team1: [],
-            team2: [],
-            turnQueue: [],
-            currentTurnIndex: 0,
-            globalAtkMult: 1,
-            globalShieldMult: 1,
-            globalHealMult: 1,
+        setTimeout(()=>this.nextTurn(), 1200);
+    }
+};
 
-            init(t1Ids, t2Ids) {
-                this.team1 = t1Ids.map((id, i) => new Hero(HERO_DB.find(h=>h.id===id), 1, i));
-                this.team2 = t2Ids.map((id, i) => new Hero(HERO_DB.find(h=>h.id===id), 2, i));
-                
-                this.renderArena();
-                this.triggerStartEvent();
-            },
-
-            renderArena() {
-                const buildDOM = (hero) => {
-                    let el = document.createElement('div');
-                    el.className = 'entity';
-                    el.id = hero.uid;
-                    el.innerHTML = `
-                        <div class="e-avatar">${hero.avatar}</div>
-                        <div class="e-name">${hero.name}</div>
-                        <div class="bar-container"><div class="hp-bar" style="width:100%"></div></div>
-                        <div class="bar-container"><div class="en-bar" style="width:0%"></div></div>
-                        <div class="hp-text"></div>
-                        <div class="status-icons"></div>
-                    `;
-                    hero.domElement = el;
-                    hero.updateStatsDisplay();
-                    return el;
-                };
-
-                const t1 = document.getElementById('team1-side');
-                const t2 = document.getElementById('team2-side');
-                t1.innerHTML = ''; t2.innerHTML = '';
-
-                this.team1.forEach(h => t1.appendChild(buildDOM(h)));
-                this.team2.forEach(h => t2.appendChild(buildDOM(h)));
-            },
-
-            triggerStartEvent() {
-                const events = [
-                    { name: "Hoả Lực", desc: "+30% ATK toàn sân", action: () => { this.globalAtkMult = 1.3; } },
-                    { name: "Lá Chắn", desc: "Tăng 80% tạo Khiên", action: () => { this.globalShieldMult = 1.8; } },
-                    { name: "Liên Hoàn", desc: "Tăng 40% hồi phục", action: () => { this.globalHealMult = 1.4; } },
-                    { name: "Trâu Bò", desc: "+30% Max HP toàn sân", action: () => { 
-                        [...this.team1, ...this.team2].forEach(h => { h.maxHp*=1.3; h.hp*=1.3; h.updateStatsDisplay(); });
-                    }}
-                ];
-                let ev = events[Math.floor(Math.random() * events.length)];
-                
-                let popup = document.createElement('div');
-                popup.className = 'popup-event';
-                popup.innerHTML = `<h2>Sự Kiện Đầu Trận</h2><br><h3>${ev.name}</h3><p>${ev.desc}</p>`;
-                document.body.appendChild(popup);
-                ev.action();
-
-                // Broly start passive 1
-                [...this.team1, ...this.team2].forEach(h => {
-                    if(h.id === 'broly') h.bonusDmg += 0.65;
-                });
-
-                // Đầu trận random 1 đội đánh trước (buff 1000 spd cho hero nhanh nhất đội đó)
-                let firstTeam = Math.random() < 0.5 ? this.team1 : this.team2;
-                let fastest = firstTeam.reduce((max, h) => h.spd > max.spd ? h : max, firstTeam[0]);
-                fastest.spd += 1000;
-
-                setTimeout(() => {
-                    popup.remove();
-                    this.calculateQueue();
-                    this.nextTurn();
-                }, 3000);
-            },
-
-            calculateQueue() {
-                this.turnQueue = [...this.team1, ...this.team2].filter(h => !h.isDead).sort((a,b) => b.spd - a.spd);
-                this.currentTurnIndex = -1;
-            },
-
-            getAllAlive() { return [...this.team1, ...this.team2].filter(h => !h.isDead); },
-            getAliveHeroes(team) { return (team===1 ? this.team1 : this.team2).filter(h => !h.isDead); },
-            getEnemies(myTeam) { return this.getAliveHeroes(myTeam === 1 ? 2 : 1); },
-            getAllies(myTeam) { return this.getAliveHeroes(myTeam); },
-
-            log(msg, team) {
-                const logEl = document.getElementById('combat-log');
-                const tClass = team === 1 ? 'log-t1' : (team === 2 ? 'log-t2' : '');
-                logEl.innerHTML += `<div class="log-entry"><span class="${tClass}">[Đội ${team}]</span> ${msg}</div>`;
-                logEl.scrollTop = logEl.scrollHeight;
-            },
-
-            showFloatingText(element, text, color) {
-                let ft = document.createElement('div');
-                ft.className = 'floating-text';
-                ft.style.color = color;
-                ft.innerText = text;
-                ft.style.top = '20px';
-                ft.style.left = '40px';
-                element.appendChild(ft);
-                setTimeout(() => ft.remove(), 1000);
-            },
-
-            nextTurn() {
-                // Check win condition
-                if(this.getAliveHeroes(1).length === 0) return alert("ĐỘI 2 CHIẾN THẮNG!");
-                if(this.getAliveHeroes(2).length === 0) return alert("ĐỘI 1 CHIẾN THẮNG!");
-
-                document.querySelectorAll('.entity').forEach(e => e.classList.remove('active-turn'));
-
-                this.currentTurnIndex++;
-                if(this.currentTurnIndex >= this.turnQueue.length) {
-                    this.calculateQueue();
-                    this.currentTurnIndex = 0;
-                }
-
-                let currentHero = this.turnQueue[this.currentTurnIndex];
-                if(currentHero.isDead) return this.nextTurn();
-
-                currentHero.domElement.classList.add('active-turn');
-                document.getElementById('turn-indicator').innerText = `Lượt của: ${currentHero.name}`;
-                document.getElementById('turn-indicator').style.color = currentHero.team === 1 ? 'var(--primary)' : 'var(--danger)';
-
-                currentHero.onTurnStart();
-                if(currentHero.isDead) return this.nextTurn(); // Died from poison/bleed
-
-                // Check Stun
-                if(currentHero.hasBuff('Choáng')) {
-                    this.log(`${currentHero.name} bị choáng, mất lượt!`, currentHero.team);
-                    setTimeout(() => this.nextTurn(), 1000);
-                    return;
-                }
-
-                this.updateUIForTurn(currentHero);
-            },
-
-            updateUIForTurn(hero) {
-                const btnN = document.getElementById('btn-normal');
-                const btnA = document.getElementById('btn-active');
-                
-                // Normal descriptions
-                let nDesc = "Gây ST lên 1 mục tiêu";
-                if(hero.id === 'zamasu') nDesc = "Gây ST toàn đội địch, tạo Chảy Máu";
-                if(hero.id === 'jiren') nDesc = "Ưu tiên hàng sau, tạo Vết Thương Sâu";
-                document.getElementById('desc-normal').innerText = `${nDesc} (Hồi EN)`;
-
-                // Active descriptions
-                let aDesc = "Kỹ năng mạnh";
-                if(hero.id === 'jiren') aDesc = `Cần ${hero.maxEn} EN. Gây 275% ATK, tăng Bạo Kích`;
-                if(hero.id === 'goku') aDesc = `Cần ${hero.maxEn} EN. ST toàn đội, giảm ST địch, Bảo Vệ đồng minh`;
-                if(hero.id === 'cooler') aDesc = `Cần ${hero.maxEn} EN. 320% ATK, 40% Choáng, Xóa Buff`;
-                if(hero.id === 'broly') aDesc = `Cần ${hero.maxEn} EN. 275% ATK, Tăng Bạo Kích, Cấm hồi sinh`;
-                if(hero.id === 'zamasu') aDesc = `Cần ${hero.maxEn} EN. 110% ATK toàn đội, 30% Tạo Hoảng Sợ`;
-                document.getElementById('desc-active').innerText = aDesc;
-
-                btnA.disabled = hero.en < hero.maxEn;
-            },
-
-            getTarget(hero, preferBack = false) {
-                let enemies = this.getEnemies(hero.team);
-                if(enemies.length === 0) return null;
-                if(preferBack) {
-                    // Try to get index 1 or 2 (back row)
-                    let back = enemies.filter(e => e.index > 0);
-                    if(back.length > 0) return back[Math.floor(Math.random() * back.length)];
-                }
-                // Front row or random
-                return enemies[Math.floor(Math.random() * enemies.length)];
-            },
-
-            playAttackAnim(hero) {
-                hero.domElement.classList.add('attack-anim');
-                setTimeout(() => hero.domElement.classList.remove('attack-anim'), 600);
-            },
-
-            castNormal() {
-                let hero = this.turnQueue[this.currentTurnIndex];
-                this.playAttackAnim(hero);
-                let atkVal = hero.atk * this.globalAtkMult;
-
-                if(hero.id === 'jiren') {
-                    let target = this.getTarget(hero, true);
-                    hero.gainEn(1.8);
-                    this.log(`${hero.name} đánh thường vào ${target.name}`, hero.team);
-                    target.takeDamage(hero, atkVal * 0.98);
-                    target.addBuff(new Buff('Severe wound', 'debuff', 2, {}));
-                } 
-                else if(hero.id === 'goku') {
-                    let target = this.getTarget(hero);
-                    hero.gainEn(0.9);
-                    this.log(`${hero.name} đánh thường vào ${target.name}`, hero.team);
-                    target.takeDamage(hero, atkVal * 1.0);
-                }
-                else if(hero.id === 'cooler') {
-                    let target = this.getTarget(hero);
-                    hero.gainEn(1.2);
-                    this.log(`${hero.name} đánh thường vào ${target.name}`, hero.team);
-                    target.takeDamage(hero, atkVal * 0.99);
-                }
-                else if(hero.id === 'broly') {
-                    let target = this.getTarget(hero);
-                    hero.gainEn(1.0);
-                    // God skill 1 first hit shield
-                    if(!hero.hasBuff('FirstHit')) {
-                        hero.addBuff(new Buff('FirstHit', 'mark', 99, {}));
-                        hero.gainShield(hero.maxHp * 0.1);
-                    }
-                    this.log(`${hero.name} đánh thường vào ${target.name}`, hero.team);
-                    target.takeDamage(hero, atkVal * 1.0);
-                }
-                else if(hero.id === 'zamasu') {
-                    let enemies = this.getEnemies(hero.team);
-                    hero.gainEn(1.3);
-                    this.log(`${hero.name} đánh thường diện rộng!`, hero.team);
-                    enemies.forEach(t => {
-                        t.takeDamage(hero, atkVal * 0.88);
-                        t.addBuff(new Buff('Bleeding', 'debuff', 2, { dmg: atkVal * 0.1 }));
-                        
-                        // Passive 2: 80% Stun (CD 4)
-                        if(hero.zamasuStunCooldown === 0 && Math.random() < 0.8) {
-                            t.addBuff(new Buff('Choáng', 'debuff', 1, {}));
-                            hero.zamasuStunCooldown = 4;
-                            this.log(`${t.name} bị Choáng bởi Đánh Trúng!`, t.team);
-                        }
-                    });
-                }
-
-                setTimeout(() => this.nextTurn(), 1000);
-            },
-
-            castActive() {
-                let hero = this.turnQueue[this.currentTurnIndex];
-                if(hero.en < hero.maxEn) return;
-                hero.en = 0; // Consume all maxEn for this game design
-                hero.updateStatsDisplay();
-                this.playAttackAnim(hero);
-                let atkVal = hero.atk * this.globalAtkMult;
-
-                if(hero.id === 'jiren') {
-                    let target = this.getTarget(hero, true);
-                    this.log(`${hero.name} dùng Tuyệt Kỹ vào ${target.name}!`, hero.team);
-                    target.takeDamage(hero, atkVal * 2.75, true);
-                    if(hero.jirenCritStacks < 3) {
-                        hero.jirenCritStacks++;
-                        hero.critRate += 0.15;
-                    }
-                }
-                else if(hero.id === 'goku') {
-                    let enemies = this.getEnemies(hero.team);
-                    this.log(`${hero.name} dùng Tuyệt Kỹ lên toàn sân!`, hero.team);
-                    enemies.forEach(t => {
-                        t.takeDamage(hero, atkVal * 0.55, true);
-                        t.addBuff(new Buff('GokuDebuff', 'debuff', 3, {}));
-                    });
-                    
-                    // God Skill 1
-                    hero.heal(hero.maxHp * 0.04);
-                    
-                    // Passive 1
-                    if(hero.hp > hero.maxHp * 0.5) {
-                        let allies = this.getAllies(hero.team).filter(a => a.id !== 'goku');
-                        if(allies.length > 0) {
-                            let lowest = allies.reduce((min, a) => a.hp < min.hp ? a : min, allies[0]);
-                            lowest.addBuff(new Buff('Bảo vệ', 'buff', 1, {}));
-                            this.log(`${hero.name} tạo Bảo Vệ cho ${lowest.name}`, hero.team);
-                        }
-                    }
-                }
-                else if(hero.id === 'cooler') {
-                    let target = this.getTarget(hero, true);
-                    this.log(`${hero.name} dùng Tuyệt Kỹ vào ${target.name}!`, hero.team);
-                    let dmg = atkVal * 3.20; // 275 + 45
-                    dmg *= 1.10; // God skill 2
-                    target.takeDamage(hero, dmg, true);
-                    if(Math.random() < 0.4) target.addBuff(new Buff('Choáng', 'debuff', 1, {}));
-                    
-                    // God skill 1 Phân tán
-                    if(Math.random() < 0.6) {
-                        target.clearBuffsByType('buff');
-                        this.log(`${target.name} bị xóa toàn bộ Buff tốt!`, target.team);
-                    }
-                }
-                else if(hero.id === 'broly') {
-                    let target = this.getTarget(hero);
-                    this.log(`${hero.name} dùng Tuyệt Kỹ vào ${target.name}!`, hero.team);
-                    if(!hero.hasBuff('FirstHit')) {
-                        hero.addBuff(new Buff('FirstHit', 'mark', 99, {}));
-                        hero.gainShield(hero.maxHp * 0.1);
-                    }
-                    if(!hero.hasBuff('BrolyCrit')) {
-                        hero.critRate += 0.30;
-                        hero.addBuff(new Buff('BrolyCrit', 'mark', 99, {}));
-                    }
-                    target.takeDamage(hero, atkVal * 2.75, true);
-                }
-                else if(hero.id === 'zamasu') {
-                    let enemies = this.getEnemies(hero.team);
-                    this.log(`${hero.name} dùng Tuyệt Kỹ diện rộng!`, hero.team);
-                    enemies.forEach(t => {
-                        t.takeDamage(hero, atkVal * 1.10, true);
-                        if(Math.random() < 0.3) {
-                            t.addBuff(new Buff('Terror', 'debuff', 2, {}));
-                            if(Math.random() < 0.5) t.addBuff(new Buff('Choáng', 'debuff', 2, {}));
-                        }
-                        // Passive 1 logic (Terror stat drop) happens inherently in damage calculation
-                    });
-                }
-
-                setTimeout(() => this.nextTurn(), 1000);
-            }
-        };
-
-
-        // ==========================================
-        // APP CONTROLLER (UI & PHASES)
-        // ==========================================
-        const GameApp = {
-            t1Bans: [], t2Bans: [],
-            t1Picks: [], t2Picks: [],
-            currentPhase: 1, // 1: T1 Ban, 2: T2 Ban, 3: T1 Pick 1.. 
-            timerInt: null,
-            time: 25,
+const App = {
+    bans: [], p1: [], p2: [], phase: 1, timer: null, time: 30,
+    
+    show(id) { document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active')); document.getElementById(id).classList.add('active'); },
+    enterBP() { this.show('bp-screen'); this.renderBP(); this.startT(); },
+    
+    renderBP() {
+        let pool = document.getElementById('bp-pool'); pool.innerHTML='';
+        let titles = ["ĐỘI 1 CẤM", "ĐỘI 2 CẤM", "ĐỘI 1 CHỌN", "ĐỘI 2 CHỌN", "ĐỘI 1 CHỌN", "ĐỘI 2 CHỌN", "ĐỘI 1 CHỌN", "ĐỘI 2 CHỌN"];
+        document.getElementById('bp-title').innerText = titles[this.phase-1] || "HOÀN TẤT";
+        document.getElementById('bp-title').style.color = (this.phase%2!==0) ? '#60a5fa' : '#f87171';
+        
+        document.getElementById('bp-skip').style.display = this.phase <= 2 ? 'inline-block' : 'none';
+        
+        DB.forEach(h => {
+            let c = document.createElement('div'); c.className='hero-card'; c.dataset.id=h.id;
+            c.innerHTML = `<div class="hero-abbr">${h.abbr}</div><div class="hero-name">${h.name}</div>`;
             
-            showScreen(id) {
-                document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-                document.getElementById(id).classList.add('active');
-            },
-
-            startBanPhase() {
-                this.showScreen('bp-screen');
-                this.currentPhase = 1;
-                this.renderPool();
-                this.startTimer(25, this.autoAction.bind(this));
-            },
-
-            renderPool() {
-                const pool = document.getElementById('bp-pool');
-                pool.innerHTML = '';
-                
-                let title = "";
-                if(this.currentPhase === 1) title = "CẤM TƯỚNG - ĐỘI 1 (Chọn 1)";
-                else if(this.currentPhase === 2) title = "CẤM TƯỚNG - ĐỘI 2 (Chọn 1)";
-                else if(this.currentPhase % 2 !== 0) title = `CHỌN TƯỚNG - ĐỘI 1 (${this.t1Picks.length}/3)`;
-                else title = `CHỌN TƯỚNG - ĐỘI 2 (${this.t2Picks.length}/3)`;
-                
-                document.getElementById('bp-title').innerText = title;
-                
-                // Nút "Bỏ qua cấm" chỉ hiện ở phase 1,2
-                document.getElementById('bp-skip-btn').style.display = this.currentPhase <= 2 ? 'inline-block' : 'none';
-                document.getElementById('bp-action-btn').innerText = this.currentPhase <= 2 ? "Xác Nhận Cấm" : "Xác Nhận Chọn";
-
-                HERO_DB.forEach(h => {
-                    let card = document.createElement('div');
-                    card.className = 'hero-card';
-                    card.innerHTML = `
-                        <div class="hero-avatar">${h.avatar}</div>
-                        <div class="hero-name">${h.name}</div>
-                        <div class="hero-role">${h.role}</div>
-                    `;
-                    
-                    if(this.t1Bans.includes(h.id) || this.t2Bans.includes(h.id)) card.classList.add('banned');
-                    
-                    card.onclick = () => {
-                        if(card.classList.contains('banned')) return;
-                        document.querySelectorAll('.hero-card').forEach(c => { c.classList.remove('selected-t1', 'selected-t2'); });
-                        card.classList.add(this.currentPhase % 2 !== 0 ? 'selected-t1' : 'selected-t2');
-                        card.dataset.id = h.id;
-                    };
-                    pool.appendChild(card);
-                });
-
-                document.getElementById('t1-picks').innerText = this.t1Picks.map(id => HERO_DB.find(h=>h.id===id).name).join(', ');
-                document.getElementById('t2-picks').innerText = this.t2Picks.map(id => HERO_DB.find(h=>h.id===id).name).join(', ');
-            },
-
-            startTimer(seconds, callback) {
-                clearInterval(this.timerInt);
-                this.time = seconds;
-                document.getElementById('bp-timer').innerText = this.time;
-                this.timerInt = setInterval(() => {
-                    this.time--;
-                    document.getElementById('bp-timer').innerText = this.time;
-                    if(this.time <= 0) {
-                        clearInterval(this.timerInt);
-                        callback();
-                    }
-                }, 1000);
-            },
-
-            skipBPPhase() {
-                if(this.currentPhase === 1) { this.currentPhase = 2; this.renderPool(); this.startTimer(25, this.autoAction.bind(this)); }
-                else if(this.currentPhase === 2) { this.currentPhase = 3; this.renderPool(); this.startTimer(30, this.autoAction.bind(this)); }
-            },
-
-            confirmBPAction() {
-                let selected = document.querySelector('.hero-card.selected-t1, .hero-card.selected-t2');
-                if(!selected && this.currentPhase > 2) return alert("Vui lòng chọn 1 tướng!");
-                let id = selected ? selected.dataset.id : null;
-
-                if(this.currentPhase === 1) { if(id) this.t1Bans.push(id); this.currentPhase = 2; this.startTimer(25, this.autoAction.bind(this)); }
-                else if(this.currentPhase === 2) { if(id) this.t2Bans.push(id); this.currentPhase = 3; this.startTimer(30, this.autoAction.bind(this)); }
-                else if(this.currentPhase > 2) {
-                    if(this.currentPhase % 2 !== 0) this.t1Picks.push(id);
-                    else this.t2Picks.push(id);
-                    
-                    this.currentPhase++;
-                    if(this.t1Picks.length === 3 && this.t2Picks.length === 3) {
-                        clearInterval(this.timerInt);
-                        this.startBattle();
-                        return;
-                    }
-                    this.startTimer(30, this.autoAction.bind(this));
-                }
-                this.renderPool();
-            },
-
-            autoAction() {
-                let avail = HERO_DB.filter(h => !this.t1Bans.includes(h.id) && !this.t2Bans.includes(h.id)).map(h=>h.id);
-                if(this.currentPhase <= 2) {
-                    // Random ban or skip
-                    this.confirmBPAction(); 
-                } else {
-                    // Random pick
-                    let cards = document.querySelectorAll('.hero-card:not(.banned)');
-                    if(cards.length > 0) cards[0].classList.add(this.currentPhase % 2 !== 0 ? 'selected-t1' : 'selected-t2');
-                    this.confirmBPAction();
-                }
-            },
-
-            startBattle() {
-                this.showScreen('battle-screen');
-                // Fill if missed
-                while(this.t1Picks.length < 3) this.t1Picks.push(HERO_DB[Math.floor(Math.random()*HERO_DB.length)].id);
-                while(this.t2Picks.length < 3) this.t2Picks.push(HERO_DB[Math.floor(Math.random()*HERO_DB.length)].id);
-                
-                BattleEngine.init(this.t1Picks, this.t2Picks);
-            }
-        };
-    </script>
+            if(this.bans.includes(h.id) || this.p1.includes(h.id) || this.p2.includes(h.id)) c.classList.add('banned');
+            
+            c.onclick = () => {
+                if(c.classList.contains('banned')) return;
+                document.querySelectorAll('.hero-card').forEach(x=>x.classList.remove('selected-t1','selected-t2'));
+                c.classList.add(this.phase%2!==0 ? 'selected-t1' : 'selected-t2');
+            };
+            pool.appendChild(c);
+        });
+        
+        document.getElementById('bp-t1-list').innerText = this.p1.map(id=>DB.find(x=>x.id===id).name).join(', ');
+        document.getElementById('bp-t2-list').innerText = this.p2.map(id=>DB.find(x=>x.id===id).name).join(', ');
+    },
+    
+    startT() {
+        clearInterval(this.timer); this.time=30; document.getElementById('bp-timer').innerText=this.time;
+        this.timer = setInterval(() => {
+            this.time--; document.getElementById('bp-timer').innerText=this.time;
+            if(this.time<=0) { clearInterval(this.timer); this.autoPick(); }
+        }, 1000);
+    },
+    
+    skipBP() { this.phase++; this.renderBP(); this.startT(); },
+    
+    confirmBP() {
+        let sel = document.querySelector('.hero-card.selected-t1, .hero-card.selected-t2');
+        if(!sel && this.phase>2) return alert("Phải chọn 1 tướng!");
+        let id = sel ? sel.dataset.id : null;
+        
+        if(this.phase<=2) { if(id) this.bans.push(id); }
+        else {
+            if(this.phase%2!==0) this.p1.push(id); else this.p2.push(id);
+        }
+        
+        this.phase++;
+        if(this.p1.length===3 && this.p2.length===3) { clearInterval(this.timer); this.startBat(); return; }
+        this.renderBP(); this.startT();
+    },
+    
+    autoPick() {
+        let avail = document.querySelectorAll('.hero-card:not(.banned)');
+        if(avail.length) avail[Math.floor(Math.random()*avail.length)].classList.add(this.phase%2!==0?'selected-t1':'selected-t2');
+        this.confirmBP();
+    },
+    
+    startBat() {
+        this.show('battle-screen');
+        Battle.init(this.p1, this.p2);
+    }
+};
+</script>
 </body>
 </html>
