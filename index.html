@@ -2,71 +2,78 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Auto Battler RPG</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auto Battler RPG - Update 3 (Desktop/Light)</title>
     <style>
-        /* --- CSS & GIAO DIỆN --- */
+        /* --- CSS & GIAO DIỆN (SÁNG / TỐI ƯU DESKTOP) --- */
         :root {
-            --bg: #121212;
-            --panel: #1e1e1e;
-            --primary: #bb86fc;
-            --secondary: #03dac6;
-            --text: #ffffff;
-            --text-muted: #a0a0a0;
-            --danger: #cf6679;
+            --bg: #f0f2f5; --panel: #ffffff; --primary: #3498db;
+            --secondary: #2ecc71; --text: #2c3e50; --text-muted: #7f8c8d;
+            --danger: #e74c3c; --gold: #f39c12; --border: #e1e8ed;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; color: var(--text); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
-        #app-container { width: 100%; max-width: 480px; background-color: var(--bg); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #d1d8e0; color: var(--text); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        #app-container { width: 100%; max-width: 900px; background-color: var(--bg); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.15); }
         
         /* Header Resources */
-        #header { display: flex; justify-content: space-between; padding: 10px; background-color: var(--panel); border-bottom: 1px solid #333; font-size: 0.85rem; flex-wrap: wrap; gap: 5px;}
-        .res-item { background: #333; padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+        #header { display: flex; justify-content: space-around; padding: 12px; background-color: var(--panel); border-bottom: 2px solid var(--border); font-size: 0.95rem; }
+        .res-item { background: #f8f9fa; padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; font-weight: bold; border: 1px solid #dcdde1; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
         
-        /* Time & Level System */
-        #system-info { display: flex; justify-content: space-between; padding: 5px 10px; font-size: 0.8rem; color: var(--secondary); background: #000; }
+        #system-info { display: flex; justify-content: space-between; padding: 8px 15px; font-size: 0.85rem; color: #fff; background: var(--primary); font-weight: bold; }
         
         /* Screens */
-        .screen { flex: 1; overflow-y: auto; padding: 15px; display: none; padding-bottom: 80px; }
+        .screen { flex: 1; overflow-y: auto; padding: 20px; display: none; padding-bottom: 80px; }
         .screen.active { display: block; }
         
         /* Navigation Bottom Bar */
-        #nav-bar { position: absolute; bottom: 0; width: 100%; background-color: var(--panel); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
-        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
-        .nav-btn i { font-size: 1.5rem; margin-bottom: 2px; }
-        .nav-btn.active { color: var(--primary); }
+        #nav-bar { position: absolute; bottom: 0; width: 100%; background-color: var(--panel); display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid var(--border); z-index: 10; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.85rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; font-weight: 600; transition: 0.2s; }
+        .nav-btn i { font-size: 1.5rem; margin-bottom: 4px; }
+        .nav-btn.active { color: var(--primary); transform: translateY(-2px); }
 
-        /* General UI Elements */
-        h2 { text-align: center; margin-bottom: 15px; color: var(--primary); }
-        .btn-main { display: block; width: 100%; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
-        .btn-main:active { opacity: 0.8; }
+        h2 { text-align: center; margin-bottom: 20px; color: var(--text); border-bottom: 2px solid var(--primary); padding-bottom: 10px; display: inline-block; width: 100%; }
+        .btn-main { display: block; width: 100%; padding: 12px; background: var(--primary); color: #fff; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px rgba(52,152,219,0.3); }
+        .btn-main:hover { background: #2980b9; transform: translateY(-1px); }
+        .btn-main:active { transform: translateY(1px); box-shadow: 0 2px 3px rgba(52,152,219,0.3); }
         
-        /* Roster & Cards */
-        .char-card { background: #2c2c2c; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #444; }
-        .char-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
-        .role-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #555; }
-        .role-DEF { color: #f39c12; } .role-ATK { color: #e74c3c; } .role-SKL { color: #3498db; }
-        .char-stats { font-size: 0.8rem; color: #ccc; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        /* Cards */
+        .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 15px; }
+        .char-card, .shop-card, .stage-card { background: var(--panel); border-radius: 12px; padding: 15px; display: flex; flex-direction: column; gap: 8px; border: 1px solid var(--border); box-shadow: 0 4px 6px rgba(0,0,0,0.02); transition: 0.2s; }
+        .char-card:hover { border-color: var(--primary); box-shadow: 0 6px 12px rgba(52,152,219,0.1); }
+        .char-header { display: flex; justify-content: space-between; align-items: center; font-weight: 700; font-size: 1.05rem; }
+        .role-tag { font-size: 0.75rem; padding: 3px 8px; border-radius: 12px; color: #fff; text-shadow: 1px 1px 1px rgba(0,0,0,0.2); }
+        .role-DEF { background: var(--gold); } .role-ATK { background: var(--danger); } .role-SKL { background: var(--primary); }
+        .char-stats { font-size: 0.85rem; color: var(--text-muted); display: grid; grid-template-columns: 1fr 1fr; gap: 6px; background: #f8f9fa; padding: 8px; border-radius: 8px; margin-top: 5px; }
         
         /* Battle Engine UI */
-        #battle-log { height: 250px; background: #000; border: 1px solid #333; overflow-y: auto; padding: 10px; font-size: 0.85rem; margin-top: 15px; border-radius: 5px; }
-        .log-item { margin-bottom: 5px; border-bottom: 1px dashed #222; padding-bottom: 3px; }
-        .dmg-text { color: #ff5252; } .heal-text { color: #69f0ae; } .skill-text { color: #e040fb; font-weight: bold; }
-        .team-display { display: flex; justify-content: space-between; margin-bottom: 10px; }
-        .team-side { width: 48%; }
-        .fighter-bar { background: #333; height: 16px; border-radius: 4px; margin-top: 5px; position: relative; overflow: hidden; }
-        .hp-fill { background: #e74c3c; height: 100%; width: 100%; transition: width 0.3s; }
-        .en-fill { background: #f1c40f; height: 3px; width: 0%; transition: width 0.3s; position: absolute; bottom: 0; }
-        .fighter-name { font-size: 0.75rem; position: absolute; top: 0; left: 5px; line-height: 16px; text-shadow: 1px 1px 1px #000; }
+        .battle-layout { display: flex; gap: 20px; height: 100%; flex-direction: column; }
+        @media(min-width: 768px) { .battle-layout { flex-direction: row; } }
+        
+        .team-display { flex: 1; display: flex; justify-content: space-between; gap: 15px; }
+        .team-side { width: 48%; background: var(--panel); padding: 10px; border-radius: 12px; border: 1px solid var(--border); }
+        #battle-log { flex: 1; min-height: 200px; background: #1e272e; border: 1px solid var(--border); overflow-y: auto; padding: 12px; font-size: 0.9rem; border-radius: 12px; color: #d2dae2; box-shadow: inset 0 4px 6px rgba(0,0,0,0.1); }
+        
+        .log-item { margin-bottom: 6px; border-bottom: 1px dashed #485460; padding-bottom: 4px; line-height: 1.4; }
+        .dmg-text { color: #ff5e57; font-weight: bold; } .heal-text { color: #0be881; font-weight: bold;} .skill-text { color: #d1d8e0; font-weight: bold; background: #808e9b; padding: 1px 4px; border-radius: 3px; } .crit-text { color: #ffa801; font-weight: 900; text-transform: uppercase; font-size: 0.95rem; text-shadow: 0 0 3px #ffa801; }
+        
+        .fighter-bar { background: #dcdde1; height: 18px; border-radius: 8px; margin-top: 6px; position: relative; overflow: hidden; box-shadow: inset 0 2px 4px rgba(0,0,0,0.1); }
+        .hp-fill { background: var(--secondary); height: 100%; width: 100%; transition: width 0.3s; }
+        .en-fill { background: var(--gold); height: 4px; width: 0%; transition: width 0.3s; position: absolute; bottom: 0; }
+        .shield-fill { background: rgba(255, 255, 255, 0.6); height: 100%; width: 0%; position: absolute; top:0; right:0; transition: width 0.3s; }
+        .fighter-name { font-size: 0.8rem; position: absolute; top: 0; left: 8px; line-height: 18px; font-weight: bold; color: #fff; text-shadow: 1px 1px 2px rgba(0,0,0,0.8); z-index: 2; }
+        .buff-icons { font-size: 0.8rem; position: absolute; right: 4px; top: 1px; z-index: 2; }
+
+        /* Event Banner */
+        .event-banner { background: linear-gradient(135deg, #0984e3, #6c5ce7); padding: 20px; border-radius: 12px; text-align: center; margin-bottom: 20px; color: #fff; box-shadow: 0 4px 10px rgba(108,92,231,0.3); }
+        .sale-tag { background: var(--danger); color: white; padding: 3px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: bold; position: absolute; top: -10px; right: -10px; transform: rotate(15deg); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
     </style>
 </head>
 <body>
 
 <div id="app-container">
-    <!-- Header Thông tin -->
     <div id="system-info">
         <span id="real-time-clock">Đang tải giờ...</span>
-        <span>LV: <span id="player-lvl">1</span> (<span id="player-exp">0</span>/1000)</span>
+        <span>LV: <span id="player-lvl">1</span> (<span id="player-exp">0</span>)</span>
     </div>
     <div id="header">
         <div class="res-item">💎 <span id="res-kc">0</span></div>
@@ -75,80 +82,113 @@
         <div class="res-item">🔮 <span id="res-vntb">0</span></div>
     </div>
 
-    <!-- MÀN HÌNH 1: SẢNH CHÍNH -->
+    <!-- SẢNH CHÍNH (CAMPAIGN) -->
     <div id="screen-lobby" class="screen active">
-        <h2>SẢNH CHÍNH</h2>
-        <img src="https://via.placeholder.com/400x200/2c2c2c/bb86fc?text=AUTO+BATTLER+RPG" style="width:100%; border-radius: 10px; margin-bottom: 20px;">
-        <button class="btn-main" onclick="alertSystem('Hệ thống ải chiến đấu: Chưa hoạt động (Sẽ mở ở Cập nhật 2)')">⚔️ Đấu Ải (Campaign)</button>
+        <h2>SẢNH CHÍNH - ĐẤU ẢI</h2>
+        <div class="event-banner" style="background: linear-gradient(135deg, #e17055, #fdcb6e);">
+            <strong style="font-size:1.2rem">🌕 CHÀO MỪNG TRUNG THU</strong><br>
+            <span style="font-size:0.9rem">Buff kích hoạt: +40% EXP & +30% Kim Cương!</span>
+        </div>
+
+        <div class="stage-card" style="text-align: center; padding: 30px 20px;">
+            <h3 id="current-stage-title" style="color: var(--text); font-size: 1.5rem;">Chương 1 - Ải 1</h3>
+            <p style="color: var(--text-muted); margin-bottom: 20px;">Bot đã được điều chỉnh độ khó cho người mới. Gặp gỡ dàn tướng SSS mới!</p>
+            <div style="display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; font-size: 1rem; background: var(--bg); padding: 10px; border-radius: 8px;">
+                <span>Phần thưởng:</span>
+                <span style="color: var(--gold); font-weight:bold;">EXP: <b id="reward-exp">0</b></span>
+                <span style="color: var(--primary); font-weight:bold;">💎 <b id="reward-kc">0</b></span>
+                <span style="color: #e67e22; font-weight:bold;">🪙 <b id="reward-xu">0</b></span>
+            </div>
+            <button class="btn-main" onclick="startBattle('campaign')" style="font-size: 1.2rem; padding: 15px;">⚔️ TIẾN VÀO TRẬN ĐẤU</button>
+        </div>
     </div>
 
-    <!-- MÀN HÌNH 2: SỰ KIỆN -->
+    <!-- SỰ KIỆN -->
     <div id="screen-event" class="screen">
-        <h2>SỰ KIỆN</h2>
-        <div style="text-align: center; color: var(--text-muted); margin: 30px 0;">
-            "Chúng tôi sẽ sớm cập nhật sự kiện thú vị"
+        <h2>TRUNG TÂM SỰ KIỆN</h2>
+        
+        <div class="stage-card" style="margin-bottom: 20px; border-color: var(--primary);">
+            <h4 style="color: var(--primary); font-size: 1.1rem;">🎁 Nhập Giftcode</h4>
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" id="giftcode-input" style="flex:1; padding: 12px; border: 1px solid var(--border); border-radius: 6px;" placeholder="Nhập mã code tại đây...">
+                <button class="btn-main" onclick="claimCode()" style="width: 100px; margin-top: 0;">Đổi</button>
+            </div>
         </div>
-        <div style="background: #222; padding: 15px; border-radius: 8px;">
-            <h4>Nhập Giftcode</h4>
-            <input type="text" id="giftcode-input" style="width: 100%; padding: 8px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #444;" placeholder="Nhập code...">
-            <button class="btn-main" onclick="claimCode()" style="padding: 8px;">Xác nhận</button>
+
+        <!-- Sự kiện Thuê Tướng -->
+        <div id="event-companion" class="event-banner" style="display: none; background: linear-gradient(135deg, #00b894, #0984e3);">
+            <h3 style="margin-bottom: 5px;">🤝 Mời Lữ Khách Đồng Hành</h3>
+            <p style="font-size: 0.85rem; margin-bottom: 15px;">Chọn 1 tướng bạn chưa sở hữu để dùng thử (Lv.99) trong 5 ngày!</p>
+            <select id="companion-select" style="padding: 8px; border-radius: 5px; width: 100%; margin-bottom: 10px; color: black;"></select>
+            <button class="btn-main" onclick="claimCompanion()" style="background: #fff; color: #0984e3;">Xác nhận Mời</button>
+        </div>
+
+        <!-- Flash Sale -->
+        <div class="stage-card">
+            <h4 style="color: var(--danger); font-size: 1.1rem; margin-bottom: 15px;">🔥 ĐẠI TIỆC SĂN SALE</h4>
+            <div class="card-grid">
+                <div class="shop-card" style="position: relative;">
+                    <div id="sale-hit-tag" class="sale-tag" style="display: none;">-0%</div>
+                    <div style="font-weight: bold; color: var(--primary);">Mảnh Tướng: F.Hit (SKL)</div>
+                    <button class="btn-main" id="btn-buy-hit" onclick="buyChar('hit')"><span id="price-hit">110000</span> 💎</button>
+                </div>
+                <div class="shop-card" style="position: relative;">
+                    <div id="sale-dra-tag" class="sale-tag" style="display: none;">-0%</div>
+                    <div style="font-weight: bold; color: var(--primary);">Mảnh Tướng: O.S DRA (ATK)</div>
+                    <button class="btn-main" id="btn-buy-dra" onclick="buyChar('os_dra')"><span id="price-dra">110000</span> 💎</button>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- MÀN HÌNH 3: TRIỆU HỒI -->
+    <!-- TRIỆU HỒI -->
     <div id="screen-summon" class="screen">
-        <h2>Khu Triệu Hồi</h2>
-        <div style="display:flex; gap: 10px; margin-bottom: 20px;">
-            <button class="btn-main" style="background:#333; color:#fff;">Đăng nhập (Sắp ra)</button>
-            <button class="btn-main" style="background:var(--primary);">Triệu hồi tướng</button>
-        </div>
-        <div style="background: #222; padding: 15px; border-radius: 8px; text-align: center;">
-            <p>1 🔮 Viên Ngọc Thần Bí = 1 Lượt</p>
-            <button class="btn-main" onclick="summon()" style="margin-top: 15px;">Triệu Hồi x1</button>
-            <p id="summon-result" style="margin-top: 10px; color: var(--secondary);"></p>
+        <h2>KHU TRIỆU HỒI</h2>
+        <div class="stage-card" style="text-align: center; padding: 40px 20px;">
+            <div style="font-size: 4rem; margin-bottom: 10px;">🔮</div>
+            <p style="font-size: 1.1rem; font-weight: bold;">1 Ngọc Thần Bí = 1 Lượt</p>
+            <p style="color: var(--text-muted); margin-top: 10px; font-size: 0.9rem;">Bể tướng đã cập nhật dàn SSS mới (Goku, Jiren, Cooler, Broly...)!</p>
+            <button class="btn-main" onclick="summon()" style="margin-top: 25px; font-size: 1.1rem;">Triệu Hồi x1</button>
+            <p id="summon-result" style="margin-top: 20px; color: var(--danger); font-weight: bold; min-height: 20px; font-size: 1.1rem;"></p>
         </div>
     </div>
 
-    <!-- MÀN HÌNH 4: DANH SÁCH & NÂNG CẤP -->
+    <!-- DANH SÁCH & NÂNG CẤP -->
     <div id="screen-roster" class="screen">
-        <h2>ĐỘI HÌNH & NÂNG CẤP</h2>
-        <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Gợi ý: Tướng 1(DEF) -> Tướng 2(ATK) -> Tướng 3(SKL)</div>
-        <div id="roster-list"></div>
-        <hr style="border-color: #333; margin: 20px 0;">
-        <button class="btn-main" style="background: #e74c3c; color: white;" onclick="startMockBattle()">⚔️ Đấu Thử (Mock Battle 3v3)</button>
+        <h2>ĐỘI HÌNH & NÂNG CẤP (Max: LV 350)</h2>
+        <p style="color: var(--danger); font-weight: bold; margin-bottom: 15px;">* Hàng Đầu: Tướng 1 | Hàng Sau: Tướng 2, 3</p>
+        <div id="roster-list" class="card-grid"></div>
+        <hr style="border-color: var(--border); margin: 25px 0;">
+        <button class="btn-main" style="background: var(--danger);" onclick="startBattle('test')">⚔️ Đấu Tập (Test Đội Hình 3v3)</button>
     </div>
 
-    <!-- MÀN HÌNH 5: TÚI ĐỒ -->
+    <!-- TÚI ĐỒ -->
     <div id="screen-inventory" class="screen">
         <h2>TÚI ĐỒ</h2>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center;">
-            <div class="char-card">💎 Kim Cương<br><span id="inv-kc">0</span></div>
-            <div class="char-card">🪙 Xu<br><span id="inv-xu">0</span></div>
-            <div class="char-card">🧪 VP Nâng cấp<br><span id="inv-vpnc">0</span></div>
-            <div class="char-card">🔮 Ngọc Thần Bí<br><span id="inv-vntb">0</span></div>
+        <div class="card-grid">
+            <div class="char-card" style="align-items: center; justify-content: center;"><h3>💎 Kim Cương</h3><span id="inv-kc" style="font-size: 1.5rem; font-weight: bold; color: var(--primary);">0</span></div>
+            <div class="char-card" style="align-items: center; justify-content: center;"><h3>🪙 Xu</h3><span id="inv-xu" style="font-size: 1.5rem; font-weight: bold; color: #e67e22;">0</span></div>
+            <div class="char-card" style="align-items: center; justify-content: center;"><h3>🧪 VP Nâng cấp</h3><span id="inv-vpnc" style="font-size: 1.5rem; font-weight: bold; color: var(--secondary);">0</span></div>
+            <div class="char-card" style="align-items: center; justify-content: center;"><h3>🔮 Ngọc Thần Bí</h3><span id="inv-vntb" style="font-size: 1.5rem; font-weight: bold; color: #9b59b6;">0</span></div>
         </div>
     </div>
 
-    <!-- MÀN HÌNH BATTLE (Ẩn, chỉ dùng cho tính năng Đấu Thử) -->
+    <!-- BATTLE -->
     <div id="screen-battle" class="screen">
-        <h2 style="color: #e74c3c;">CHIẾN ĐẤU (AUTO)</h2>
-        <div class="team-display">
-            <div class="team-side" id="team-player-ui">
-                <h4 style="color:#3498db; text-align:center;">Đội Bạn</h4>
-                <!-- Render bằng JS -->
+        <h2 id="battle-title" style="color: var(--danger);">CHIẾN ĐẤU (AUTO)</h2>
+        <div class="battle-layout">
+            <div class="team-display">
+                <div class="team-side" id="team-player-ui"></div>
+                <div class="team-side" id="team-enemy-ui"></div>
             </div>
-            <div class="team-side" id="team-enemy-ui">
-                <h4 style="color:#e74c3c; text-align:center;">Bot Hệ Thống</h4>
-                <!-- Render bằng JS -->
-            </div>
+            <div id="battle-log"></div>
         </div>
-        <div id="battle-log"></div>
-        <button class="btn-main" id="btn-leave-battle" onclick="leaveBattle()" style="display:none; margin-top: 10px;">Thoát Trận</button>
+        <button class="btn-main" id="btn-leave-battle" onclick="leaveBattle()" style="display:none; margin-top: 20px; background: #95a5a6;">Trở Về Sảnh</button>
     </div>
 
     <!-- THANH ĐIỀU HƯỚNG -->
     <div id="nav-bar">
-        <button class="nav-btn active" onclick="switchTab('lobby')">🏠<br>Sảnh</button>
+        <button class="nav-btn active" onclick="switchTab('lobby')">🏠<br>Đấu Ải</button>
         <button class="nav-btn" onclick="switchTab('roster')">👥<br>Tướng</button>
         <button class="nav-btn" onclick="switchTab('summon')">🔮<br>Triệu Hồi</button>
         <button class="nav-btn" onclick="switchTab('event')">🎁<br>Sự kiện</button>
@@ -157,57 +197,105 @@
 </div>
 
 <script>
-    // ================= DỮ LIỆU GỐC TƯỚNG =================
+    // ================= DỮ LIỆU TƯỚNG (UPDATE 3) =================
     const DB_CHARACTERS = {
         'kangu': { name: 'Kangu', role: 'DEF', baseHp: 150000000, baseAtk: 13275000, baseDef: 6400, spd: 145, maxEn: 4 },
         'meganer': { name: 'Mega Ner', role: 'ATK', baseHp: 220000000, baseAtk: 14175000, baseDef: 1900, spd: 150, maxEn: 5 },
-        'jaco': { name: 'Jaco', role: 'SKL', baseHp: 190000000, baseAtk: 11475000, baseDef: 3200, spd: 155, maxEn: 4.5 }
+        'jaco': { name: 'Jaco', role: 'SKL', baseHp: 190000000, baseAtk: 11475000, baseDef: 3200, spd: 155, maxEn: 4.5 },
+        'hit': { name: 'F.Hit', role: 'SKL', baseHp: 245000000, baseAtk: 11550000, baseDef: 5400, spd: 155, maxEn: 7 },
+        'os_dra': { name: 'O.S DRA', role: 'ATK', baseHp: 180000000, baseAtk: 15000000, baseDef: 2000, spd: 140, maxEn: 5 },
+        
+        // --- NEW HEROES ---
+        'jiren': { name: 'Jiren', role: 'ATK', baseHp: 235549000, baseAtk: 18750000, baseDef: 3000, spd: 150, maxEn: 4.6 },
+        'goku_xeno': { name: 'Goku (Xeno) SSS', role: 'DEF', baseHp: 290000000, baseAtk: 13500000, baseDef: 6550, spd: 145, maxEn: 3 },
+        'cooler_gold': { name: 'Cooler (Gold) SSS', role: 'DEF', baseHp: 285000000, baseAtk: 13830000, baseDef: 5780, spd: 145, maxEn: 4 },
+        'broly_sp': { name: 'Broly (SP) SSS', role: 'ATK', baseHp: 224500000, baseAtk: 20000000, baseDef: 4300, spd: 150, maxEn: 3 },
+        'zamasu': { name: 'Zamasu (Collapse)', role: 'SKL', baseHp: 276688000, baseAtk: 14348000, baseDef: 4200, spd: 155, maxEn: 4.4 }
     };
+
+    const BOT_POOL = Object.keys(DB_CHARACTERS);
 
     // ================= TRẠNG THÁI NGƯỜI CHƠI =================
     let player = {
-        lvl: 1, exp: 0, kc: 300, xu: 1000, vpnc: 1000, vntb: 2,
+        lvl: 1, exp: 0, kc: 300, xu: 1000, vpnc: 1000, vntb: 2, currentStage: 1,
         usedCodes: [],
         roster: {
-            'meganer': { id: 'meganer', lvl: 1, pos: 2 },
-            'kangu': { id: 'kangu', lvl: 1, pos: 1 }, // Tặng thêm để test đủ đội hình 3 người
-            'jaco': { id: 'jaco', lvl: 1, pos: 3 }    // Tặng thêm để test đủ đội hình 3 người
+            'broly_sp': { id: 'broly_sp', lvl: 1, pos: 2 }, // Tặng tân thủ Broly
+            'goku_xeno': { id: 'goku_xeno', lvl: 1, pos: 1 }, 
+            'zamasu': { id: 'zamasu', lvl: 1, pos: 3 }
         }
     };
+
+    let shopState = { hitBasePrice: 110000, draBasePrice: 110000, hitDiscount: 0, draDiscount: 0 };
+    let battleType = 'campaign'; 
 
     // ================= HỆ THỐNG CƠ BẢN =================
     function initGame() {
         setInterval(updateClock, 1000);
+        setInterval(updateShopSale, 5000); 
+        checkEvent();
         updateUI();
+        updateCampaignUI();
     }
 
-    function updateClock() {
-        const now = new Date();
-        document.getElementById('real-time-clock').innerText = now.toLocaleString('vi-VN');
-    }
+    function updateClock() { document.getElementById('real-time-clock').innerText = new Date().toLocaleString('vi-VN'); }
 
     function formatNum(num) {
         if(num >= 1000000) return (num/1000000).toFixed(1) + 'M';
         if(num >= 1000) return (num/1000).toFixed(1) + 'K';
-        return num.toString();
+        return Math.floor(num).toString();
+    }
+
+    function checkEvent() {
+        // Date: 20/08/2026 -> 04/09/2026
+        const now = new Date();
+        const start = new Date(2026, 7, 20, 23, 0, 0); // Tháng 7 là August trong JS Date
+        const end = new Date(2026, 8, 4, 23, 0, 0); // Tháng 8 là Sept
+        
+        if (now >= start && now <= end) {
+            document.getElementById('event-companion').style.display = 'block';
+            populateCompanionSelect();
+        }
+    }
+
+    function populateCompanionSelect() {
+        const select = document.getElementById('companion-select');
+        select.innerHTML = '';
+        let hasOptions = false;
+        for (let id in DB_CHARACTERS) {
+            if (!player.roster[id]) {
+                select.innerHTML += `<option value="${id}">${DB_CHARACTERS[id].name}</option>`;
+                hasOptions = true;
+            }
+        }
+        if(!hasOptions) {
+            select.innerHTML = '<option>Bạn đã sở hữu toàn bộ tướng!</option>';
+            select.disabled = true;
+        }
+    }
+
+    function claimCompanion() {
+        const select = document.getElementById('companion-select');
+        if (select.disabled) return;
+        const id = select.value;
+        if (!player.roster[id]) {
+            // Đánh dấu trial và ngày hết hạn
+            player.roster[id] = { id: id, lvl: 99, pos: 4, isTrial: true, expireAt: Date.now() + (5 * 24 * 60 * 60 * 1000) };
+            alert(`Đã mời thành công ${DB_CHARACTERS[id].name} (Lv.99)! Tướng sẽ rời đi sau 5 ngày.`);
+            document.getElementById('event-companion').style.display = 'none';
+            updateUI();
+        }
     }
 
     function updateUI() {
-        document.getElementById('res-kc').innerText = player.kc;
-        document.getElementById('res-xu').innerText = player.xu;
-        document.getElementById('res-vpnc').innerText = player.vpnc;
-        document.getElementById('res-vntb').innerText = player.vntb;
-        
-        document.getElementById('inv-kc').innerText = player.kc;
-        document.getElementById('inv-xu').innerText = player.xu;
-        document.getElementById('inv-vpnc').innerText = player.vpnc;
-        document.getElementById('inv-vntb').innerText = player.vntb;
-
+        ['kc', 'xu', 'vpnc', 'vntb'].forEach(res => {
+            document.getElementById(`res-${res}`).innerText = formatNum(player[res]);
+            document.getElementById(`inv-${res}`).innerText = formatNum(player[res]);
+        });
         document.getElementById('player-lvl').innerText = player.lvl;
+        document.getElementById('player-exp').innerText = formatNum(player.exp);
         renderRoster();
     }
-
-    function alertSystem(msg) { alert("Thông báo: " + msg); }
 
     function switchTab(tabId) {
         document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -216,199 +304,333 @@
         event.currentTarget.classList.add('active');
     }
 
-    // ================= SỰ KIỆN & TRIỆU HỒI =================
+    // ================= SỰ KIỆN & CỬA HÀNG =================
     function claimCode() {
         const code = document.getElementById('giftcode-input').value.trim().toUpperCase();
-        if (code === 'CODETUAN001') {
-            if (!player.usedCodes.includes(code)) {
-                player.kc += 400;
-                player.usedCodes.push(code);
-                alertSystem("Đổi code thành công! Nhận 400 Kim Cương.");
-                updateUI();
-            } else alertSystem("Code này đã được sử dụng!");
-        } else alertSystem("Code không hợp lệ!");
-        document.getElementById('giftcode-input').value = '';
+        if (player.usedCodes.includes(code)) return alert("Code đã được sử dụng!");
+        if (code === 'CODETUAN001') { player.kc += 400; player.usedCodes.push(code); alert("Nhận 400 Kim Cương."); }
+        else if (code === 'F.HIT' || code === 'NHANVATMOI') { player.vntb += 3; player.usedCodes.push(code); alert("Nhận 3 Ngọc Thần Bí."); }
+        else return alert("Code không hợp lệ!");
+        document.getElementById('giftcode-input').value = ''; updateUI();
     }
 
-    function summon() {
-        if (player.vntb < 1) return alertSystem("Không đủ Viên Ngọc Thần Bí!");
-        player.vntb -= 1;
+    function updateShopSale() {
+        shopState.hitDiscount = Math.random() < 0.3 ? Math.floor(Math.random() * 84) + 5 : 0;
+        shopState.draDiscount = Math.random() < 0.3 ? Math.floor(Math.random() * 84) + 5 : 0;
         
-        // RNG Logic: 70% Xu, 25% KC, 5% VPNC (Tướng tạm ẩn vì đã cho đủ đội hình test)
-        let r = Math.random();
-        let resultTxt = "";
-        if (r < 0.7) { player.xu += 5000; resultTxt = "Nhận được 5000 Xu!"; }
-        else if (r < 0.95) { player.kc += 100; resultTxt = "Nhận được 100 Kim Cương!"; }
-        else { player.vpnc += 500; resultTxt = "Nhận được 500 VP Nâng cấp!"; }
-
-        document.getElementById('summon-result').innerText = resultTxt;
-        updateUI();
+        const applyDiscount = (id, discount, basePrice) => {
+            const priceEl = document.getElementById(`price-${id}`);
+            const tagEl = document.getElementById(`sale-${id}-tag`);
+            if (discount > 0) {
+                priceEl.innerText = formatNum(basePrice * (1 - discount/100));
+                tagEl.innerText = `-${discount}%`; tagEl.style.display = 'block';
+            } else { priceEl.innerText = formatNum(basePrice); tagEl.style.display = 'none'; }
+        }
+        applyDiscount('hit', shopState.hitDiscount, shopState.hitBasePrice);
+        applyDiscount('dra', shopState.draDiscount, shopState.draBasePrice);
     }
 
-    // ================= TÍNH TOÁN CHỈ SỐ TƯỚNG =================
-    function getCalcStats(charId, lvl) {
-        const base = DB_CHARACTERS[charId];
-        // Công thức tăng trưởng: Tăng 5% chỉ số cơ bản mỗi level
-        const multiplier = 1 + ((lvl - 1) * 0.05);
-        return {
-            hp: Math.floor(base.baseHp * multiplier),
-            atk: Math.floor(base.baseAtk * multiplier),
-            def: Math.floor(base.baseDef * multiplier),
-            spd: base.spd, // SPD không đổi
-            enMax: base.maxEn
-        };
+    function buyChar(id) {
+        if (player.roster[id]) return alert("Đã sở hữu tướng này!");
+        let price = (id === 'hit' ? shopState.hitBasePrice : shopState.draBasePrice) * (1 - (id==='hit'?shopState.hitDiscount:shopState.draDiscount)/100);
+        if (player.kc < price) return alert("Không đủ Kim Cương!");
+        player.kc -= price;
+        player.roster[id] = { id: id, lvl: 1, pos: Object.keys(player.roster).length + 1 };
+        alert(`Mua thành công: ${DB_CHARACTERS[id].name}!`); updateUI();
+    }
+
+    // ================= TRIỆU HỒI =================
+    function summon() {
+        if (player.vntb < 1) return alert("Không đủ Ngọc!");
+        player.vntb -= 1;
+        let r = Math.random(), resultTxt = "";
+        
+        if (r < 0.7) { player.xu += 5000; resultTxt = "Nhận 5,000 Xu!"; }
+        else if (r < 0.95) { player.kc += 100; resultTxt = "Nhận 100 Kim Cương!"; }
+        else if (r < 0.98) { player.vpnc += 500; resultTxt = "Nhận 500 VP Nâng cấp!"; }
+        else {
+            // Tỉ lệ 2% ra tướng ngẫu nhiên
+            let rId = BOT_POOL[Math.floor(Math.random()*BOT_POOL.length)];
+            if (!player.roster[rId]) {
+                player.roster[rId] = { id: rId, lvl: 1, pos: Object.keys(player.roster).length + 1 };
+                resultTxt = `🎉 TRÚNG TƯỚNG: ${DB_CHARACTERS[rId].name}!!`;
+            } else { player.vpnc += 2000; resultTxt = `Trùng ${DB_CHARACTERS[rId].name}, đổi thành 2000 VPNC!`; }
+        }
+        document.getElementById('summon-result').innerText = resultTxt; updateUI();
+    }
+
+    // ================= CHỈ SỐ =================
+    function getCalcStats(charData) {
+        const base = DB_CHARACTERS[charData.id];
+        let lvl = charData.lvl;
+        let multiplier = 1 + ((lvl - 1) * 0.05); // Tăng 5% mỗi cấp
+        
+        let hp = Math.floor(base.baseHp * multiplier);
+        let atk = Math.floor(base.baseAtk * multiplier);
+        let def = Math.floor(base.baseDef * multiplier);
+        let dodge = 0; let dmgReduc = 0; let armorPen = 0;
+
+        // God Skills (Lv >= 251)
+        if (lvl >= 251) {
+            if (charData.id === 'jiren') { hp *= 1.15; atk *= 1.08; dmgReduc += 0.05; }
+            else if (charData.id === 'goku_xeno') { dodge += 0.09; armorPen += 0.06; }
+            else if (charData.id === 'cooler_gold') { atk *= 1.25; dodge += 0.05; }
+            else if (charData.id === 'broly_sp') { hp *= 1.25; }
+            else if (charData.id === 'zamasu') { atk *= 1.10; hp *= 1.08; dodge += 0.07; }
+        }
+
+        return { hp: Math.floor(hp), atk: Math.floor(atk), def: Math.floor(def), spd: base.spd, enMax: base.maxEn, dodge, dmgReduc, armorPen };
     }
 
     function renderRoster() {
-        const container = document.getElementById('roster-list');
-        container.innerHTML = '';
-        
+        const container = document.getElementById('roster-list'); container.innerHTML = '';
         for (let key in player.roster) {
             let char = player.roster[key];
-            let stats = getCalcStats(char.id, char.lvl);
-            let roleClass = 'role-' + DB_CHARACTERS[char.id].role;
-            let cost = char.lvl * 150; // Cost VPNC để lên cấp
             
+            // Xoá tướng trial nếu hết hạn
+            if (char.isTrial && Date.now() > char.expireAt) { delete player.roster[key]; continue; }
+
+            let stats = getCalcStats(char);
+            let cost = char.lvl * 250; 
+            let btnHtml = char.isTrial 
+                ? `<div style="color:var(--danger); font-size:0.8rem; text-align:center; padding: 5px;">Tướng Dùng Thử (Lv.99)</div>`
+                : `<button class="btn-main" style="padding: 6px; font-size:0.85rem;" onclick="upgradeChar('${key}', ${cost})">Nâng cấp (-${cost} VPNC)</button>`;
+
             container.innerHTML += `
                 <div class="char-card">
                     <div class="char-header">
-                        <span>${DB_CHARACTERS[char.id].name} (LV: ${char.lvl}/250) <span class="role-tag ${roleClass}">${DB_CHARACTERS[char.id].role}</span></span>
-                        <span>Vị trí: ${char.pos}</span>
+                        <span>${DB_CHARACTERS[char.id].name} (LV: ${char.lvl}/350)</span>
+                        <span class="role-tag role-${DB_CHARACTERS[char.id].role}">${DB_CHARACTERS[char.id].role}</span>
                     </div>
+                    <div style="font-size: 0.8rem; text-align: right; margin-top:-5px;">Pos: <input type="number" value="${char.pos}" min="1" max="9" style="width:40px; text-align:center;" onchange="updatePos('${key}', this.value)"></div>
                     <div class="char-stats">
                         <span>❤️ HP: ${formatNum(stats.hp)}</span>
                         <span>⚔️ ATK: ${formatNum(stats.atk)}</span>
                         <span>🛡️ DEF: ${stats.def}</span>
                         <span>⚡ SPD: ${stats.spd}</span>
                     </div>
-                    <button class="btn-main" style="padding: 5px; margin-top: 5px;" onclick="upgradeChar('${key}', ${cost})">Nâng cấp (-${cost} VPNC)</button>
+                    ${btnHtml}
                 </div>
             `;
         }
     }
+    
+    function updatePos(id, val) { player.roster[id].pos = parseInt(val); }
 
     function upgradeChar(id, cost) {
         let char = player.roster[id];
-        if(char.lvl >= 250) return alertSystem("Đã đạt cấp tối đa!");
-        if(player.vpnc >= cost) {
-            player.vpnc -= cost;
-            char.lvl++;
-            updateUI();
-        } else {
-            alertSystem("Không đủ VP Nâng cấp!");
-        }
+        if(char.lvl >= 350) return alert("Đã đạt cấp tối đa (350)!");
+        if(player.vpnc >= cost) { player.vpnc -= cost; char.lvl++; updateUI(); } 
+        else { alert("Không đủ VP Nâng cấp!"); }
     }
 
-    // ================= ENGINE BATTLE (AUTO BATTLER) =================
+    // ================= HỆ THỐNG ĐẤU ẢI =================
+    function getStageInfo(stageIndex) {
+        let chapter = Math.ceil(stageIndex / 7);
+        let stageNum = stageIndex % 7 === 0 ? 7 : stageIndex % 7;
+        
+        let baseExp = 100 * Math.pow(1.5, stageIndex - 1);
+        let exp = Math.floor(baseExp * 1.4);  // +40% Event
+        let kc = Math.floor(50 * 1.3); // +30% Event
+        return { chapter, stageNum, isBoss: stageNum === 7, exp, kc, xu: 1000 };
+    }
+
+    function updateCampaignUI() {
+        let sInfo = getStageInfo(player.currentStage);
+        if (sInfo.chapter > 5) return document.getElementById('current-stage-title').innerText = "Đã phá đảo toàn bộ ải!";
+        document.getElementById('current-stage-title').innerText = `Chương ${sInfo.chapter} - Ải ${sInfo.stageNum} ${sInfo.isBoss ? '(BOSS)' : ''}`;
+        document.getElementById('reward-exp').innerText = formatNum(sInfo.exp);
+        document.getElementById('reward-kc').innerText = sInfo.kc;
+        document.getElementById('reward-xu').innerText = sInfo.xu;
+    }
+
+    // ================= ENGINE BATTLE CHUYÊN SÂU =================
     let battleState = { interval: null, fighters: [], log: [] };
 
-    function createFighter(charData, isEnemy, index) {
-        let stats = getCalcStats(charData.id, charData.lvl);
-        return {
-            uid: (isEnemy ? 'E_' : 'P_') + charData.id,
-            name: DB_CHARACTERS[charData.id].name + (isEnemy ? " (Bot)" : ""),
-            id: charData.id,
-            isEnemy: isEnemy,
-            pos: charData.pos, // 1 (Front), 2 (Mid), 3 (Side)
-            lvl: charData.lvl,
-            maxHp: stats.hp, hp: stats.hp,
-            atk: stats.atk, def: stats.def, spd: stats.spd,
-            en: 0, maxEn: stats.enMax,
-            // Buffs/Debuffs & Marks
-            healDebuff: 0, dmgBuff: 0, stun: 0, blockHit: 0, jacoMarks: 0
+    function createFighter(charData, isEnemy) {
+        let base = DB_CHARACTERS[charData.id];
+        let stats = getCalcStats(charData);
+        let isATK = base.role === 'ATK';
+
+        let f = {
+            uid: (isEnemy ? 'E_' : 'P_') + charData.id + Math.random().toString().substr(2,4),
+            name: base.name, id: charData.id, isEnemy: isEnemy, pos: charData.pos, lvl: charData.lvl,
+            maxHp: stats.hp, hp: stats.hp, atk: stats.atk, def: stats.def, spd: stats.spd, en: 0, maxEn: stats.enMax,
+            
+            // Advance Stats
+            critRate: isATK ? 0.10 : 0, critDmg: 3.0, armorPen: stats.armorPen, dodge: stats.dodge,
+            dmgReduc: stats.dmgReduc,
+            
+            // Statuses
+            buffs: [], debuffs: [], shield: 0,
+            hasRevived: false, canRevive: true, protectBy: null, dmgTakenTracker: 0,
+            
+            // Variables for internal logics
+            brolyStk: 0, zamasuStunCD: {}, gokuRevived: false, brolyHasDealt: false
         };
+
+        // Nội tại 1 đầu game
+        if (f.id === 'meganer' && f.lvl >= 50) f.en = 2;
+        if (f.id === 'meganer' && f.lvl >= 80) f.buffs.push({type:'block', count:1});
+        if (f.id === 'broly_sp') {
+            f.armorPen += 0.3; f.buffs.push({type:'dmgBuff', value: 0.65, dispellable: false}); // Mở đầu +65% ST
+            f.critRate += 1.0 + (f.lvl>=80?0.2:0); // +100% crit + 20%
+        }
+        if (f.id === 'jiren') {
+            if (f.lvl >= 80) f.armorPen += 0.45;
+            if (f.lvl >= 130) f.critRate += 0.23;
+        }
+
+        return f;
     }
 
-    function startMockBattle() {
+    function startBattle(type) {
+        battleType = type;
+        if(type === 'campaign' && Math.ceil(player.currentStage/7) > 5) return alert("Hoàn thành mọi ải!");
+        
         switchTab('battle');
         document.getElementById('btn-leave-battle').style.display = 'none';
-        const logUI = document.getElementById('battle-log');
-        logUI.innerHTML = '';
-        
+        document.getElementById('battle-log').innerHTML = '';
         battleState.fighters = [];
-        // Khởi tạo Team Player
-        Object.values(player.roster).forEach(c => battleState.fighters.push(createFighter(c, false)));
-        // Khởi tạo Team Bot (Cùng đội hình nhưng lv + 5)
-        Object.values(player.roster).forEach(c => battleState.fighters.push(createFighter({id: c.id, lvl: c.lvl + 5, pos: c.pos}, true)));
-
-        // Áp dụng nội tại đầu game: Mega Ner LV >= 50 nhận 2 EN
-        battleState.fighters.forEach(f => {
-            if(f.id === 'meganer' && f.lvl >= 50) f.en = 2;
-            if(f.id === 'meganer' && f.lvl >= 80) f.blockHit = 1; // "Song Bích" - chặn 1 đòn
-        });
-
-        // Xác định team đi trước (Random) -> Xếp theo SPD
-        let teamFirst = Math.random() > 0.5 ? false : true; 
-        logSys(`Trận đấu bắt đầu! Đội ${teamFirst ? 'Bot' : 'Bạn'} được quyền ưu tiên hành động.`);
         
+        let pTeam = Object.values(player.roster).sort((a,b)=>a.pos-b.pos).slice(0, 3);
+        pTeam.forEach(c => battleState.fighters.push(createFighter(c, false)));
+        
+        if (type === 'campaign') {
+            document.getElementById('battle-title').innerText = `ĐẤU ẢI (ẢI ${player.currentStage})`;
+            let sInfo = getStageInfo(player.currentStage);
+            // Giảm độ khó chương 1 (lvl bot = stage * 1 thay vì stage * 3)
+            let diffMult = sInfo.chapter === 1 ? 1 : 2; 
+            let botLvl = player.currentStage * diffMult + (sInfo.isBoss?5:0); 
+            
+            for(let i=1; i<=3; i++) {
+                let rId = BOT_POOL[Math.floor(Math.random()*BOT_POOL.length)];
+                battleState.fighters.push(createFighter({id: rId, lvl: Math.max(1, botLvl), pos: i}, true));
+            }
+        } else {
+            document.getElementById('battle-title').innerText = "ĐẤU TẬP (MOCK BATTLE)";
+            pTeam.forEach((c,idx) => battleState.fighters.push(createFighter({id: c.id, lvl: c.lvl, pos: idx+1}, true)));
+        }
+
+        logSys("Trận đấu bắt đầu! Auto Battle.");
         updateBattleUI();
-        
-        // Loop 1s/action
         battleState.interval = setInterval(battleTick, 1000);
     }
 
-    // Logic xử lý sát thương 
+    // --- PIPELINE XỬ LÝ SÁT THƯƠNG ---
     function doDamage(attacker, defender, rawDmg, isSkill = false) {
-        if(defender.blockHit > 0) {
-            defender.blockHit--;
-            logAction(`${defender.name} nhờ [Song Bích] đã né/chặn hoàn toàn sát thương!`, 'skill-text');
-            return 0;
+        if(defender.hp <= 0) return 0;
+        
+        // 1. Dodge Check
+        if(Math.random() < defender.dodge) { logAction(`${defender.name} 💨 NÉ TRÁNH hoàn toàn!`); return 0; }
+        
+        // Block mechanics
+        let blockBuff = defender.buffs.find(b=>b.type==='block');
+        if(blockBuff && blockBuff.count > 0) {
+            blockBuff.count--; logAction(`${defender.name} 🛡️ chặn đứng đòn đánh nhờ Song Bích!`); return 0;
         }
 
-        // Tính giảm ST: 100 DEF giảm 0.1% -> DEF * 0.001 %
-        let defReduction = (defender.def / 100) * 0.001;
-        if(defReduction > 0.9) defReduction = 0.9; // Cap 90%
-        
-        // Nội tại Mega Ner: HP < 20% -> ST +10%
-        let atkMod = 1;
-        if(attacker.id === 'meganer' && (attacker.hp/attacker.maxHp) < 0.2) atkMod += 0.1;
-        // Buff từ kỹ năng (Ví dụ Jaco buff)
-        if(attacker.dmgBuff > 0) atkMod += attacker.dmgBuff;
-        // Nội tại Kangu: Mất 7% hp tăng 1% ST (lv50)
-        if(attacker.id === 'kangu' && attacker.lvl >= 50) {
-            let hpLostPct = 1 - (attacker.hp / attacker.maxHp);
-            atkMod += Math.floor(hpLostPct / 0.07) * 0.01;
+        // Broly God skill 1 shield check
+        if(!attacker.brolyHasDealt && attacker.id === 'broly_sp' && attacker.lvl >= 251) {
+            attacker.shield += Math.floor(attacker.maxHp * 0.1); attacker.brolyHasDealt = true;
+            logSys(`${attacker.name} nhận Khiên Thần!`);
         }
 
-        let finalDmg = Math.floor(rawDmg * atkMod * (1 - defReduction));
-        defender.hp -= finalDmg;
-        if(defender.hp < 0) defender.hp = 0;
-        return finalDmg;
-    }
+        // 2. Tăng/Giảm ST từ Attacker (Buffs & Berserk)
+        let atkMult = 1.0;
+        attacker.buffs.filter(b=>b.type==='dmgBuff').forEach(b => atkMult += b.value);
+        if(attacker.id === 'meganer' && (attacker.hp/attacker.maxHp) < 0.2) atkMult += 0.1;
+        if(attacker.id === 'jiren' && (attacker.hp/attacker.maxHp) < 0.3) {
+            let hpLost = 100 - (attacker.hp/attacker.maxHp)*100;
+            atkMult += Math.floor(hpLost/0.5) * 0.01; // Berserk
+        }
 
-    // Logic Hồi máu
-    function doHeal(healer, target, rawHeal) {
-        let finalHeal = rawHeal;
-        // Nội tại Jaco LV80: Đồng đội <50% nhận +20% hồi từ Jaco
-        if(healer.id === 'jaco' && healer.lvl >= 80 && (target.hp/target.maxHp) < 0.5) finalHeal *= 1.2;
-        // Nội tại Jaco: Đồng đội có 3 dấu HP + 10%
-        if(target.jacoMarks >= 3) finalHeal *= 1.1;
+        // 3. Crit Check (Chỉ Skill)
+        let isCrit = false;
+        if(isSkill) {
+            let totalCritR = attacker.critRate;
+            attacker.buffs.filter(b=>b.type==='critRate').forEach(b => totalCritR += b.value);
+            if(Math.random() < totalCritR) { isCrit = true; atkMult *= attacker.critDmg; }
+        }
+
+        // 4. Giảm ST từ Defender (Debuffs, Protect, Global)
+        let defMult = 1.0 - defender.dmgReduc;
+        defender.debuffs.filter(b=>b.type==='dmgReduc').forEach(b => defMult -= b.value);
+        if(defender.protectBy) defMult -= 0.15; // Goku Xeno passive 2
+        // GLOBAL PASSIVE: 20% tỉ lệ giảm 30% ST
+        if(Math.random() < 0.2) { defMult -= 0.30; }
+        if(defMult < 0.1) defMult = 0.1; // Cap 90% giảm ST
+
+        // Armor Calculation
+        let effectiveDef = defender.def * (1 - (attacker.armorPen || 0));
+        let armorMitigation = (effectiveDef / 100) * 0.001; 
+        if(armorMitigation > 0.8) armorMitigation = 0.8;
+
+        let finalDmg = Math.floor(rawDmg * atkMult * (1 - armorMitigation) * defMult);
+
+        // 5. Apply Damage & Protect Split
+        if(defender.protectBy && defender.protectBy.hp > 0) {
+            let splitDmg = Math.floor(finalDmg * 0.25);
+            finalDmg -= splitDmg;
+            logSys(`🛡️ ${defender.protectBy.name} gánh ${formatNum(splitDmg)} ST cho ${defender.name}!`);
+            applyDmgCore(attacker, defender.protectBy, splitDmg);
+        }
+
+        applyDmgCore(attacker, defender, finalDmg);
         
-        // Debuff suy giảm (Kangu)
-        if(target.healDebuff > 0) finalHeal *= (1 - target.healDebuff);
-
-        finalHeal = Math.floor(finalHeal);
-        target.hp += finalHeal;
-        if(target.hp > target.maxHp) target.hp = target.maxHp;
-        return finalHeal;
+        let critTag = isCrit ? ' <span class="crit-text">BẠO KÍCH!</span>' : '';
+        return { dmg: finalDmg, isCrit, text: critTag };
     }
 
-    function getTarget(attacker, team) {
-        // Tìm Tướng 1 trước, nếu chết tìm 2, rồi 3
-        let t1 = team.find(f => f.hp > 0 && f.pos === 1);
-        if(t1) return t1;
-        let t2 = team.find(f => f.hp > 0 && f.pos === 2);
-        if(t2) return t2;
-        return team.find(f => f.hp > 0 && f.pos === 3);
+    function applyDmgCore(attacker, target, amt) {
+        if (target.shield > 0) {
+            let rem = target.shield - amt;
+            if (rem >= 0) { target.shield = rem; amt = 0; }
+            else { target.shield = 0; amt = -rem; }
+        }
+        target.hp -= amt;
+        
+        // Track for Jiren's Severe Wound
+        let swBuff = target.debuffs.find(d=>d.type==='severe_wound');
+        if(swBuff) swBuff.storedDmg += amt;
+
+        if (target.hp <= 0) {
+            // Check Brave (Broly)
+            let killerBrave = attacker.buffs.some(b=>b.type==='brave');
+            if (killerBrave) target.canRevive = false;
+
+            if (target.id === 'hit' && !target.hasRevived && target.canRevive) {
+                target.hp = Math.floor(target.maxHp * 0.8); target.hasRevived = true;
+                logAction(`🔥 ${target.name} HỒI SINH với 80% HP!`, 'skill-text');
+                
+                // Trigger Hit team dmg reduc (Simplified: handled dynamically in tick normally, but we ignore complex re-calc here)
+            } else {
+                target.hp = 0;
+                // Broly heal on any death
+                let broly = battleState.fighters.find(f=> f.id === 'broly_sp' && f.hp > 0);
+                if(broly) {
+                    broly.hp = Math.min(broly.maxHp, broly.hp + Math.floor(broly.maxHp*0.12));
+                    broly.buffs.push({type:'brave'});
+                    logSys(`${broly.name} được buff [Dũng cảm] và hồi máu từ cái chết trên sân!`);
+                }
+            }
+        }
     }
 
-    function getLowestHpAlly(team) {
-        let alive = team.filter(f => f.hp > 0);
-        if(alive.length === 0) return null;
-        alive.sort((a,b) => (a.hp/a.maxHp) - (b.hp/b.maxHp));
-        return alive[0];
+    function getTarget(actor, enemyTeam, preferBack = false) {
+        let alive = enemyTeam.filter(f=>f.hp>0);
+        if(alive.length===0) return null;
+        if(actor.id === 'hit' && actor.en < actor.maxEn) {
+            return alive.sort((a,b) => b.atk - a.atk)[0];
+        }
+        if(preferBack) {
+            let back = alive.filter(f=> f.pos > 1);
+            if(back.length > 0) return back[0];
+        }
+        return alive.find(f => f.pos === 1) || alive.find(f => f.pos === 2) || alive[0];
     }
 
+    // --- BATTLE TICK LOOP ---
     function battleTick() {
         let aliveFighters = battleState.fighters.filter(f => f.hp > 0);
         let teamPlayer = aliveFighters.filter(f => !f.isEnemy);
@@ -417,162 +639,249 @@
         if(teamPlayer.length === 0 || teamEnemy.length === 0) {
             clearInterval(battleState.interval);
             let win = teamPlayer.length > 0;
-            logSys(`TRẬN ĐẤU KẾT THÚC! ${win ? 'Bạn Thắng!' : 'Bạn Thua!'}`);
-            if(win) { player.exp += 150; updateUI(); }
+            logSys(`TRẬN ĐẤU KẾT THÚC! ${win ? 'THẮNG!' : 'THUA!'}`);
+            
+            if(win && battleType === 'campaign') {
+                let sInfo = getStageInfo(player.currentStage);
+                player.exp += sInfo.exp; player.kc += sInfo.kc; player.xu += sInfo.xu;
+                player.currentStage++;
+                if(player.exp >= player.lvl * 1000) { player.exp -= player.lvl * 1000; player.lvl++; }
+                updateCampaignUI(); updateUI();
+            }
             document.getElementById('btn-leave-battle').style.display = 'block';
             return;
         }
 
-        // Lấy danh sách queue hiện tại (giả lập SPD order). Để đơn giản, sort theo SPD mỗi tick, lấy người đầu tiên chưa đi turn này.
-        // Bổ sung thuộc tính tickReady
+        // Tick sorting
         aliveFighters.forEach(f => { if(f.tickReady === undefined) f.tickReady = true; });
-        let readyFighters = aliveFighters.filter(f => f.tickReady).sort((a,b) => b.spd - a.spd);
-        
-        // Reset vòng lặp nếu tất cả đã đi
-        if(readyFighters.length === 0) {
-            aliveFighters.forEach(f => f.tickReady = true);
-            readyFighters = aliveFighters.sort((a,b) => b.spd - a.spd);
+        let ready = aliveFighters.filter(f => f.tickReady).sort((a,b) => b.spd - a.spd);
+        if(ready.length === 0) {
+            aliveFighters.forEach(f => { f.tickReady = true; f.brolyStk++; }); // Round ends
+            
+            // Broly dmg scaling per 2 turns (rounds)
+            aliveFighters.filter(f=>f.id==='broly_sp' && f.brolyStk % 2 === 0).forEach(b => {
+                let current = b.buffs.filter(x=>x.id==='brolyScale').length;
+                if(current < 3) b.buffs.push({type:'dmgBuff', value: 0.25, id:'brolyScale', dispellable: false});
+            });
+            ready = aliveFighters.sort((a,b) => b.spd - a.spd);
         }
 
-        let actor = readyFighters[0];
-        actor.tickReady = false;
+        let actor = ready[0]; actor.tickReady = false;
         
-        // Quản lý Buff/Debuff hết hạn (Đơn giản hóa: Trừ đi mỗi khi đến lượt)
-        if(actor.stun > 0) {
-            actor.stun--;
-            logAction(`💢 ${actor.name} bị choáng, mất lượt!`, 'dmg-text');
-            updateBattleUI();
-            return;
+        // -- Start of Turn Procs --
+        // Cooler Heal
+        if(actor.id === 'cooler_gold' && actor.lvl >= 80 && actor.debuffs.length > 0) {
+            actor.hp = Math.min(actor.maxHp, actor.hp + actor.atk * 1.8);
+            if(actor.lvl >= 130) actor.buffs.push({type:'dmgReduc', value: 0.2, turns: 1});
         }
-        actor.dmgBuff = 0; // Xoá buff ST 1 hiệp trước khi đánh
+        // Broly EN
+        if(actor.id === 'broly_sp' && actor.lvl >= 130 && (actor.hp/actor.maxHp) > 0.8) actor.en += 2;
+        // Goku Xeno Heal < 50%
+        if(actor.id === 'goku_xeno' && actor.lvl >= 200 && (actor.hp/actor.maxHp) < 0.5 && !actor.gokuRevived) {
+            actor.hp = Math.min(actor.maxHp, actor.hp + actor.maxHp * 0.5); actor.gokuRevived = true;
+            logSys(`${actor.name} Hồi phục 50% HP tối đa!`);
+        }
+        
+        // DoTs & Debuffs
+        let isStunned = false;
+        actor.debuffs.forEach(d => {
+            if(d.type === 'stun') isStunned = true;
+            if(d.type === 'corrosion') applyDmgCore(actor, actor, Math.min(actor.maxHp*0.03, d.sourceAtk*0.23) * d.stacks);
+            if(d.type === 'bleeding') applyDmgCore(actor, actor, d.sourceAtk * 0.1 * (actor.lvl>=251?1.2:1.0));
+            // Zamasu Terror check
+            if(d.type === 'terror' && Math.random() < 0.5) isStunned = true; 
+        });
+
+        // Resolve Severe Wound popping before action
+        let swBuffs = actor.debuffs.filter(d=>d.type==='severe_wound' && d.turns <= 0);
+        swBuffs.forEach(sw => {
+            let mult = sw.godLvl ? 0.4 : 0.2; // 20% base, 40% god
+            let popDmg = Math.floor(sw.storedDmg * mult);
+            if(popDmg > 0) {
+                logAction(`💥 [Severe Wound] nổ trên ${actor.name} gây <span class="dmg-text">${formatNum(popDmg)} ST</span>!`);
+                applyDmgCore(sw.source, actor, popDmg);
+            }
+        });
+        
+        if(actor.hp <= 0) { updateBattleUI(); return; }
+
+        if(isStunned) { logAction(`💢 ${actor.name} bị CHOÁNG, mất lượt!`); updateBuffs(actor); updateBattleUI(); return; }
+        
+        // Remove old buffs that only last 1 turn for self before attacking
+        actor.buffs = actor.buffs.filter(b => b.turns === undefined || b.turns > 0);
 
         let myTeam = actor.isEnemy ? teamEnemy : teamPlayer;
-        let enemyTeam = actor.isEnemy ? teamPlayer : teamEnemy;
-        let mainTarget = getTarget(actor, enemyTeam);
+        let oppTeam = actor.isEnemy ? teamPlayer : teamEnemy;
+        let preferBack = (actor.id === 'jiren' && actor.lvl >= 80) || actor.id === 'cooler_gold';
+        let mainTgt = getTarget(actor, oppTeam, preferBack);
+        if(!mainTgt) return;
 
-        // ===== XỬ LÝ KỸ NĂNG THEO TƯỚNG =====
+        // ================= KỸ NĂNG CHỦ ĐỘNG =================
         if(actor.en >= actor.maxEn) {
-            // == TUNG KỸ NĂNG CHỦ ĐỘNG ==
-            actor.en = 0;
-            logAction(`🌟 ${actor.name} kích hoạt <span class="skill-text">Kỹ Năng Chủ Động</span>!`);
+            actor.en = 0; logAction(`🌟 ${actor.name} tung <span class="skill-text">Kỹ Năng</span>!`);
             
-            if(actor.id === 'kangu') {
-                // Kangu: 200% ATK + 5% máu địch + Suy giảm 40% hồi
-                let atkMod = actor.lvl >= 150 ? 2.3 : 2.0;
-                let dmg = doDamage(actor, mainTarget, actor.atk * atkMod, true);
-                let extraDmg = Math.floor(mainTarget.hp * 0.05);
-                mainTarget.hp = Math.max(0, mainTarget.hp - extraDmg);
-                mainTarget.healDebuff = 0.4; // Giảm 40% hồi phục
-                logAction(`> Phóng tia năng lượng vào ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} + ${formatNum(extraDmg)} ST</span> và suy giảm hồi phục!`);
-                
-                // Nội tại 3 (LV100): 75% thêm 1 tia
-                if(actor.lvl >= 100 && Math.random() < 0.75) {
-                    let dmg2 = doDamage(actor, mainTarget, (actor.atk * atkMod) * 0.75, true);
-                    logAction(`> ⚡ Nội tại: Bắn tia thứ 2 gây <span class="dmg-text">${formatNum(dmg2)} ST</span>!`);
+            if(actor.id === 'goku_xeno') {
+                let debuffTurns = actor.lvl >= 180 ? 3 : 2;
+                oppTeam.forEach(e => {
+                    let r = doDamage(actor, e, actor.atk * 0.55, true);
+                    e.debuffs.push({type: 'dmgReduc', value: 0.1, turns: debuffTurns});
+                });
+                logAction(`> Đánh toàn địch giảm 10% ST của chúng!`);
+                if(actor.lvl >= 80 && (actor.hp/actor.maxHp) > 0.5) {
+                    let lowestAlly = myTeam.filter(a=>a.uid!==actor.uid).sort((a,b)=> (a.hp/a.maxHp) - (b.hp/b.maxHp))[0];
+                    if(lowestAlly) { lowestAlly.protectBy = actor; logSys(`🛡️ ${lowestAlly.name} nhận được [Bảo vệ] từ Goku!`); }
                 }
-            } 
-            else if(actor.id === 'meganer') {
-                // Mega Ner: 280% ATK, tăng 15% ST hiệp sau
-                let dmg = doDamage(actor, mainTarget, actor.atk * 2.8, true);
-                actor.dmgBuff = 0.15;
-                logAction(`> Dịch chuyển và chém ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>, nhận buff Tăng ST hiệp sau!`);
+                if(actor.lvl >= 251) actor.hp = Math.min(actor.maxHp, actor.hp + actor.maxHp * 0.04);
             }
-            else if(actor.id === 'jaco') {
-                // Jaco: 105% ATK, hồi máu toàn đội 150% (175% ở lv150)
-                let dmg = doDamage(actor, mainTarget, actor.atk * 1.05, true);
-                let healMod = actor.lvl >= 150 ? 1.75 : 1.5;
-                myTeam.forEach(ally => doHeal(actor, ally, actor.atk * healMod));
-                logAction(`> Đánh cường hoá ${mainTarget.name} <span class="dmg-text">${formatNum(dmg)} ST</span> và Hồi phục <span class="heal-text">toàn đội</span>!`);
-                
-                // Nội tại 1: Buff 18% ST cho 1 đồng đội
-                if(actor.lvl >= 50) {
-                    let others = myTeam.filter(a => a.uid !== actor.uid);
-                    if(others.length > 0) {
-                        let lucky = others[Math.floor(Math.random()*others.length)];
-                        lucky.dmgBuff = 0.18;
-                        logAction(`> 🛡️ ${lucky.name} nhận 18% ST cho hiệp tới!`);
+            else if(actor.id === 'cooler_gold') {
+                let dmgMult = actor.lvl >= 180 ? 3.2 : 2.75;
+                let r = doDamage(actor, mainTgt, actor.atk * dmgMult, true);
+                if(Math.random() < 0.4) mainTgt.debuffs.push({type: 'stun', turns: 1});
+                if(actor.lvl >= 251 && Math.random() < 0.6) mainTgt.buffs = mainTgt.buffs.filter(b=>b.dispellable===false);
+                logAction(`> Đấm ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>${r.text}`);
+            }
+            else if(actor.id === 'jiren') {
+                let dmgMult = actor.lvl >= 180 ? 3.15 : 2.75;
+                let r = doDamage(actor, mainTgt, actor.atk * dmgMult, true);
+                let crBuff = actor.buffs.filter(b=>b.id==='jirenCrit');
+                if(crBuff.length < 3) actor.buffs.push({type:'critRate', value: 0.15, id:'jirenCrit', dispellable: false});
+                logAction(`> Phồng tôm ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>${r.text}. Buff Bạo Kích!`);
+            }
+            else if(actor.id === 'broly_sp') {
+                let r = doDamage(actor, mainTgt, actor.atk * 2.75, true);
+                if(!actor.buffs.some(b=>b.id==='brolyCrit')) actor.buffs.push({type:'critRate', value: 0.3, id:'brolyCrit', dispellable: false});
+                actor.buffs.push({type:'brave', turns: 1});
+                logAction(`> Vụ Nổ Cầu Vồng vào ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>${r.text}. Bật [Dũng cảm] chống hồi sinh!`);
+            }
+            else if(actor.id === 'zamasu') {
+                let total = 0;
+                oppTeam.forEach(e => {
+                    total += doDamage(actor, e, actor.atk * 1.10, true).dmg;
+                    if(Math.random() < 0.3) {
+                        e.debuffs.push({type:'terror', turns:2});
+                        e.debuffs.push({type:'dmgReduc', value:0.3, turns:2});
                     }
-                }
+                });
+                logAction(`> 🗡️ Lưỡi Kiếm Thánh gây <span class="dmg-text">${formatNum(total)} tổng ST</span>, gieo rắc [Terror]!`);
+            }
+            else if(actor.id === 'hit') {
+                let total = 0;
+                oppTeam.forEach(e => { 
+                    total += doDamage(actor, e, actor.atk * 1.10, true).dmg; 
+                    let corr = e.debuffs.find(b => b.type === 'corrosion');
+                    if (corr) { corr.stacks = Math.min(5, corr.stacks + 1); corr.turns = 4; } 
+                    else { e.debuffs.push({ type: 'corrosion', stacks: 1, turns: 4, sourceAtk: actor.atk }); }
+                });
+                logAction(`> Ám sát diện rộng gây <span class="dmg-text">${formatNum(total)} tổng ST</span> và gắn [Ăn Mòn]!`);
+            }
+            // Kangu, Jaco, Meganer (Tóm tắt để đỡ rối code)
+            else {
+                doDamage(actor, mainTgt, actor.atk * 2.5, true);
+                logAction(`> Đánh mạnh vào ${mainTgt.name}!`);
             }
         } else {
-            // == ĐÁNH THƯỜNG ==
-            if(actor.id === 'kangu') {
-                let dmg = doDamage(actor, mainTarget, actor.atk * 0.85);
-                actor.en += 1.7;
-                let stunTxt = "";
-                // Nội tại 2 (LV80): 10% Choáng
-                if(actor.lvl >= 80 && Math.random() < 0.1) {
-                    mainTarget.stun = 1; stunTxt = " kèm <b>CHOÁNG</b>!";
+            // ================= ĐÁNH THƯỜNG =================
+            if(actor.id === 'zamasu') {
+                let total = 0; actor.en += 1.3;
+                oppTeam.forEach(e => {
+                    total += doDamage(actor, e, actor.atk * 0.88).dmg;
+                    e.debuffs.push({type:'bleeding', turns:2, sourceAtk: actor.atk});
+                    // Zamasu Stun hit (CD 4 turns)
+                    let tickNow = actor.brolyStk; // reuse generic turn counter
+                    if(Math.random() < 0.8 && (!actor.zamasuStunCD[e.uid] || tickNow >= actor.zamasuStunCD[e.uid] + 4)) {
+                        e.debuffs.push({type:'stun', turns: 1}); actor.zamasuStunCD[e.uid] = tickNow;
+                        logSys(`${e.name} bị Trúng Đòn Khống Chế!`);
+                    }
+                });
+                logAction(`🪄 Cầu Sấm quét toàn địch gây <span class="dmg-text">${formatNum(total)} tổng ST</span>`);
+            }
+            else if(actor.id === 'jiren') {
+                let r = doDamage(actor, mainTgt, actor.atk * 0.98); actor.en += 1.8;
+                if(actor.lvl >= 130) {
+                    let sw = mainTgt.debuffs.find(d=>d.type==='severe_wound');
+                    if(sw) { sw.turns = 2; }
+                    else { mainTgt.debuffs.push({type:'severe_wound', turns: 2, storedDmg: 0, source: actor, godLvl: actor.lvl>=251}); }
                 }
-                logAction(`🗡️ ${actor.name} đập ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>${stunTxt}`);
+                logAction(`🤜 ${actor.name} đấm ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>`);
             }
-            else if(actor.id === 'meganer') {
-                // Đánh AoE
-                let totalDmg = 0;
-                enemyTeam.forEach(e => { totalDmg += doDamage(actor, e, actor.atk * 0.95); });
-                actor.en += 1.4;
-                if(actor.lvl >= 150) actor.dmgBuff = 0.08;
-                logAction(`🌪️ ${actor.name} quét Nộ diện rộng gây <span class="dmg-text">${formatNum(totalDmg)} tổng ST</span>`);
+            else if(actor.id === 'broly_sp') {
+                let r = doDamage(actor, mainTgt, actor.atk * 1.0); actor.en += 1.0;
+                logAction(`🤜 Khỉ Đột càn quét ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>`);
             }
-            else if(actor.id === 'jaco') {
-                let dmg = doDamage(actor, mainTarget, actor.atk * 0.88);
-                actor.en += 1.2;
-                let lowestAlly = getLowestHpAlly(myTeam);
-                if(lowestAlly && lowestAlly.jacoMarks < 3) lowestAlly.jacoMarks++;
-                logAction(`🪄 ${actor.name} bắn ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>. Gắn dấu HP lên ${lowestAlly ? lowestAlly.name : ''}`);
+            else if(actor.id === 'goku_xeno' || actor.id === 'cooler_gold') {
+                let r = doDamage(actor, mainTgt, actor.atk * 1.0); actor.en += 1.0;
+                logAction(`🤜 ${actor.name} đánh ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>`);
+            }
+            else {
+                let r = doDamage(actor, mainTgt, actor.atk * 0.9); actor.en += 1.5;
+                logAction(`⚔️ ${actor.name} chém ${mainTgt.name} gây <span class="dmg-text">${formatNum(r.dmg)} ST</span>`);
             }
         }
         
+        updateBuffs(actor); // Giảm CD hiệu ứng cuối lượt
+        
+        const logBox = document.getElementById('battle-log');
+        if(logBox.children.length > 30) logBox.removeChild(logBox.firstChild); 
         updateBattleUI();
     }
 
-    function logAction(msg) {
+    function updateBuffs(actor) {
+        actor.buffs.forEach(b => { if(b.turns) b.turns--; });
+        actor.debuffs.forEach(d => { if(d.turns) d.turns--; });
+        actor.buffs = actor.buffs.filter(b => b.turns === undefined || b.turns > 0);
+        actor.debuffs = actor.debuffs.filter(d => (d.turns === undefined || d.turns > 0) && d.type !== 'severe_wound'); 
+        // Severe wound bị loại ở đây vì nó nổ ở đầu lượt rồi biến mất
+        actor.protectBy = null; // Xóa bảo vệ sau 1 lượt
+    }
+
+    function logAction(msg, cssClass='') {
         const log = document.getElementById('battle-log');
-        log.innerHTML += `<div class="log-item">${msg}</div>`;
+        log.innerHTML += `<div class="log-item ${cssClass}">${msg}</div>`;
         log.scrollTop = log.scrollHeight;
     }
-    function logSys(msg) { logAction(`<span style="color:#03dac6; font-weight:bold;">[HỆ THỐNG] ${msg}</span>`); }
+    function logSys(msg) { logAction(`<span style="color:var(--secondary); font-weight:bold;">[HỆ THỐNG] ${msg}</span>`); }
 
     function updateBattleUI() {
-        const pUI = document.getElementById('team-player-ui');
-        const eUI = document.getElementById('team-enemy-ui');
-        
-        let pHTML = '<h4 style="color:#3498db; text-align:center;">Đội Bạn</h4>';
-        let eHTML = '<h4 style="color:#e74c3c; text-align:center;">Bot Hệ Thống</h4>';
+        const renderTeam = (team, isEn) => {
+            let html = `<h4 style="color:${isEn?'var(--danger)':'var(--primary)'}; text-align:center; margin-bottom:10px;">${isEn?'Kẻ Địch':'Đội Của Bạn'}</h4>`;
+            battleState.fighters.filter(f=>f.isEnemy===isEn).forEach(f => {
+                let hpPct = Math.max(0, (f.hp / f.maxHp) * 100);
+                let enPct = Math.min(100, (f.en / f.maxEn) * 100);
+                let shldPct = Math.min(100, (f.shield / f.maxHp) * 100);
+                let barColor = isEn ? 'var(--danger)' : (hpPct < 30 ? '#e67e22' : 'var(--secondary)');
+                
+                let icons = f.debuffs.some(d=>d.type==='stun') ? '💫 ' : '';
+                let sw = f.debuffs.find(d=>d.type==='severe_wound');
+                if (sw) icons += `💢 `;
 
-        battleState.fighters.forEach(f => {
-            let hpPct = (f.hp / f.maxHp) * 100;
-            let enPct = Math.min(100, (f.en / f.maxEn) * 100);
-            let barColor = hpPct < 30 ? '#c0392b' : '#3498db';
-            if(f.isEnemy) barColor = '#e74c3c';
-
-            let html = `
-                <div style="margin-bottom: 8px; opacity: ${f.hp <= 0 ? 0.3 : 1}">
-                    <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
-                        <span>${f.name} (P${f.pos}) ${f.stun>0?'💫':''}</span>
-                        <span>${formatNum(Math.floor(f.hp))}</span>
+                html += `
+                    <div style="margin-bottom: 8px; opacity: ${f.hp <= 0 ? 0.4 : 1};">
+                        <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight:bold;">
+                            <span style="color: var(--text);">${f.name} (P${f.pos})</span>
+                            <span style="color: var(--text-muted);">${formatNum(f.hp)}</span>
+                        </div>
+                        <div class="buff-icons">${icons}</div>
+                        <div class="fighter-bar">
+                            <div class="hp-fill" style="width:${hpPct}%; background:${barColor};"></div>
+                            <div class="en-fill" style="width:${enPct}%;"></div>
+                            <div class="shield-fill" style="width:${shldPct}%;"></div>
+                        </div>
                     </div>
-                    <div class="fighter-bar">
-                        <div class="hp-fill" style="width:${hpPct}%; background:${barColor};"></div>
-                        <div class="en-fill" style="width:${enPct}%;"></div>
-                    </div>
-                </div>
-            `;
-            if(f.isEnemy) eHTML += html; else pHTML += html;
-        });
-
-        pUI.innerHTML = pHTML;
-        eUI.innerHTML = eHTML;
+                `;
+            });
+            return html;
+        }
+        document.getElementById('team-player-ui').innerHTML = renderTeam(battleState.fighters, false);
+        document.getElementById('team-enemy-ui').innerHTML = renderTeam(battleState.fighters, true);
     }
 
     function leaveBattle() {
         clearInterval(battleState.interval);
-        switchTab('roster');
+        switchTab(battleType === 'campaign' ? 'lobby' : 'roster');
     }
 
     // Start 
     initGame();
 </script>
-
 </body>
 </html>
