@@ -1,3709 +1,577 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Chiến Đấu Theo Lượt - Turn Based RPG</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@4/fonts/remixicon.css">
-<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<style>
-:root {
-  --bg: #f8fafc;
-  --card: #ffffff;
-  --text: #0f172a;
-  --muted: #64748b;
-  --accent: #bd3193;
-  --accent-soft: rgba(189, 49, 147, 0.12);
-  --accent2: #0891b2;
-  --accent2-soft: rgba(8, 145, 178, 0.12);
-  --border: rgba(15, 23, 42, 0.08);
-  --border-hover: rgba(189, 49, 147, 0.4);
-  --success: #16a34a;
-  --danger: #dc2626;
-  --warning: #d97706;
-  --hp: #22c55e;
-  --en: #eab308;
-  --def-type: #3b82f6;
-  --atk-type: #ef4444;
-  --skl-type: #a855f7;
-}
-
-* { margin: 0; padding: 0; box-sizing: border-box; }
-
-body {
-  font-family: 'Bricolage Grotesque', sans-serif;
-  background: var(--bg);
-  background-image: radial-gradient(at 0% 0%, rgba(189, 49, 147, 0.04) 0px, transparent 50%),
-                    radial-gradient(at 100% 100%, rgba(8, 145, 178, 0.04) 0px, transparent 50%);
-  color: var(--text);
-  min-height: 100vh;
-  overflow-x: hidden;
-}
-
-.app {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 20px;
-  min-height: 100vh;
-}
-
-.hidden { display: none !important; }
-
-/* ===== TOP BAR ===== */
-.top-bar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 16px 24px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.03);
-  position: sticky;
-  top: 15px;
-  z-index: 100;
-  backdrop-filter: blur(8px);
-}
-
-.game-title {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.game-title i { font-size: 1.8rem; }
-
-.resources {
-  display: flex;
-  gap: 12px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.resource-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 14px;
-  background: var(--accent-soft);
-  border-radius: 20px;
-  font-weight: 700;
-  font-size: 0.9rem;
-}
-
-.resource-item.diamond { color: var(--accent); }
-.resource-item.gold { color: var(--warning); background: rgba(217, 119, 6, 0.1); }
-.resource-item.vpnc { color: var(--accent2); background: var(--accent2-soft); }
-.resource-item.vntb { color: var(--success); background: rgba(22, 163, 74, 0.1); }
-.resource-item.candle { color: #f97316; background: rgba(249, 115, 22, 0.1); }
-.resource-item.exp { color: #7c3aed; background: rgba(124, 58, 237, 0.1); }
-
-.player-info {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 6px 14px;
-  background: var(--bg);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-}
-
-.player-level {
-  width: 38px;
-  height: 38px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.9rem;
-  box-shadow: 0 2px 10px rgba(189, 49, 147, 0.3);
-}
-
-/* ===== SCREENS ===== */
-.screen {
-  display: none;
-  animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.screen.active { display: block; }
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(12px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-/* ===== MAIN HALL ===== */
-.hall-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  margin-bottom: 20px;
-}
-
-.hall-btn {
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 20px;
-  padding: 36px 20px;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.hall-btn:hover {
-  transform: translateY(-5px);
-  border-color: var(--accent);
-  box-shadow: 0 12px 30px rgba(189, 49, 147, 0.12);
-}
-
-.hall-btn i {
-  font-size: 2.8rem;
-  color: var(--accent);
-  margin-bottom: 12px;
-  display: block;
-}
-
-.hall-btn h3 {
-  font-size: 1.25rem;
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.hall-btn p {
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.hall-btn.boss i { color: var(--danger); }
-.hall-btn.event i { color: var(--warning); }
-.hall-btn.summon i { color: var(--accent2); }
-.hall-btn.roster i { color: var(--def-type); }
-.hall-btn.bag i { color: var(--success); }
-.hall-btn.gift i { color: #7c3aed; }
-
-/* ===== SECTION TITLE ===== */
-.section-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.section-header h2 {
-  font-size: 1.7rem;
-  font-weight: 800;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-header h2 i { color: var(--accent); }
-
-.back-btn {
-  padding: 10px 20px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  cursor: pointer;
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.2s;
-}
-
-.back-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateX(-3px);
-}
-
-/* ===== STAGES ===== */
-.chapters {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.chapter {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
-
-.chapter-title {
-  font-size: 1.3rem;
-  font-weight: 800;
-  margin-bottom: 6px;
-  color: var(--accent);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.stages-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-top: 14px;
-}
-
-.stage-btn {
-  aspect-ratio: 1;
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.stage-btn:hover:not(.locked) {
-  border-color: var(--accent);
-  transform: translateY(-3px) scale(1.03);
-  box-shadow: 0 6px 15px rgba(189, 49, 147, 0.15);
-}
-
-.stage-btn.boss {
-  border-color: var(--danger);
-  background: rgba(220, 38, 38, 0.05);
-}
-
-.stage-btn.boss .stage-num { color: var(--danger); }
-
-.stage-btn.cleared {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: var(--success);
-}
-
-.stage-btn.cleared::after {
-  content: '✓';
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 18px;
-  height: 18px;
-  background: var(--success);
-  color: white;
-  font-size: 10px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.stage-btn.locked {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.stage-btn .stage-num {
-  font-size: 1.4rem;
-  font-weight: 800;
-}
-
-.stage-btn .stage-label {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-/* ===== TEAM SELECT ===== */
-.team-select {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 24px;
-}
-
-.panel {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
-
-.panel h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.team-slots {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.team-slot {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
-  background: var(--bg);
-  border: 2px dashed var(--border);
-  border-radius: 14px;
-  min-height: 85px;
-}
-
-.team-slot.filled {
-  border-style: solid;
-  border-color: var(--accent);
-  background: var(--card);
-}
-
-.team-slot .slot-pos {
-  width: 38px;
-  height: 38px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 800;
-  font-size: 0.9rem;
-  flex-shrink: 0;
-}
-
-.slot-char {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex: 1;
-}
-
-.char-avatar {
-  width: 52px;
-  height: 52px;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  color: white;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.char-avatar.def { background: linear-gradient(135deg, #3b82f6, #1d4ed8); }
-.char-avatar.atk { background: linear-gradient(135deg, #ef4444, #b91c1c); }
-.char-avatar.skl { background: linear-gradient(135deg, #a855f7, #7c3aed); }
-
-.char-info h4 { font-weight: 700; }
-.char-info .char-type {
-  font-size: 0.8rem;
-  color: var(--muted);
-}
-
-.char-info .char-stats {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 2px;
-}
-
-.slot-empty {
-  color: var(--muted);
-  font-style: italic;
-  font-size: 0.9rem;
-}
-
-.slot-remove {
-  background: none;
-  border: none;
-  color: var(--muted);
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 8px;
-  font-size: 1.2rem;
-  transition: all 0.2s;
-}
-
-.slot-remove:hover {
-  background: rgba(220, 38, 38, 0.1);
-  color: var(--danger);
-}
-
-.char-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  max-height: 480px;
-  overflow-y: auto;
-}
-
-.char-card {
-  padding: 12px;
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.char-card:hover:not(.in-team) {
-  border-color: var(--accent);
-  transform: translateX(4px);
-}
-
-.char-card.in-team {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.char-card .char-avatar {
-  width: 44px;
-  height: 44px;
-  font-size: 1.2rem;
-}
-
-.char-card h4 { font-size: 0.95rem; font-weight: 700; }
-.char-card .char-lv {
-  font-size: 0.75rem;
-  color: var(--accent);
-  font-weight: 700;
-}
-
-.start-battle-btn {
-  margin-top: 20px;
-  width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white;
-  border: none;
-  border-radius: 14px;
-  font-size: 1.1rem;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.start-battle-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(189, 49, 147, 0.3);
-}
-
-.start-battle-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-/* ===== BATTLE SCREEN ===== */
-.battle-arena {
-  background: linear-gradient(135deg, #101524, #1e2640);
-  border-radius: 24px;
-  padding: 30px;
-  min-height: 520px;
-  position: relative;
-  color: white;
-  box-shadow: 0 20px 50px rgba(0,0,0,0.2);
-}
-
-.battle-teams {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 30px;
-  margin-bottom: 20px;
-}
-
-.battle-team {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.battle-unit {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 14px;
-  background: rgba(255,255,255,0.07);
-  border-radius: 16px;
-  border: 2px solid transparent;
-  transition: all 0.3s;
-}
-
-.battle-unit.active {
-  border-color: var(--en);
-  box-shadow: 0 0 25px rgba(234, 179, 8, 0.5);
-  transform: scale(1.02);
-}
-
-.battle-unit.dead {
-  opacity: 0.25;
-  filter: grayscale(1);
-}
-
-.battle-unit .unit-avatar {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  color: white;
-  font-weight: 800;
-  flex-shrink: 0;
-}
-
-.battle-unit .unit-data {
-  flex: 1;
-  min-width: 0;
-}
-
-.battle-unit .unit-name {
-  font-weight: 700;
-  margin-bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.type-badge {
-  font-size: 0.7rem;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: 700;
-}
-
-.type-badge.def { background: rgba(59, 130, 246, 0.3); color: #93c5fd; }
-.type-badge.atk { background: rgba(239, 68, 68, 0.3); color: #fca5a5; }
-.type-badge.skl { background: rgba(168, 85, 247, 0.3); color: #d8b4fe; }
-
-.bar-container {
-  height: 9px;
-  background: rgba(0,0,0,0.4);
-  border-radius: 5px;
-  overflow: hidden;
-  margin-bottom: 4px;
-}
-
-.bar {
-  height: 100%;
-  border-radius: 5px;
-  transition: width 0.4s ease;
-}
-
-.bar.hp { background: linear-gradient(90deg, #22c55e, #4ade80); }
-.bar.en { background: linear-gradient(90deg, #eab308, #facc15); }
-
-.bar-text {
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.75);
-  margin-bottom: 6px;
-  display: flex;
-  justify-content: space-between;
-}
-
-.battle-log {
-  background: rgba(0,0,0,0.35);
-  border-radius: 14px;
-  padding: 16px;
-  max-height: 180px;
-  overflow-y: auto;
-  font-size: 0.85rem;
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-.log-entry {
-  padding: 3px 0;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-}
-
-.log-entry.damage { color: #fca5a5; }
-.log-entry.heal { color: #86efac; }
-.log-entry.buff { color: #fde047; }
-.log-entry.skill { color: #c4b5fd; font-weight: 700; }
-.log-entry.system { color: rgba(255,255,255,0.6); font-style: italic; }
-
-.battle-controls {
-  display: flex;
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.battle-controls button {
-  flex: 1;
-  padding: 12px;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btn-speed {
-  background: rgba(255,255,255,0.15);
-  color: white;
-}
-
-.btn-speed:hover { background: rgba(255,255,255,0.25); }
-
-.btn-quit {
-  background: rgba(220, 38, 38, 0.3);
-  color: #fca5a5;
-}
-
-.btn-quit:hover { background: rgba(220, 38, 38, 0.5); }
-
-/* Battle Result Modal */
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1000;
-  animation: fadeIn 0.3s;
-}
-
-.modal {
-  background: var(--card);
-  border-radius: 24px;
-  padding: 36px;
-  text-align: center;
-  max-width: 440px;
-  width: 90%;
-  animation: popIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-}
-
-@keyframes popIn {
-  from { transform: scale(0.85); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-.modal h2 { font-size: 2rem; font-weight: 800; margin-bottom: 10px; }
-.modal h2.victory { color: var(--success); }
-.modal h2.defeat { color: var(--danger); }
-
-.modal-rewards {
-  background: var(--bg);
-  border-radius: 16px;
-  padding: 18px;
-  margin: 20px 0;
-}
-
-.modal-rewards h4 {
-  color: var(--muted);
-  margin-bottom: 12px;
-  font-size: 0.9rem;
-}
-
-.reward-list {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.reward-item {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-weight: 700;
-  font-size: 0.95rem;
-}
-
-.modal button {
-  padding: 14px 36px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  font-size: 1rem;
-}
-
-/* ===== EVENTS ===== */
-.events-list {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
-}
-
-.event-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-  position: relative;
-  overflow: hidden;
-}
-
-.event-card.sale {
-  border-left: 5px solid var(--danger);
-  background: linear-gradient(135deg, rgba(220, 38, 38, 0.02), var(--card));
-}
-
-.event-card.midautumn {
-  border-left: 5px solid var(--warning);
-  background: linear-gradient(135deg, rgba(217, 119, 6, 0.02), var(--card));
-}
-
-.event-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-
-.event-title {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.event-title i { font-size: 2.2rem; }
-.event-card.sale .event-title i { color: var(--danger); }
-.event-card.midautumn .event-title i { color: var(--warning); }
-
-.event-title h3 { font-size: 1.3rem; font-weight: 800; }
-
-.event-countdown {
-  background: var(--accent-soft);
-  color: var(--accent);
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  white-space: nowrap;
-}
-
-.event-desc {
-  color: var(--muted);
-  margin-bottom: 16px;
-  line-height: 1.6;
-}
-
-.event-bonus {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-bottom: 16px;
-}
-
-.bonus-item {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: var(--accent-soft);
-  border-radius: 12px;
-  font-weight: 700;
-  color: var(--accent);
-}
-
-.bonus-item.exp { background: rgba(124, 58, 237, 0.1); color: #7c3aed; }
-.bonus-item.diamond { background: rgba(189, 49, 147, 0.1); color: var(--accent); }
-
-/* Shop Items */
-.shop-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-  gap: 16px;
-}
-
-.shop-item {
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-  text-align: center;
-  transition: all 0.2s;
-  position: relative;
-}
-
-.shop-item:hover {
-  border-color: var(--accent);
-  transform: translateY(-3px);
-}
-
-.shop-item.on-sale {
-  border-color: var(--danger);
-  animation: pulseSale 2s infinite;
-}
-
-@keyframes pulseSale {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.2); }
-  50% { box-shadow: 0 0 0 8px rgba(220, 38, 38, 0); }
-}
-
-.shop-item .sale-badge {
-  position: absolute;
-  top: -8px;
-  right: -8px;
-  background: var(--danger);
-  color: white;
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 800;
-}
-
-.shop-item-icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 12px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.8rem;
-  color: white;
-}
-
-.shop-item h4 { font-weight: 700; margin-bottom: 4px; }
-.shop-item .item-type { font-size: 0.8rem; color: var(--muted); margin-bottom: 10px; }
-
-.shop-item .price {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-weight: 800;
-  color: var(--accent);
-  margin-bottom: 10px;
-}
-
-.shop-item .price.original {
-  text-decoration: line-through;
-  color: var(--muted);
-  font-size: 0.85rem;
-  font-weight: 500;
-}
-
-.shop-item .price.sale-price {
-  color: var(--danger);
-  font-size: 1.2rem;
-}
-
-.shop-item button {
-  width: 100%;
-  padding: 10px;
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.shop-item button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(189, 49, 147, 0.3);
-}
-
-.shop-item button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.flash-sale-timer {
-  text-align: center;
-  padding: 10px;
-  background: rgba(220, 38, 38, 0.1);
-  color: var(--danger);
-  border-radius: 10px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-bottom: 14px;
-}
-
-/* Giftcode */
-.gift-section {
-  margin-top: 24px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 24px;
-}
-
-.gift-section h3 {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  color: #7c3aed;
-}
-
-.gift-input-row {
-  display: flex;
-  gap: 12px;
-}
-
-.gift-input-row input {
-  flex: 1;
-  padding: 14px 18px;
-  border: 2px solid var(--border);
-  border-radius: 12px;
-  font-size: 1rem;
-  font-family: inherit;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.gift-input-row input:focus { border-color: var(--accent); }
-
-.gift-input-row button {
-  padding: 14px 28px;
-  background: linear-gradient(135deg, var(--accent), #7c3aed);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.gift-input-row button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(189, 49, 147, 0.3);
-}
-
-.gift-message {
-  margin-top: 12px;
-  padding: 10px 14px;
-  border-radius: 10px;
-  font-weight: 600;
-}
-
-.gift-message.success { background: rgba(22, 163, 74, 0.1); color: var(--success); }
-.gift-message.error { background: rgba(220, 38, 38, 0.1); color: var(--danger); }
-
-/* ===== SUMMON & DAILY ===== */
-.summon-tabs {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.summon-tab {
-  flex: 1;
-  padding: 14px;
-  background: var(--card);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: 700;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-.summon-tab.active {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  color: var(--accent);
-}
-
-.summon-content {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 30px;
-}
-
-.daily-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.daily-item {
-  aspect-ratio: 1;
-  background: var(--bg);
-  border: 2px solid var(--border);
-  border-radius: 14px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-weight: 700;
-  position: relative;
-}
-
-.daily-item.claimed {
-  background: rgba(22, 163, 74, 0.08);
-  border-color: var(--success);
-  opacity: 0.7;
-}
-
-.daily-item.today {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.daily-item.today:hover { transform: scale(1.05); }
-
-.daily-item .day { font-size: 0.8rem; color: var(--muted); }
-.daily-item .reward-icon { font-size: 1.5rem; }
-.daily-item .reward-amt { font-size: 0.85rem; color: var(--accent); }
-
-.daily-item.claimed::after {
-  content: 'Đã nhận';
-  position: absolute;
-  bottom: 6px;
-  font-size: 0.65rem;
-  color: var(--success);
-  font-weight: 700;
-}
-
-.gacha-area { text-align: center; }
-
-.gacha-animation {
-  width: 180px;
-  height: 180px;
-  margin: 0 auto 24px;
-  background: linear-gradient(135deg, var(--accent-soft), var(--accent2-soft));
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 4.5rem;
-  color: var(--accent);
-  animation: float 3s ease-in-out infinite;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-12px); }
-}
-
-.gacha-info { margin-bottom: 24px; }
-.gacha-info p { color: var(--muted); margin-bottom: 8px; }
-.gacha-info .gem-count {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--accent2);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-}
-
-.gacha-buttons {
-  display: flex;
-  gap: 16px;
-  justify-content: center;
-}
-
-.gacha-btn {
-  padding: 16px 32px;
-  border: none;
-  border-radius: 14px;
-  font-weight: 800;
-  font-size: 1rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.gacha-btn.primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent2));
-  color: white;
-}
-
-.gacha-btn.primary:hover:not(:disabled) {
-  transform: translateY(-3px);
-  box-shadow: 0 10px 30px rgba(189, 49, 147, 0.3);
-}
-
-.gacha-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.gacha-rates {
-  margin-top: 30px;
-  padding: 20px;
-  background: var(--bg);
-  border-radius: 14px;
-  text-align: left;
-}
-
-.gacha-rates h4 { margin-bottom: 12px; color: var(--accent); }
-
-.rate-row {
-  display: flex;
-  justify-content: space-between;
-  padding: 6px 0;
-  font-size: 0.9rem;
-  border-bottom: 1px solid var(--border);
-}
-
-.rate-row:last-child { border-bottom: none; }
-
-.summon-result {
-  margin-top: 24px;
-  padding: 24px;
-  background: var(--bg);
-  border-radius: 16px;
-  text-align: center;
-}
-
-.summon-result h4 { margin-bottom: 16px; color: var(--accent); }
-
-.result-items {
-  display: flex;
-  justify-content: center;
-  gap: 14px;
-  flex-wrap: wrap;
-}
-
-.result-item {
-  padding: 16px;
-  background: var(--card);
-  border-radius: 14px;
-  border: 2px solid var(--border);
-  min-width: 100px;
-}
-
-.result-item.rarity-char {
-  border-color: var(--accent);
-  background: var(--accent-soft);
-}
-
-.result-item .item-icon { font-size: 2rem; margin-bottom: 6px; }
-.result-item .item-name { font-weight: 700; font-size: 0.9rem; }
-.result-item .item-amount { color: var(--accent); font-weight: 800; }
-
-/* ===== ROSTER & UPGRADE ===== */
-.roster-layout {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 24px;
-}
-
-.roster-list {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 18px;
-  max-height: 600px;
-  overflow-y: auto;
-}
-
-.roster-list h3 { font-size: 1.15rem; font-weight: 800; margin-bottom: 14px; }
-
-.roster-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  background: var(--bg);
-  border: 2px solid transparent;
-  border-radius: 12px;
-  cursor: pointer;
-  margin-bottom: 8px;
-  transition: all 0.2s;
-}
-
-.roster-item:hover { border-color: var(--border); }
-.roster-item.selected { border-color: var(--accent); background: var(--accent-soft); }
-
-.roster-item .char-avatar { width: 44px; height: 44px; font-size: 1.2rem; }
-.roster-item h4 { font-weight: 700; font-size: 0.95rem; }
-.roster-item .char-lv-small { font-size: 0.75rem; color: var(--accent); font-weight: 700; }
-
-.character-detail {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  padding: 28px;
-}
-
-.char-header {
-  display: flex;
-  align-items: center;
-  gap: 20px;
-  margin-bottom: 24px;
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--border);
-}
-
-.char-header .char-avatar {
-  width: 80px;
-  height: 80px;
-  font-size: 2.5rem;
-  border-radius: 18px;
-}
-
-.char-header h2 { font-size: 1.8rem; font-weight: 800; }
-
-.char-header .char-type-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.85rem;
-  font-weight: 700;
-  margin-top: 6px;
-}
-
-.char-type-badge.def { background: rgba(59, 130, 246, 0.15); color: var(--def-type); }
-.char-type-badge.atk { background: rgba(239, 68, 68, 0.15); color: var(--atk-type); }
-.char-type-badge.skl { background: rgba(168, 85, 247, 0.15); color: var(--skl-type); }
-
-.char-header .char-level { margin-left: auto; text-align: right; }
-.char-header .char-level .lv-num {
-  font-size: 2.6rem;
-  font-weight: 800;
-  color: var(--accent);
-  line-height: 1;
-}
-
-.char-header .char-level .lv-max { color: var(--muted); font-size: 0.9rem; }
-
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.stat-item {
-  background: var(--bg);
-  padding: 14px;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.stat-item .stat-label { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
-.stat-item .stat-value { font-size: 1.2rem; font-weight: 800; }
-
-.stat-item.hp .stat-value { color: var(--hp); }
-.stat-item.atk .stat-value { color: var(--atk-type); }
-.stat-item.def .stat-value { color: var(--def-type); }
-.stat-item.spd .stat-value { color: var(--skl-type); }
-.stat-item.en .stat-value { color: var(--en); }
-
-.skills-section h3 {
-  font-size: 1.15rem;
-  font-weight: 800;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.skill-card {
-  background: var(--bg);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 12px;
-  border-left: 4px solid var(--accent);
-}
-
-.skill-card.passive { border-left-color: var(--accent2); }
-.skill-card.locked { opacity: 0.5; border-left-color: var(--muted); }
-
-.skill-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.skill-header h4 { font-weight: 700; display: flex; align-items: center; gap: 8px; }
-.skill-header .skill-en-cost {
-  background: rgba(234, 179, 8, 0.2);
-  color: #a16207;
-  padding: 3px 10px;
-  border-radius: 10px;
-  font-size: 0.8rem;
-  font-weight: 700;
-}
-
-.skill-header .skill-unlock { font-size: 0.8rem; color: var(--danger); font-weight: 700; }
-.skill-desc { font-size: 0.9rem; color: var(--muted); line-height: 1.5; }
-
-.upgrade-section {
-  margin-top: 24px;
-  padding-top: 20px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.upgrade-info { font-size: 0.95rem; }
-.upgrade-info .cost { color: var(--accent2); font-weight: 800; font-size: 1.1rem; }
-.upgrade-info .insufficient { color: var(--danger); }
-
-.upgrade-btn {
-  padding: 14px 32px;
-  background: linear-gradient(135deg, var(--accent2), var(--accent));
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-weight: 800;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.upgrade-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(8, 145, 178, 0.3);
-}
-
-.upgrade-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-/* ===== INVENTORY ===== */
-.inventory-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 16px;
-}
-
-.item-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  transition: all 0.2s;
-}
-
-.item-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.06); }
-
-.item-icon {
-  width: 60px;
-  height: 60px;
-  margin: 0 auto 12px;
-  border-radius: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2rem;
-}
-
-.item-icon.diamond { background: var(--accent-soft); color: var(--accent); }
-.item-icon.gold { background: rgba(217, 119, 6, 0.15); color: var(--warning); }
-.item-icon.vpnc { background: var(--accent2-soft); color: var(--accent2); }
-.item-icon.vntb { background: rgba(124, 58, 237, 0.15); color: #7c3aed; }
-.item-icon.candle { background: rgba(249, 115, 22, 0.15); color: #f97316; }
-
-.item-card h4 { font-weight: 700; margin-bottom: 4px; }
-.item-card .item-amount { font-size: 1.4rem; font-weight: 800; color: var(--accent); }
-.item-card .item-desc { font-size: 0.8rem; color: var(--muted); margin-top: 6px; }
-
-/* ===== NOTIFICATION / TOAST ===== */
-.toast-container {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  z-index: 2000;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.toast {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 14px 20px;
-  box-shadow: 0 4px 25px rgba(0,0,0,0.12);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  animation: slideIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  min-width: 260px;
-  font-weight: 600;
-}
-
-@keyframes slideIn {
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
-}
-
-.toast.success { border-left: 4px solid var(--success); }
-.toast.error { border-left: 4px solid var(--danger); }
-.toast.info { border-left: 4px solid var(--accent2); }
-
-.toast i { font-size: 1.2rem; }
-.toast.success i { color: var(--success); }
-.toast.error i { color: var(--danger); }
-.toast.info i { color: var(--accent2); }
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 768px) {
-  .hall-grid { grid-template-columns: repeat(2, 1fr); }
-  .stages-grid { grid-template-columns: repeat(4, 1fr); }
-  .team-select { grid-template-columns: 1fr; }
-  .roster-layout { grid-template-columns: 1fr; }
-  .stats-grid { grid-template-columns: repeat(2, 1fr); }
-  .battle-teams { grid-template-columns: 1fr; gap: 20px; }
-  .daily-grid { grid-template-columns: repeat(4, 1fr); }
-  .resources { gap: 8px; flex-wrap: wrap; }
-  .resource-item { padding: 6px 10px; font-size: 0.8rem; }
-  .top-bar { flex-wrap: wrap; gap: 12px; }
-}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Auto Battler RPG</title>
+    <style>
+        /* --- CSS & GIAO DIỆN --- */
+        :root {
+            --bg: #121212;
+            --panel: #1e1e1e;
+            --primary: #bb86fc;
+            --secondary: #03dac6;
+            --text: #ffffff;
+            --text-muted: #a0a0a0;
+            --danger: #cf6679;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #000; color: var(--text); display: flex; justify-content: center; height: 100vh; overflow: hidden; }
+        #app-container { width: 100%; max-width: 480px; background-color: var(--bg); height: 100%; display: flex; flex-direction: column; position: relative; box-shadow: 0 0 20px rgba(255,255,255,0.1); }
+        
+        /* Header Resources */
+        #header { display: flex; justify-content: space-between; padding: 10px; background-color: var(--panel); border-bottom: 1px solid #333; font-size: 0.85rem; flex-wrap: wrap; gap: 5px;}
+        .res-item { background: #333; padding: 4px 8px; border-radius: 12px; display: flex; align-items: center; gap: 4px; font-weight: bold; }
+        
+        /* Time & Level System */
+        #system-info { display: flex; justify-content: space-between; padding: 5px 10px; font-size: 0.8rem; color: var(--secondary); background: #000; }
+        
+        /* Screens */
+        .screen { flex: 1; overflow-y: auto; padding: 15px; display: none; padding-bottom: 80px; }
+        .screen.active { display: block; }
+        
+        /* Navigation Bottom Bar */
+        #nav-bar { position: absolute; bottom: 0; width: 100%; background-color: var(--panel); display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #333; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); font-size: 0.8rem; display: flex; flex-direction: column; align-items: center; cursor: pointer; }
+        .nav-btn i { font-size: 1.5rem; margin-bottom: 2px; }
+        .nav-btn.active { color: var(--primary); }
+
+        /* General UI Elements */
+        h2 { text-align: center; margin-bottom: 15px; color: var(--primary); }
+        .btn-main { display: block; width: 100%; padding: 12px; background: var(--primary); color: #000; border: none; border-radius: 8px; font-weight: bold; font-size: 1rem; margin-top: 10px; cursor: pointer; }
+        .btn-main:active { opacity: 0.8; }
+        
+        /* Roster & Cards */
+        .char-card { background: #2c2c2c; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; gap: 8px; border: 1px solid #444; }
+        .char-header { display: flex; justify-content: space-between; align-items: center; font-weight: bold; }
+        .role-tag { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: #555; }
+        .role-DEF { color: #f39c12; } .role-ATK { color: #e74c3c; } .role-SKL { color: #3498db; }
+        .char-stats { font-size: 0.8rem; color: #ccc; display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+        
+        /* Battle Engine UI */
+        #battle-log { height: 250px; background: #000; border: 1px solid #333; overflow-y: auto; padding: 10px; font-size: 0.85rem; margin-top: 15px; border-radius: 5px; }
+        .log-item { margin-bottom: 5px; border-bottom: 1px dashed #222; padding-bottom: 3px; }
+        .dmg-text { color: #ff5252; } .heal-text { color: #69f0ae; } .skill-text { color: #e040fb; font-weight: bold; }
+        .team-display { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .team-side { width: 48%; }
+        .fighter-bar { background: #333; height: 16px; border-radius: 4px; margin-top: 5px; position: relative; overflow: hidden; }
+        .hp-fill { background: #e74c3c; height: 100%; width: 100%; transition: width 0.3s; }
+        .en-fill { background: #f1c40f; height: 3px; width: 0%; transition: width 0.3s; position: absolute; bottom: 0; }
+        .fighter-name { font-size: 0.75rem; position: absolute; top: 0; left: 5px; line-height: 16px; text-shadow: 1px 1px 1px #000; }
+    </style>
 </head>
 <body>
 
-<div class="app">
-  <!-- ===== TOP BAR ===== -->
-  <div class="top-bar">
-    <div class="game-title">
-      <i class="ri-sword-line"></i>
-      Chiến Đấu RPG
+<div id="app-container">
+    <!-- Header Thông tin -->
+    <div id="system-info">
+        <span id="real-time-clock">Đang tải giờ...</span>
+        <span>LV: <span id="player-lvl">1</span> (<span id="player-exp">0</span>/1000)</span>
     </div>
-    <div class="resources">
-      <div class="resource-item diamond" title="Kim cương">
-        <i class="ri-vip-diamond-line"></i>
-        <span id="resDiamond">0</span>
-      </div>
-      <div class="resource-item gold" title="Xu">
-        <i class="ri-coin-line"></i>
-        <span id="resGold">0</span>
-      </div>
-      <div class="resource-item vpnc" title="VPNC - Nâng cấp">
-        <i class="ri-flashlight-line"></i>
-        <span id="resVpnc">0</span>
-      </div>
-      <div class="resource-item vntb" title="Viên ngọc thần bí - VNTB">
-        <i class="ri-diamond-line"></i>
-        <span id="resVntb">0</span>
-      </div>
-      <div class="resource-item candle" title="Nến lễ hội">
-        <i class="ri-fire-line"></i>
-        <span id="resCandle">0</span>
-      </div>
-      <div class="resource-item exp" title="Cấp độ tài khoản">
-        <i class="ri-medal-line"></i>
-        <span>Lv.<span id="resLevel">1</span></span>
-      </div>
-    </div>
-    <div class="player-info">
-      <div class="player-level" id="playerLevelBadge">1</div>
-      <div>
-        <div style="font-weight: 700; font-size: 0.95rem;">Lê Hải</div>
-        <div style="font-size: 0.8rem; color: var(--muted);" id="currentDateTime"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== MAIN HALL ===== -->
-  <div id="screen-hall" class="screen active">
-    <!-- Playtime Rewards -->
-    <div class="playtime-reward" id="playtimeReward" style="background:linear-gradient(135deg,rgba(34,197,94,0.08),rgba(8,145,178,0.08));border:1px solid rgba(34,197,94,0.3);border-radius:18px;padding:16px 20px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;gap:16px;">
-      <div style="display:flex;align-items:center;gap:14px;">
-        <div style="width:48px;height:48px;border-radius:12px;background:rgba(34,197,94,0.15);display:flex;align-items:center;justify-content:center;font-size:1.5rem;">
-          <i class="ri-time-line" style="color:#22c55e;"></i>
-        </div>
-        <div>
-          <div style="font-weight:700;font-size:1rem;">Thưởng theo thời gian</div>
-          <div style="font-size:0.85rem;color:var(--muted);">Mỗi phút nhận thưởng tự động. Tối đa tích lũy 20 phút</div>
-          <div id="playtimeInfo" style="font-size:0.8rem;color:var(--accent2);margin-top:2px;">-- phút -- giây | 100 VPNC, 5 KC, 50 Xu/phút</div>
-        </div>
-      </div>
-      <div style="text-align:right;">
-        <div id="playtimeProgress" style="font-size:0.9rem;font-weight:700;margin-bottom:6px;">0/20 phút</div>
-        <button onclick="claimPlayTimeRewards()" id="claimPlaytimeBtn" disabled style="padding:10px 20px;border-radius:10px;background:rgba(34,197,94,0.2);color:#22c55e;border:none;cursor:not-allowed;font-weight:700;">
-          Chưa có thưởng
-        </button>
-      </div>
+    <div id="header">
+        <div class="res-item">💎 <span id="res-kc">0</span></div>
+        <div class="res-item">🪙 <span id="res-xu">0</span></div>
+        <div class="res-item">🧪 <span id="res-vpnc">0</span></div>
+        <div class="res-item">🔮 <span id="res-vntb">0</span></div>
     </div>
 
-    <!-- VIP System -->
-    <div class="vip-section" id="vipSection" style="background:linear-gradient(135deg,rgba(234,179,8,0.08),rgba(124,58,237,0.08));border:1px solid rgba(234,179,8,0.3);border-radius:18px;padding:16px 20px;margin-bottom:20px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:14px;">
-          <div style="width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,#eab308,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;font-weight:800;" id="vipLevelBadge">
-            V0
-          </div>
-          <div>
-            <div style="font-weight:700;font-size:1.05rem;" id="vipLevelText">Chưa có VIP</div>
-            <div style="font-size:0.85rem;color:var(--muted);">
-              <span id="vipExpText">0/100 EXP</span>
-              <span style="margin:0 8px;">|</span>
-              <i class="ri-bank-card-line"></i> <span id="dollarDisplay">0</span> Dollars
+    <!-- MÀN HÌNH 1: SẢNH CHÍNH -->
+    <div id="screen-lobby" class="screen active">
+        <h2>SẢNH CHÍNH</h2>
+        <img src="https://via.placeholder.com/400x200/2c2c2c/bb86fc?text=AUTO+BATTLER+RPG" style="width:100%; border-radius: 10px; margin-bottom: 20px;">
+        <button class="btn-main" onclick="alertSystem('Hệ thống ải chiến đấu: Chưa hoạt động (Sẽ mở ở Cập nhật 2)')">⚔️ Đấu Ải (Campaign)</button>
+    </div>
+
+    <!-- MÀN HÌNH 2: SỰ KIỆN -->
+    <div id="screen-event" class="screen">
+        <h2>SỰ KIỆN</h2>
+        <div style="text-align: center; color: var(--text-muted); margin: 30px 0;">
+            "Chúng tôi sẽ sớm cập nhật sự kiện thú vị"
+        </div>
+        <div style="background: #222; padding: 15px; border-radius: 8px;">
+            <h4>Nhập Giftcode</h4>
+            <input type="text" id="giftcode-input" style="width: 100%; padding: 8px; margin: 10px 0; background: #000; color: #fff; border: 1px solid #444;" placeholder="Nhập code...">
+            <button class="btn-main" onclick="claimCode()" style="padding: 8px;">Xác nhận</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 3: TRIỆU HỒI -->
+    <div id="screen-summon" class="screen">
+        <h2>Khu Triệu Hồi</h2>
+        <div style="display:flex; gap: 10px; margin-bottom: 20px;">
+            <button class="btn-main" style="background:#333; color:#fff;">Đăng nhập (Sắp ra)</button>
+            <button class="btn-main" style="background:var(--primary);">Triệu hồi tướng</button>
+        </div>
+        <div style="background: #222; padding: 15px; border-radius: 8px; text-align: center;">
+            <p>1 🔮 Viên Ngọc Thần Bí = 1 Lượt</p>
+            <button class="btn-main" onclick="summon()" style="margin-top: 15px;">Triệu Hồi x1</button>
+            <p id="summon-result" style="margin-top: 10px; color: var(--secondary);"></p>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH 4: DANH SÁCH & NÂNG CẤP -->
+    <div id="screen-roster" class="screen">
+        <h2>ĐỘI HÌNH & NÂNG CẤP</h2>
+        <div style="font-size: 0.8rem; color: #aaa; margin-bottom: 10px;">Gợi ý: Tướng 1(DEF) -> Tướng 2(ATK) -> Tướng 3(SKL)</div>
+        <div id="roster-list"></div>
+        <hr style="border-color: #333; margin: 20px 0;">
+        <button class="btn-main" style="background: #e74c3c; color: white;" onclick="startMockBattle()">⚔️ Đấu Thử (Mock Battle 3v3)</button>
+    </div>
+
+    <!-- MÀN HÌNH 5: TÚI ĐỒ -->
+    <div id="screen-inventory" class="screen">
+        <h2>TÚI ĐỒ</h2>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center;">
+            <div class="char-card">💎 Kim Cương<br><span id="inv-kc">0</span></div>
+            <div class="char-card">🪙 Xu<br><span id="inv-xu">0</span></div>
+            <div class="char-card">🧪 VP Nâng cấp<br><span id="inv-vpnc">0</span></div>
+            <div class="char-card">🔮 Ngọc Thần Bí<br><span id="inv-vntb">0</span></div>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH BATTLE (Ẩn, chỉ dùng cho tính năng Đấu Thử) -->
+    <div id="screen-battle" class="screen">
+        <h2 style="color: #e74c3c;">CHIẾN ĐẤU (AUTO)</h2>
+        <div class="team-display">
+            <div class="team-side" id="team-player-ui">
+                <h4 style="color:#3498db; text-align:center;">Đội Bạn</h4>
+                <!-- Render bằng JS -->
             </div>
-            <div style="width:200px;height:6px;background:rgba(0,0,0,0.08);border-radius:3px;margin-top:6px;overflow:hidden;">
-              <div id="vipExpBar" style="height:100%;background:linear-gradient(90deg,#eab308,#7c3aed);width:0%;border-radius:3px;"></div>
+            <div class="team-side" id="team-enemy-ui">
+                <h4 style="color:#e74c3c; text-align:center;">Bot Hệ Thống</h4>
+                <!-- Render bằng JS -->
             </div>
-          </div>
         </div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;">
-          <button onclick="showVIPPanel()" style="padding:10px 18px;border-radius:12px;background:linear-gradient(135deg,#eab308,#ca8a04);color:white;border:none;cursor:pointer;font-weight:700;">
-            <i class="ri-vip-crown-line"></i> VIP & Nạp
-          </button>
-          <button onclick="convertDiamondToDollar()" style="padding:10px 18px;border-radius:12px;background:rgba(59,130,246,0.12);color:#3b82f6;border:1px solid rgba(59,130,246,0.3);cursor:pointer;font-weight:700;">
-            <i class="ri-exchange-line"></i> Đổi KC→$
-          </button>
-        </div>
-      </div>
+        <div id="battle-log"></div>
+        <button class="btn-main" id="btn-leave-battle" onclick="leaveBattle()" style="display:none; margin-top: 10px;">Thoát Trận</button>
     </div>
 
-    <!-- Main Navigation Grid -->
-    <div class="hall-grid">
-      <div class="hall-btn boss" onclick="showScreen('stages')">
-        <i class="ri-map-pin-range-line"></i>
-        <h3>Đấu Ải</h3>
-        <p>5 Chương x 7 Ải thử thách & BOSS</p>
-      </div>
-      <div class="hall-btn event" onclick="showScreen('events')">
-        <i class="ri-calendar-event-line"></i>
-        <h3>Sự Kiện</h3>
-        <p>Săn Sale, Trung Thu & Đổi quà</p>
-      </div>
-      <div class="hall-btn summon" onclick="showScreen('summon')">
-        <i class="ri-magic-line"></i>
-        <h3>Triệu Hồi</h3>
-        <p>Khu vui chơi & Quay tướng gacha</p>
-      </div>
-      <div class="hall-btn roster" onclick="showScreen('roster')">
-        <i class="ri-team-line"></i>
-        <h3>Danh Sách</h3>
-        <p>Nâng cấp tướng (Max 250) & Đội hình</p>
-      </div>
-      <div class="hall-btn bag" onclick="showScreen('inventory')">
-        <i class="ri-backpack-line"></i>
-        <h3>Túi Đồ</h3>
-        <p>Xem toàn bộ tài nguyên sở hữu</p>
-      </div>
-      <div class="hall-btn gift" onclick="showScreen('events'); setTimeout(openGiftTab, 200)">
-        <i class="ri-gift-line"></i>
-        <h3>Giftcode</h3>
-        <p>Nhập mã bí mật nhận quà miễn phí</p>
-      </div>
+    <!-- THANH ĐIỀU HƯỚNG -->
+    <div id="nav-bar">
+        <button class="nav-btn active" onclick="switchTab('lobby')">🏠<br>Sảnh</button>
+        <button class="nav-btn" onclick="switchTab('roster')">👥<br>Tướng</button>
+        <button class="nav-btn" onclick="switchTab('summon')">🔮<br>Triệu Hồi</button>
+        <button class="nav-btn" onclick="switchTab('event')">🎁<br>Sự kiện</button>
+        <button class="nav-btn" onclick="switchTab('inventory')">🎒<br>Túi đồ</button>
     </div>
-  </div>
-
-  <!-- ===== STAGES ===== -->
-  <div id="screen-stages" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-map-pin-range-line"></i> Chọn Ải Chiến Đấu</h2>
-      <button class="back-btn" onclick="showScreen('hall')"><i class="ri-arrow-left-line"></i> Sảnh chính</button>
-    </div>
-    <div class="chapters" id="chaptersContainer"></div>
-  </div>
-
-  <!-- ===== TEAM SELECT ===== -->
-  <div id="screen-teamselect" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-shield-user-line"></i> Chọn Đội Hình Xuất Trận</h2>
-      <button class="back-btn" onclick="showScreen('stages')"><i class="ri-arrow-left-line"></i> Đổi ải</button>
-    </div>
-    <div class="team-select">
-      <div class="panel">
-        <h3><i class="ri-user-settings-line"></i> Đội hình chiến đấu (3 Vị Trí)</h3>
-        <div style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">
-          📌 Gợi ý chuẩn: Tướng 1 (DEF) - Hàng đầu | Tướng 2 (ATK) - Tướng chính | Tướng 3 (SKL) - Hỗ trợ
-        </div>
-        <div class="team-slots" id="teamSlots"></div>
-        <button class="start-battle-btn" id="startBattleBtn" onclick="startBattle()" disabled>
-          <i class="ri-sword-line"></i> BẮT ĐẦU CHIẾN ĐẤU (AUTO)
-        </button>
-      </div>
-      <div class="panel">
-        <h3><i class="ri-list-check-2"></i> Nhân vật sở hữu</h3>
-        <div style="font-size: 0.85rem; color: var(--muted); margin-bottom: 12px;">
-          Nhấn vào nhân vật để thêm vào vị trí còn trống
-        </div>
-        <div class="char-list" id="charList"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== BATTLE ===== -->
-  <div id="screen-battle" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-flashlight-line"></i> Trận chiến - <span id="battleStageName">Ải 1</span></h2>
-    </div>
-    <div class="battle-arena">
-      <div class="battle-teams">
-        <div class="battle-team player" id="playerTeamBattle"></div>
-        <div class="battle-team enemy" id="enemyTeamBattle"></div>
-      </div>
-      <div class="battle-log" id="battleLog"></div>
-      <div class="battle-controls">
-        <button class="btn-speed" onclick="toggleBattleSpeed()" id="speedBtn">Tốc độ: 1x (1s/chiêu)</button>
-        <button class="btn-quit" onclick="quitBattle()">Rời trận</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== EVENTS ===== -->
-  <div id="screen-events" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-calendar-event-line"></i> Sự Kiện Đặc Biệt</h2>
-      <button class="back-btn" onclick="showScreen('hall')"><i class="ri-arrow-left-line"></i> Sảnh chính</button>
-    </div>
-    
-    <div class="events-list" id="eventsList">
-      <!-- Sự kiện Đại tiệc săn sale -->
-      <div class="event-card sale">
-        <div class="event-header">
-          <div class="event-title">
-            <i class="ri-shopping-cart-2-line"></i>
-            <div>
-              <h3>Đại Tiệc Săn Sale Siêu Cấp</h3>
-              <div style="font-size:0.85rem;color:var(--muted);">Giảm giá cực sốc 5% - 88% nhân vật &amp; vật phẩm hiếm</div>
-            </div>
-          </div>
-          <div class="event-countdown" id="saleCountdown">
-            <i class="ri-time-line"></i> Còn: --:--:--
-          </div>
-        </div>
-        <div class="event-desc">
-          Mặc định bán <strong>F.Hit</strong> và <strong>Omega Shenron (O.S DRA)</strong> giá gốc 110,000 KC. Đôi lúc sẽ có Flash Sale giảm giá đột ngột từ 5% đến 88%!
-        </div>
-        <div id="flashSaleTimer" class="flash-sale-timer hidden">
-          <i class="ri-flashlight-fill"></i> FLASH SALE ĐANG DIỄN RA! Còn <span id="flashSaleRemaining">--:--</span>
-        </div>
-        <div class="shop-grid" id="shopGrid"></div>
-      </div>
-
-      <!-- Sự kiện Chào mừng trung thu -->
-      <div class="event-card midautumn">
-        <div class="event-header">
-          <div class="event-title">
-            <i class="ri-moon-line"></i>
-            <div>
-              <h3>Chào Mừng Trung Thu Rộn Ràng 🥮</h3>
-              <div style="font-size:0.85rem;color:var(--muted);">Gia tăng phần thưởng khi vượt ải</div>
-            </div>
-          </div>
-          <div class="event-countdown" id="midAutumnCountdown">
-            <i class="ri-time-line"></i> Còn: --:--:--
-          </div>
-        </div>
-        <div class="event-desc">
-          Trong suốt thời gian diễn ra sự kiện, mọi trận thắng đấu ải đều được gia tăng phần thưởng vượt bậc!
-        </div>
-        <div class="event-bonus">
-          <div class="bonus-item exp">
-            <i class="ri-medal-line"></i> +30% EXP Tài Khoản
-          </div>
-          <div class="bonus-item diamond">
-            <i class="ri-vip-diamond-line"></i> +40% Kim Cương 💎
-          </div>
-        </div>
-      </div>
-
-      <!-- Cửa hàng Nến -->
-      <div class="event-card" style="border-left: 5px solid #f97316; background: linear-gradient(135deg, rgba(249,115,22,0.03), var(--card));">
-        <div class="event-header">
-          <div class="event-title">
-            <i class="ri-fire-line" style="color:#f97316"></i>
-            <div>
-              <h3>Cửa Hàng Nến Lễ Hội</h3>
-              <div style="font-size:0.85rem;color:var(--muted);">Dùng Nến tích lũy từ thời gian chơi đổi quà</div>
-            </div>
-          </div>
-          <div class="event-countdown" id="candleShopCountdown" style="background:rgba(249,115,22,0.1);color:#f97316;">
-            <i class="ri-fire-line"></i> Nến hiện có: <span id="candleShopBalance">0</span>
-          </div>
-        </div>
-        <div id="candleShopContent" style="margin-top:12px;"></div>
-      </div>
-    </div>
-
-    <!-- Khu vực nhập Giftcode -->
-    <div class="gift-section" id="giftSection">
-      <h3><i class="ri-gift-2-line"></i> Đổi Mã Quà Tặng (Giftcode)</h3>
-      <div class="gift-input-row">
-        <input type="text" id="giftCodeInput" placeholder="Nhập giftcode bí mật...">
-        <button onclick="redeemGiftCode()">ĐỔI THƯỞNG</button>
-      </div>
-      <div id="giftMessage"></div>
-    </div>
-  </div>
-
-  <!-- ===== SUMMON ===== -->
-  <div id="screen-summon" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-magic-line"></i> Triệu Hồi &amp; Khu Vui Chơi</h2>
-      <button class="back-btn" onclick="showScreen('hall')"><i class="ri-arrow-left-line"></i> Sảnh chính</button>
-    </div>
-
-    <div class="summon-tabs">
-      <div class="summon-tab active" onclick="switchSummonTab('daily')" id="tab-daily">
-        <i class="ri-calendar-check-line"></i> Khu Vui Chơi (Điểm Danh 7 Ngày)
-      </div>
-      <div class="summon-tab" onclick="switchSummonTab('gacha')" id="tab-gacha">
-        <i class="ri-star-line"></i> Triệu Hồi Nhân Vật (1 VNTB)
-      </div>
-    </div>
-
-    <!-- Daily Login -->
-    <div class="summon-content" id="summon-daily">
-      <div class="daily-login">
-        <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
-          <i class="ri-calendar-check-line"></i> Đăng Nhập Hằng Ngày Nhận Thưởng
-        </h3>
-        <div class="daily-grid" id="dailyGrid"></div>
-        <div style="text-align: center; color: var(--muted); font-size: 0.9rem;">
-          Đăng nhập mỗi ngày để nhận Kim cương, Xu, VPNC và Ngọc Thần Bí!
-        </div>
-      </div>
-    </div>
-
-    <!-- Gacha -->
-    <div class="summon-content hidden" id="summon-gacha">
-      <div class="gacha-area">
-        <div class="gacha-animation">
-          <i class="ri-magic-line"></i>
-        </div>
-        <div class="gacha-info">
-          <div class="gem-count">
-            <i class="ri-diamond-line"></i>
-            Viên Ngọc Thần Bí (VNTB): <span id="gemCount">0</span>
-          </div>
-          <p>1 Viên Ngọc Thần Bí (VNTB) = 1 lượt triệu hồi chiến binh</p>
-        </div>
-        <div class="gacha-buttons">
-          <button class="gacha-btn primary" onclick="doSummon(1)" id="summon1Btn">🔮 Triệu hồi x1</button>
-          <button class="gacha-btn primary" onclick="doSummon(10)" id="summon10Btn">🔮 Triệu hồi x10</button>
-        </div>
-        <div class="gacha-rates">
-          <h4>Tỷ lệ triệu hồi</h4>
-          <div class="rate-row"><span>Nhân vật hiếm (Kangu, Mega Ner, Jaco, Hit, Omega Shenron...)</span><span style="color: var(--accent); font-weight: 700;">5%</span></div>
-          <div class="rate-row"><span>Kim cương lớn</span><span style="color: var(--accent); font-weight: 700;">25%</span></div>
-          <div class="rate-row"><span>Xu vàng</span><span style="color: var(--accent); font-weight: 700;">35%</span></div>
-          <div class="rate-row"><span>Vật phẩm nâng cấp (VPNC)</span><span style="color: var(--accent); font-weight: 700;">30%</span></div>
-          <div class="rate-row"><span>Ngọc thần bí (VNTB)</span><span style="color: var(--accent); font-weight: 700;">5%</span></div>
-        </div>
-        <div class="summon-result hidden" id="summonResult">
-          <h4>Kết quả triệu hồi</h4>
-          <div class="result-items" id="resultItems"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== ROSTER ===== -->
-  <div id="screen-roster" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-team-line"></i> Danh Sách Tướng &amp; Nâng Cấp</h2>
-      <button class="back-btn" onclick="showScreen('hall')"><i class="ri-arrow-left-line"></i> Sảnh chính</button>
-    </div>
-    <div class="roster-layout">
-      <div class="roster-list">
-        <h3><i class="ri-list-unordered"></i> Danh Sách Nhân Vật</h3>
-        <div id="rosterList"></div>
-      </div>
-      <div class="character-detail" id="characterDetail">
-        <div style="text-align: center; color: var(--muted); padding: 60px 20px;">
-          <i class="ri-user-3-line" style="font-size: 4rem; display: block; margin-bottom: 16px;"></i>
-          Chọn một nhân vật bên trái để xem chi tiết và nâng cấp
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ===== INVENTORY ===== -->
-  <div id="screen-inventory" class="screen">
-    <div class="section-header">
-      <h2><i class="ri-backpack-line"></i> Túi Đồ &amp; Tài Nguyên</h2>
-      <button class="back-btn" onclick="showScreen('hall')"><i class="ri-arrow-left-line"></i> Sảnh chính</button>
-    </div>
-    <div class="inventory-grid" id="inventoryGrid"></div>
-  </div>
 </div>
-
-<!-- ===== BATTLE RESULT MODAL ===== -->
-<div id="resultModal" class="modal-overlay hidden">
-  <div class="modal">
-    <h2 id="resultTitle" class="victory">Chiến thắng!</h2>
-    <p id="resultDesc" style="color: var(--muted); margin-bottom: 10px;">Bạn đã đánh bại kẻ địch</p>
-    <div class="modal-rewards" id="modalRewards">
-      <h4>Phần thưởng nhận được</h4>
-      <div class="reward-list" id="rewardList"></div>
-    </div>
-    <button onclick="closeResultModal()">Tiếp tục</button>
-  </div>
-</div>
-
-<!-- ===== TOAST CONTAINER ===== -->
-<div class="toast-container" id="toastContainer"></div>
 
 <script>
-// ============================================================
-// GAME DATA & CONFIGURATION (ĐẦY ĐỦ CÁC TƯỚNG & KỸ NĂNG)
-// ============================================================
+    // ================= DỮ LIỆU GỐC TƯỚNG =================
+    const DB_CHARACTERS = {
+        'kangu': { name: 'Kangu', role: 'DEF', baseHp: 150000000, baseAtk: 13275000, baseDef: 6400, spd: 145, maxEn: 4 },
+        'meganer': { name: 'Mega Ner', role: 'ATK', baseHp: 220000000, baseAtk: 14175000, baseDef: 1900, spd: 150, maxEn: 5 },
+        'jaco': { name: 'Jaco', role: 'SKL', baseHp: 190000000, baseAtk: 11475000, baseDef: 3200, spd: 155, maxEn: 4.5 }
+    };
 
-const CHARACTER_TEMPLATES = {
-  kangu: {
-    id: 'kangu',
-    name: 'Kangu',
-    type: 'DEF',
-    icon: 'K',
-    baseHp: 150000000,
-    baseAtk: 13275000,
-    baseDef: 6400,
-    baseSpd: 145,
-    baseEn: 4,
-    maxEn: 4,
-    basic: {
-      name: 'Đòn Đập Khiên',
-      atkPercent: 0.85,
-      enGain: 1.7,
-      desc: 'Gây 85% ATK lên kẻ địch hàng đầu, hồi 1.7 năng lượng'
-    },
-    skill: {
-      name: 'Tia Năng Lượng Phá Giáp',
-      enCost: 4,
-      atkPercent: 2.0,
-      hpPercentBonus: 0.05,
-      effect: { type: 'heal_reduce', value: 0.4, duration: 2 },
-      desc: 'Phóng ra 1 tia năng lượng gây 200% ATK kèm 5% HP còn lại của kẻ địch. Gây hiệu ứng "suy giảm" (giảm 40% khả năng hồi phục trong 2 hiệp)',
-      unlock150Bonus: 0.3
-    },
-    passives: [
-      { name: 'Ý Chí Bất Khuất', unlockLv: 50, desc: 'Mỗi 7% HP mất đi, ST gây ra tăng 1%' },
-      { name: 'Chấn Kích', unlockLv: 80, desc: 'Khi đánh thường, tỉ lệ 10% choáng kẻ địch đó trong 1 hiệp tới' },
-      { name: 'Tia Phản Xạ Kép', unlockLv: 100, desc: 'Tỉ lệ 75% Tung kỹ năng chủ động phóng ra thêm 1 tia năng lượng gây ST bằng 75% ST tia 1' }
-    ]
-  },
-  mega_ner: {
-    id: 'mega_ner',
-    name: 'Mega Ner',
-    type: 'ATK',
-    icon: 'M',
-    baseHp: 220000000,
-    baseAtk: 14175000,
-    baseDef: 1900,
-    baseSpd: 150,
-    baseEn: 5,
-    maxEn: 5,
-    basic: {
-      name: 'Tung Nộ',
-      atkPercent: 0.95,
-      enGain: 1.4,
-      aoe: true,
-      desc: 'Tung Nộ gây ST diện rộng (toàn bộ địch) bằng 95% ATK, hồi 1.4 năng lượng'
-    },
-    skill: {
-      name: 'Dịch Chuyển Trảm',
-      enCost: 5,
-      atkPercent: 2.8,
-      selfBuff: { type: 'dmg_up', value: 0.15, duration: 2 },
-      desc: 'Dịch chuyển tới kẻ địch gây 280% ATK, tăng 15% ST bản thân gây ra trong 1 hiệp tiếp theo',
-      unlock150Bonus: 0.08
-    },
-    passives: [
-      { name: 'Tiên Phong Khởi Động', unlockLv: 50, desc: 'Đầu trận nhận sẵn 2 năng lượng' },
-      { name: 'Song Bích Hợp Nhất', unlockLv: 80, desc: 'Nhận hiệu ứng "Song bích" (+15% ATK, +10% SPD)' },
-      { name: 'Cuồng Nộ Huyết Chiến', unlockLv: 100, desc: 'Khi HP dưới 20%, tăng 10% ST gây ra' }
-    ]
-  },
-  jaco: {
-    id: 'jaco',
-    name: 'Jaco',
-    type: 'SKL',
-    icon: 'J',
-    baseHp: 190000000,
-    baseAtk: 11475000,
-    baseDef: 3200,
-    baseSpd: 155,
-    baseEn: 4.5,
-    maxEn: 4.5,
-    basic: {
-      name: 'Ánh Sáng Ban Phước',
-      atkPercent: 0.88,
-      enGain: 1.2,
-      hpMark: true,
-      desc: 'Gây 88% ATK lên 1 kẻ địch, hồi 1.2 năng lượng và đánh dấu hiệu ứng "HP" lên đồng đội có ít HP nhất (tối đa 3 dấu)'
-    },
-    skill: {
-      name: 'Đại Phục Hồi Thần Thánh',
-      enCost: 4.5,
-      atkPercent: 1.05,
-      healPercent: 1.5,
-      healAll: true,
-      desc: 'Tung 1 đánh thường cường hóa bằng 105% ATK lên 1 kẻ địch, hồi máu toàn đội bằng 150% ATK (Lv 150: hồi 175% ATK)',
-      unlock150Bonus: 0.25
-    },
-    passives: [
-      { name: 'Truyền Năng Lượng', unlockLv: 50, desc: 'Khi sử dụng kỹ năng chủ động, 1 trong 2 đồng đội còn lại nhận tăng 18% ST trong 1 hiệp' },
-      { name: 'Cứu Rỗi Nguy Cấp', unlockLv: 80, desc: 'Đồng đội dưới 50% HP tăng thêm 20% khả năng hồi phục do Jaco hồi' },
-      { name: 'Dấu Ấn Trùng Điệp', unlockLv: 100, desc: 'Khi Jaco tung kỹ năng chủ động, đồng đội có 3 dấu "HP" được tăng 10% khả năng hồi phục' }
-    ]
-  },
-  hit: {
-    id: 'hit',
-    name: 'F.Hit',
-    type: 'SKL',
-    icon: 'H',
-    baseHp: 2450000,
-    baseAtk: 11550000,
-    baseDef: 5400,
-    baseSpd: 155,
-    baseEn: 7,
-    maxEn: 7,
-    basic: {
-      name: 'Thời Không Đột Kích',
-      atkPercent: 0.79,
-      enGain: 1.8,
-      targetHighestAtk: true,
-      desc: 'Gây 79% ATK lên mục tiêu có ATK cao nhất, hồi 1.8 năng lượng'
-    },
-    skill: {
-      name: 'Bão Tố Ăn Mòn',
-      enCost: 7,
-      atkPercent: 1.10,
-      aoe: true,
-      dotEffect: { type: 'eat_away', hpPercent: 0.03, maxAtkPercent: 0.23, maxStacks: 5, duration: 4 },
-      desc: 'Gây 110% ATK lên toàn bộ kẻ địch và áp dụng hiệu ứng [ĂN MÒN], gây ST bằng 3% HP tối đa mỗi hiệp (tối đa 23% ATK). Tối đa 5 lần, kéo dài 4 hiệp'
-    },
-    passives: [
-      { name: 'Thời Không Bất Diệt', unlockLv: 50, desc: 'Hồi sinh sau khi chết, nhận HP bằng 80% HP tối đa (1 lần/trận)' },
-      { name: 'Định Vị Chuẩn Xác', unlockLv: 80, desc: 'Đòn đánh thường luôn ưu tiên công kích kẻ địch có ATK cao nhất' },
-      { name: 'Thời Không Bảo Hộ', unlockLv: 100, desc: 'Khi F.Hit còn sống, tăng 5% giảm ST toàn đội. Khi có đồng minh chết hoặc sau khi hồi sinh, tăng thêm 8% giảm ST (tổng +13%)' }
-    ]
-  },
-  one_star_dragon: {
-    id: 'one_star_dragon',
-    name: 'Omega Shenron (O.S DRA)',
-    type: 'DEF',
-    icon: 'OS',
-    baseHp: 300000000,
-    baseAtk: 12880000,
-    baseDef: 5000,
-    baseSpd: 145,
-    baseEn: 5,
-    maxEn: 5,
-    basic: {
-      name: 'Hơi Thở Âm Phủ',
-      atkPercent: 0.90,
-      enGain: 1.8,
-      desc: 'Gây 90% ATK lên kẻ địch, hồi 1.8 năng lượng'
-    },
-    skill: {
-      name: 'Nọc Độc Hắc Long',
-      enCost: 5,
-      atkPercent: 2.75,
-      targetHighestAtk: true,
-      desc: 'Gây 275% ATK lên địch có ATK cao nhất, hút sức mạnh đối thủ'
-    },
-    passives: [
-      { name: 'Giáp Khiên Cổ Đại', unlockLv: 50, desc: 'Bắt đầu trận tạo 50% HP thành Giáp ảo' },
-      { name: 'Phản Kích Nọc Độc', unlockLv: 80, desc: 'Khi bị tấn công, phản lại sát thương độc' },
-      { name: 'Thiên Mệnh Thần Long', unlockLv: 100, desc: 'Tăng 25% ATK vĩnh viễn trong trận' }
-    ]
-  }
-};
-
-// 5 Chương x 7 Ải
-const CHAPTERS = [
-  { id: 1, name: 'Chương 1: Rừng Khởi Nguyên', desc: 'Khu rừng nguyên sơ đầy cạm bẫy và quái thú' },
-  { id: 2, name: 'Chương 2: Hẻm Núi Dung Nham', desc: 'Vùng đất núi lửa nóng bỏng, dung nham cuộn trào' },
-  { id: 3, name: 'Chương 3: Vùng Đất Băng Giá', desc: 'Cung điện băng tuyết lạnh lẽo với bão tuyết vĩnh cửu' },
-  { id: 4, name: 'Chương 4: Thành Phố Cơ Khí', desc: 'Thế giới công nghệ cao với các cỗ máy chiến đấu tân tiến' },
-  { id: 5, name: 'Chương 5: Thánh Địa Hư Không', desc: 'Vùng đất tận cùng vũ trụ, nơi Chúa tể Hư không ngự trị' }
-];
-
-function generateStages() {
-  const stages = {};
-  for (let c = 1; c <= 5; c++) {
-    stages[c] = [];
-    for (let s = 1; s <= 7; s++) {
-      const isBoss = s === 7;
-      const difficulty = (c - 1) * 7 + s;
-      const multiplier = (1 + (c - 1) * 0.35) * (1 + (s - 1) * 0.12) * (isBoss ? 1.4 : 1.0);
-      
-      const pool = ['kangu', 'mega_ner', 'jaco', 'hit', 'one_star_dragon'];
-      const enemies = [
-        { template: pool[(s) % pool.length], mult: multiplier * 0.9 },
-        { template: pool[(s + 1) % pool.length], mult: multiplier * 0.95 },
-        { template: isBoss ? 'one_star_dragon' : pool[(s + 2) % pool.length], mult: multiplier * (isBoss ? 1.3 : 1.0), name: isBoss ? `BOSS ${CHAPTERS[c-1].name.split(':')[1].trim()}` : null }
-      ];
-
-      stages[c].push({
-        chapter: c,
-        stage: s,
-        isBoss: isBoss,
-        name: isBoss ? `BOSS Chương ${c}` : `Ải ${c}-${s}`,
-        enemies: enemies,
-        rewards: {
-          exp: Math.floor(100 + difficulty * 40 + (isBoss ? 300 : 0)),
-          gold: 200 + difficulty * 80 + (isBoss ? 1000 : 0),
-          vpnc: 50 + difficulty * 25 + (isBoss ? 200 : 0),
-          diamond: isBoss ? 80 : 15
+    // ================= TRẠNG THÁI NGƯỜI CHƠI =================
+    let player = {
+        lvl: 1, exp: 0, kc: 300, xu: 1000, vpnc: 1000, vntb: 2,
+        usedCodes: [],
+        roster: {
+            'meganer': { id: 'meganer', lvl: 1, pos: 2 },
+            'kangu': { id: 'kangu', lvl: 1, pos: 1 }, // Tặng thêm để test đủ đội hình 3 người
+            'jaco': { id: 'jaco', lvl: 1, pos: 3 }    // Tặng thêm để test đủ đội hình 3 người
         }
-      });
+    };
+
+    // ================= HỆ THỐNG CƠ BẢN =================
+    function initGame() {
+        setInterval(updateClock, 1000);
+        updateUI();
     }
-  }
-  return stages;
-}
 
-const STAGES = generateStages();
-
-const DAILY_REWARDS = [
-  { type: 'gold', amount: 1000, icon: 'ri-coin-line', name: 'Xu' },
-  { type: 'vpnc', amount: 300, icon: 'ri-flashlight-line', name: 'VPNC' },
-  { type: 'diamond', amount: 100, icon: 'ri-vip-diamond-line', name: 'Kim cương' },
-  { type: 'gold', amount: 3000, icon: 'ri-coin-line', name: 'Xu' },
-  { type: 'vntb', amount: 1, icon: 'ri-diamond-line', name: 'Viên ngọc (VNTB)' },
-  { type: 'vpnc', amount: 800, icon: 'ri-flashlight-line', name: 'VPNC' },
-  { type: 'diamond', amount: 300, icon: 'ri-vip-diamond-line', name: 'Kim cương' }
-];
-
-const GIFT_CODES = {
-  'CODETUAN001': { diamond: 400, desc: 'Quà tuần 001' },
-  'F.HIT': { vntb: 3, desc: 'Tướng mới F.Hit' },
-  'FHIT': { vntb: 3, desc: 'Tướng mới F.Hit' },
-  'NHANVATMOI': { vntb: 3, desc: 'Chào mừng nhân vật mới' },
-  'MATEST': { diamond: 50000, vpnc: 100000, gold: 500000, desc: 'Mã thử nghiệm' }
-};
-
-const VIP_LEVELS = [
-  { level: 1, expRequired: 100, rewards: { diamond: 1000, vpnc: 5000 }, name: 'VIP 1' },
-  { level: 2, expRequired: 250, rewards: { diamond: 2500, vpnc: 15000 }, name: 'VIP 2' },
-  { level: 3, expRequired: 500, rewards: { diamond: 5000, vpnc: 40000 }, name: 'VIP 3' },
-  { level: 4, expRequired: 1000, rewards: { diamond: 10000, vpnc: 100000 }, name: 'VIP 4' },
-  { level: 5, expRequired: 2000, rewards: { diamond: 20000, vpnc: 300000 }, name: 'VIP 5' }
-];
-
-const RECHARGE_PACKAGES = [
-  { id: 'r5', money: 5, diamond: 3300, vipExp: 50, name: 'Gói Tân Thủ 5$' },
-  { id: 'r25', money: 25, diamond: 18000, vipExp: 250, name: 'Gói Cao Cấp 25$' },
-  { id: 'r100', money: 100, diamond: 80000, vipExp: 1000, name: 'Gói Siêu Cấp 100$' }
-];
-
-const SHOP_ITEMS = [
-  { id: 'char_hit', type: 'character', templateId: 'hit', name: 'F.Hit', charType: 'SKL', price: 110000, icon: 'H', desc: 'Sát thủ thời không, kỹ năng Ăn Mòn & Hồi sinh 80% HP' },
-  { id: 'char_dragon', type: 'character', templateId: 'one_star_dragon', name: 'Omega Shenron (O.S DRA)', charType: 'DEF', price: 110000, icon: 'OS', desc: 'Hắc Long huỷ diệt với Giáp ảo và Cuồng nộ' },
-  { id: 'vpnc_5000', type: 'resource', resource: 'vpnc', amount: 5000, price: 800, icon: '⚡', name: 'VPNC x5000', desc: 'Dược chất nâng cấp nhân vật' },
-  { id: 'vntb_10', type: 'resource', resource: 'vntb', amount: 10, price: 1500, icon: '🔮', name: 'VNTB x10', desc: 'Viên Ngọc Thần Bí triệu hồi tướng' },
-  { id: 'gold_50000', type: 'resource', resource: 'gold', amount: 50000, price: 500, icon: '🪙', name: 'Xu x50,000', desc: 'Túi tiền vàng lớn' }
-];
-
-const CANDLE_SHOP_ITEMS = [
-  { id: 'vpnc_100k', cost: 100, type: 'vpnc', amount: 5000, name: '5,000 VPNC', icon: '⚡' },
-  { id: 'gold_3500', cost: 150, type: 'gold', amount: 20000, name: '20,000 Xu', icon: '🪙' },
-  { id: 'vntb_2', cost: 300, type: 'vntb', amount: 3, name: '3 VNTB', icon: '🔮' },
-  { id: 'diamond_200', cost: 500, type: 'diamond', amount: 500, name: '500 Kim Cương', icon: '💎' }
-];
-
-// ============================================================
-// GAME STATE MANAGEMENT
-// ============================================================
-
-let gameState = {
-  player: {
-    name: 'Lê Hải',
-    level: 1,
-    exp: 0,
-    expToNext: 100,
-    maxLevel: 150
-  },
-  resources: {
-    diamond: 300,
-    gold: 1000,
-    vpnc: 1000,
-    vntb: 2,
-    candle: 0,
-    dollars: 0
-  },
-  characters: {},
-  team: [null, null, null], // Slot 0: DEF (Hàng đầu), Slot 1: ATK (Giữa), Slot 2: SKL (Cạnh)
-  stages: {
-    cleared: {},
-    maxUnlocked: 1
-  },
-  daily: {
-    lastLoginDate: null,
-    streak: 0,
-    claimedDays: []
-  },
-  giftCodes: {},
-  events: {
-    saleEnd: null,
-    midAutumnEnd: null,
-    flashSale: {
-      active: false,
-      discount: 0,
-      endTime: null
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('real-time-clock').innerText = now.toLocaleString('vi-VN');
     }
-  },
-  playTime: {
-    sessionStart: null,
-    totalAccumulated: 0,
-    lastClaimTime: null
-  },
-  vip: {
-    level: 0,
-    exp: 0,
-    expToNext: 100,
-    claimedLevels: []
-  }
-};
 
-function createCharacter(templateId, level = 1) {
-  const tpl = CHARACTER_TEMPLATES[templateId];
-  if (!tpl) return null;
-  
-  const levelMult = 1 + (level - 1) * 0.04;
-  return {
-    id: templateId + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
-    templateId: templateId,
-    name: tpl.name,
-    type: tpl.type,
-    icon: tpl.icon,
-    level: level,
-    maxLevel: 250,
-    baseHp: tpl.baseHp,
-    baseAtk: tpl.baseAtk,
-    baseDef: tpl.baseDef,
-    baseSpd: tpl.baseSpd,
-    baseEn: tpl.baseEn,
-    maxEn: tpl.maxEn,
-    hp: Math.floor(tpl.baseHp * levelMult),
-    atk: Math.floor(tpl.baseAtk * levelMult),
-    def: Math.floor(tpl.baseDef + (level - 1) * 20),
-    spd: Math.floor(tpl.baseSpd + (level - 1) * 0.25),
-    en: 0,
-    basic: { ...tpl.basic },
-    skill: { ...tpl.skill },
-    passives: tpl.passives.map(p => ({ ...p }))
-  };
-}
-
-function getCharStats(char) {
-  const levelMult = 1 + (char.level - 1) * 0.04;
-  return {
-    hp: Math.floor(char.baseHp * levelMult),
-    atk: Math.floor(char.baseAtk * levelMult),
-    def: Math.floor(char.baseDef + (char.level - 1) * 20),
-    spd: Math.floor(char.baseSpd + (char.level - 1) * 0.25),
-    maxHp: Math.floor(char.baseHp * levelMult)
-  };
-}
-
-function getUpgradeCost(level) {
-  return Math.floor(25 * Math.pow(level, 1.25));
-}
-
-function upgradeCharacter(charId) {
-  const char = gameState.characters[charId];
-  if (!char) return { success: false, msg: 'Không tìm thấy nhân vật!' };
-  if (char.level >= char.maxLevel) return { success: false, msg: 'Nhân vật đã đạt cấp tối đa (Lv 250)!' };
-  
-  const cost = getUpgradeCost(char.level);
-  if (gameState.resources.vpnc < cost) return { success: false, msg: `Không đủ VPNC! Cần ${cost.toLocaleString()} VPNC.` };
-  
-  gameState.resources.vpnc -= cost;
-  char.level++;
-  
-  const newStats = getCharStats(char);
-  char.hp = newStats.hp;
-  char.atk = newStats.atk;
-  char.def = newStats.def;
-  char.spd = newStats.spd;
-  
-  saveGame();
-  return { success: true, msg: `Nâng cấp thành công lên Lv.${char.level}!` };
-}
-
-// ============================================================
-// BATTLE ENGINE (AUTO 1S/ACTION - CHUẨN CÔNG THỨC & BỊ ĐỘNG)
-// ============================================================
-
-let battleState = null;
-let battleInterval = null;
-let battleSpeed = 1000;
-
-function createBattleUnit(char, isPlayer = true, slotIndex = 0) {
-  const stats = getCharStats(char);
-  const unit = {
-    id: char.id,
-    templateId: char.templateId,
-    name: char.name,
-    displayName: char.name,
-    type: char.type,
-    icon: char.icon,
-    level: char.level,
-    isPlayer: isPlayer,
-    slotIndex: slotIndex,
-    maxHp: stats.hp,
-    hp: stats.hp,
-    atk: stats.atk,
-    def: stats.def,
-    spd: stats.spd,
-    en: 0,
-    maxEn: char.maxEn,
-    basic: { ...char.basic },
-    skill: { ...char.skill },
-    passives: char.passives.map(p => ({ ...p })),
-    buffs: [],
-    debuffs: [],
-    hpMarks: 0,
-    dead: false,
-    hasRevived: false,
-    corrosionStacks: 0,
-    corrosionDuration: 0,
-    corrosionCasterAtk: 0
-  };
-  
-  // Mega Ner P1 (Lv >= 50): Khởi đầu có 2 EN
-  if (unit.templateId === 'mega_ner' && unit.level >= 50) {
-    unit.en = 2.0;
-  }
-  // Mega Ner P2 (Lv >= 80): Song bích (+15% ATK, +10% SPD)
-  if (unit.templateId === 'mega_ner' && unit.level >= 80) {
-    unit.buffs.push({ type: 'song_bich', atkBonus: 0.15, spdBonus: 0.10, permanent: true });
-  }
-  
-  return unit;
-}
-
-function createEnemyUnit(enemyConfig, slotIndex = 0) {
-  const tpl = CHARACTER_TEMPLATES[enemyConfig.template] || CHARACTER_TEMPLATES.kangu;
-  const mult = enemyConfig.mult;
-  const level = Math.max(5, Math.floor(20 * mult));
-  const levelMult = 1 + (level - 1) * 0.03;
-  
-  return {
-    id: 'enemy_' + Math.random().toString(36).substr(2, 7),
-    templateId: enemyConfig.template,
-    name: enemyConfig.name || tpl.name,
-    displayName: enemyConfig.name || tpl.name,
-    type: tpl.type,
-    icon: tpl.icon,
-    level: level,
-    isPlayer: false,
-    slotIndex: slotIndex,
-    maxHp: Math.floor(tpl.baseHp * levelMult * mult * 0.5),
-    hp: Math.floor(tpl.baseHp * levelMult * mult * 0.5),
-    atk: Math.floor(tpl.baseAtk * levelMult * mult * 0.6),
-    def: Math.floor(tpl.baseDef * mult),
-    spd: Math.floor(tpl.baseSpd * mult),
-    en: 0,
-    maxEn: tpl.maxEn,
-    basic: { ...tpl.basic },
-    skill: { ...tpl.skill },
-    passives: tpl.passives.map(p => ({ ...p })),
-    buffs: [],
-    debuffs: [],
-    hpMarks: 0,
-    dead: false,
-    hasRevived: false,
-    corrosionStacks: 0,
-    corrosionDuration: 0,
-    corrosionCasterAtk: 0
-  };
-}
-
-// Tính toán sát thương với công thức giảm ST: cứ 100 DEF giảm 0.1% ST (DEF / 100,000)
-function calcDamage(attacker, defender, atkPercent, isSkill = false) {
-  const baseDamage = attacker.atk * atkPercent;
-  
-  // DEF reduction
-  let defReduction = defender.def / 100000;
-  defReduction = Math.min(0.90, defReduction);
-  
-  // F.Hit Passive 3: Giảm ST toàn đội
-  let teamAuraReduction = 0;
-  if (battleState) {
-    const allyTeam = defender.isPlayer ? battleState.playerTeam : battleState.enemyTeam;
-    const hitUnit = allyTeam.find(u => u.templateId === 'hit' && !u.dead);
-    if (hitUnit) {
-      teamAuraReduction += 0.05; // 5% cơ bản
-      if (allyTeam.some(u => u.dead) || hitUnit.hasRevived) {
-        teamAuraReduction += 0.08; // +8% khi có đồng minh chết hoặc Hit đã hồi sinh
-      }
+    function formatNum(num) {
+        if(num >= 1000000) return (num/1000000).toFixed(1) + 'M';
+        if(num >= 1000) return (num/1000).toFixed(1) + 'K';
+        return num.toString();
     }
-  }
-  
-  const totalReduction = Math.min(0.95, defReduction + teamAuraReduction);
-  
-  // Attacker buffs & passives
-  let dmgMult = 1.0;
-  attacker.buffs.forEach(b => {
-    if (b.type === 'dmg_up') dmgMult += b.value;
-  });
-  
-  // Kangu P1: Mỗi 7% HP mất đi, ST tăng 1%
-  if (attacker.templateId === 'kangu' && attacker.level >= 50) {
-    const lostHpPct = ((attacker.maxHp - attacker.hp) / attacker.maxHp) * 100;
-    dmgMult += Math.floor(lostHpPct / 7) * 0.01;
-  }
-  // Mega Ner P3: HP < 20% -> ST tăng 10%
-  if (attacker.templateId === 'mega_ner' && attacker.level >= 100 && (attacker.hp / attacker.maxHp) < 0.20) {
-    dmgMult += 0.10;
-  }
-  
-  const finalDamage = Math.max(1, Math.floor(baseDamage * (1 - totalReduction) * dmgMult));
-  return {
-    damage: finalDamage,
-    reductionPercent: (totalReduction * 100).toFixed(1)
-  };
-}
 
-function getFrontTarget(enemyTeam) {
-  const alive = enemyTeam.filter(u => !u.dead).sort((a, b) => a.slotIndex - b.slotIndex);
-  return alive.length > 0 ? alive[0] : null;
-}
+    function updateUI() {
+        document.getElementById('res-kc').innerText = player.kc;
+        document.getElementById('res-xu').innerText = player.xu;
+        document.getElementById('res-vpnc').innerText = player.vpnc;
+        document.getElementById('res-vntb').innerText = player.vntb;
+        
+        document.getElementById('inv-kc').innerText = player.kc;
+        document.getElementById('inv-xu').innerText = player.xu;
+        document.getElementById('inv-vpnc').innerText = player.vpnc;
+        document.getElementById('inv-vntb').innerText = player.vntb;
 
-function getHighestAtkTarget(enemyTeam) {
-  const alive = enemyTeam.filter(u => !u.dead).sort((a, b) => b.atk - a.atk);
-  return alive.length > 0 ? alive[0] : null;
-}
-
-function applyDamage(target, damage, attacker) {
-  // F.Hit Passive 1: Hồi sinh nhận 80% HP tối đa
-  if (target.hp - damage <= 0 && target.templateId === 'hit' && !target.hasRevived && target.level >= 50) {
-    target.hasRevived = true;
-    target.hp = Math.floor(target.maxHp * 0.80);
-    addLog(`💫 [${target.displayName}] kích hoạt Bị động 1! HỒI SINH với 80% HP (${formatNumber(target.hp)} HP)!`, 'heal');
-    return;
-  }
-  
-  target.hp = Math.max(0, target.hp - damage);
-  if (target.hp === 0) {
-    target.dead = true;
-    addLog(`💀 [${target.displayName}] đã bị đánh bại!`, 'system');
-  }
-}
-
-function addLog(message, type = 'system') {
-  if (!battleState) return;
-  battleState.log.push({ message, type });
-  const logEl = document.getElementById('battleLog');
-  if (logEl) {
-    const entry = document.createElement('div');
-    entry.className = `log-entry ${type}`;
-    entry.textContent = message;
-    logEl.appendChild(entry);
-    logEl.scrollTop = logEl.scrollHeight;
-  }
-}
-
-function performBasicAttack(attacker, targetTeam, allyTeam) {
-  if (attacker.templateId === 'mega_ner') {
-    // Mega Ner đánh thường: AoE toàn bộ kẻ địch
-    addLog(`⚔️ [${attacker.displayName}] tung [${attacker.basic.name}] quét sạch toàn bộ kẻ địch!`, 'skill');
-    targetTeam.filter(u => !u.dead).forEach(target => {
-      const res = calcDamage(attacker, target, attacker.basic.atkPercent);
-      applyDamage(target, res.damage, attacker);
-      addLog(`   💥 [${target.displayName}] nhận ${formatNumber(res.damage)} ST (Giảm ${res.reductionPercent}%)`, 'damage');
-    });
-    
-    attacker.en = Math.min(attacker.maxEn, attacker.en + attacker.basic.enGain);
-    if (attacker.level >= 150) {
-      attacker.buffs.push({ type: 'dmg_up', value: 0.08, duration: 2 });
+        document.getElementById('player-lvl').innerText = player.lvl;
+        renderRoster();
     }
-  } else {
-    // Chọn mục tiêu
-    let target = null;
-    if (attacker.templateId === 'hit' && attacker.level >= 80) {
-      target = getHighestAtkTarget(targetTeam); // F.Hit nhắm mục tiêu có ATK cao nhất
-      addLog(`⚡ [${attacker.displayName}] ngắm bắn kẻ địch có ATK cao nhất [${target ? target.displayName : ''}]!`, 'buff');
-    } else {
-      target = getFrontTarget(targetTeam); // Mặc định đánh tướng 1 (hàng đầu)
+
+    function alertSystem(msg) { alert("Thông báo: " + msg); }
+
+    function switchTab(tabId) {
+        document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+        document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`screen-${tabId}`).classList.add('active');
+        event.currentTarget.classList.add('active');
     }
-    
-    if (!target) return;
-    
-    const res = calcDamage(attacker, target, attacker.basic.atkPercent);
-    applyDamage(target, res.damage, attacker);
-    addLog(`⚔️ [${attacker.displayName}] dùng [${attacker.basic.name}] gây ${formatNumber(res.damage)} ST lên [${target.displayName}]`, 'damage');
-    
-    attacker.en = Math.min(attacker.maxEn, attacker.en + attacker.basic.enGain);
-    
-    // Kangu P2: 10% choáng
-    if (attacker.templateId === 'kangu' && attacker.level >= 80 && Math.random() < 0.10 && !target.dead) {
-      target.debuffs.push({ type: 'stun', duration: 2 });
-      addLog(`   ⚡ Kích hoạt bị động "Chấn Kích"! [${target.displayName}] bị Choáng 1 hiệp!`, 'buff');
+
+    // ================= SỰ KIỆN & TRIỆU HỒI =================
+    function claimCode() {
+        const code = document.getElementById('giftcode-input').value.trim().toUpperCase();
+        if (code === 'CODETUAN001') {
+            if (!player.usedCodes.includes(code)) {
+                player.kc += 400;
+                player.usedCodes.push(code);
+                alertSystem("Đổi code thành công! Nhận 400 Kim Cương.");
+                updateUI();
+            } else alertSystem("Code này đã được sử dụng!");
+        } else alertSystem("Code không hợp lệ!");
+        document.getElementById('giftcode-input').value = '';
     }
-    
-    // Jaco basic: Dấu HP lên đồng đội có ít % HP nhất
-    if (attacker.templateId === 'jaco' && attacker.basic.hpMark) {
-      const livingAllies = allyTeam.filter(u => !u.dead).sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
-      if (livingAllies.length > 0 && livingAllies[0].hpMarks < 3) {
-        livingAllies[0].hpMarks++;
-        addLog(`   💚 Đánh dấu hiệu ứng "HP" lên [${livingAllies[0].displayName}] (${livingAllies[0].hpMarks}/3 dấu)`, 'buff');
-      }
+
+    function summon() {
+        if (player.vntb < 1) return alertSystem("Không đủ Viên Ngọc Thần Bí!");
+        player.vntb -= 1;
+        
+        // RNG Logic: 70% Xu, 25% KC, 5% VPNC (Tướng tạm ẩn vì đã cho đủ đội hình test)
+        let r = Math.random();
+        let resultTxt = "";
+        if (r < 0.7) { player.xu += 5000; resultTxt = "Nhận được 5000 Xu!"; }
+        else if (r < 0.95) { player.kc += 100; resultTxt = "Nhận được 100 Kim Cương!"; }
+        else { player.vpnc += 500; resultTxt = "Nhận được 500 VP Nâng cấp!"; }
+
+        document.getElementById('summon-result').innerText = resultTxt;
+        updateUI();
     }
-  }
-}
 
-function performSkill(attacker, targetTeam, allyTeam) {
-  attacker.en = 0; // Tiêu hao năng lượng
-  const skill = attacker.skill;
-  addLog(`🔥 [${attacker.displayName}] KÍCH HOẠT KỸ NĂNG CHỦ ĐỘNG [${skill.name.toUpperCase()}]!`, 'skill');
-  
-  if (attacker.templateId === 'kangu') {
-    const target = getFrontTarget(targetTeam);
-    if (!target) return;
-    
-    const atkMult = attacker.level >= 150 ? 2.30 : 2.00;
-    const res = calcDamage(attacker, target, atkMult, true);
-    const hpBonusDmg = Math.floor(target.hp * 0.05); // 5% HP còn lại của địch
-    const totalDmg = res.damage + hpBonusDmg;
-    
-    applyDamage(target, totalDmg, attacker);
-    addLog(`   💥 Tia 1: Gây ${formatNumber(totalDmg)} ST lên [${target.displayName}] (kèm 5% HP còn lại)`, 'damage');
-    
-    target.debuffs.push({ type: 'heal_reduce', value: 0.40, duration: 2 });
-    addLog(`   📉 [${target.displayName}] dính hiệu ứng "Suy Giảm" (-40% hồi máu)!`, 'buff');
-    
-    // Kangu P3 (Lv 100): 75% phóng thêm tia 2 gây 75% ST
-    if (attacker.level >= 100 && Math.random() < 0.75 && !target.dead) {
-      const extraDmg = Math.floor(totalDmg * 0.75);
-      applyDamage(target, extraDmg, attacker);
-      addLog(`   ⚡ Kích hoạt "Tia Phản Xạ Kép"! Gây thêm ${formatNumber(extraDmg)} ST!`, 'damage');
+    // ================= TÍNH TOÁN CHỈ SỐ TƯỚNG =================
+    function getCalcStats(charId, lvl) {
+        const base = DB_CHARACTERS[charId];
+        // Công thức tăng trưởng: Tăng 5% chỉ số cơ bản mỗi level
+        const multiplier = 1 + ((lvl - 1) * 0.05);
+        return {
+            hp: Math.floor(base.baseHp * multiplier),
+            atk: Math.floor(base.baseAtk * multiplier),
+            def: Math.floor(base.baseDef * multiplier),
+            spd: base.spd, // SPD không đổi
+            enMax: base.maxEn
+        };
     }
-  } 
-  else if (attacker.templateId === 'mega_ner') {
-    const target = getFrontTarget(targetTeam);
-    if (!target) return;
-    
-    const res = calcDamage(attacker, target, skill.atkPercent, true);
-    applyDamage(target, res.damage, attacker);
-    addLog(`   💥 Dịch chuyển trảm gây ${formatNumber(res.damage)} ST lên [${target.displayName}]!`, 'damage');
-    
-    attacker.buffs.push({ type: 'dmg_up', value: 0.15, duration: 2 });
-    addLog(`   💪 [${attacker.displayName}] tăng +15% ST cho hiệp tiếp theo!`, 'buff');
-  }
-  else if (attacker.templateId === 'jaco') {
-    const target = getFrontTarget(targetTeam);
-    if (target) {
-      const res = calcDamage(attacker, target, skill.atkPercent, true);
-      applyDamage(target, res.damage, attacker);
-      addLog(`   💥 Đòn cường hóa gây ${formatNumber(res.damage)} ST lên [${target.displayName}]`, 'damage');
-    }
-    
-    // Hồi máu toàn đội (150% ATK, Lv 150 lên 175%)
-    const healMult = attacker.level >= 150 ? 1.75 : 1.50;
-    const baseHeal = Math.floor(attacker.atk * healMult);
-    
-    allyTeam.filter(u => !u.dead).forEach(ally => {
-      let finalHeal = baseHeal;
-      if (attacker.level >= 80 && (ally.hp / ally.maxHp) < 0.50) finalHeal = Math.floor(finalHeal * 1.20);
-      if (attacker.level >= 100 && ally.hpMarks >= 3) finalHeal = Math.floor(finalHeal * 1.10);
-      
-      const actualHealed = Math.min(ally.maxHp - ally.hp, finalHeal);
-      ally.hp += actualHealed;
-      addLog(`   💖 Hồi phục cho [${ally.displayName}]: +${formatNumber(actualHealed)} HP`, 'heal');
-    });
-    
-    // Jaco P1 (Lv 50): +18% ST cho 1 đồng đội
-    if (attacker.level >= 50) {
-      const otherAllies = allyTeam.filter(u => !u.dead && u.id !== attacker.id);
-      if (otherAllies.length > 0) {
-        const randomAlly = otherAllies[Math.floor(Math.random() * otherAllies.length)];
-        randomAlly.buffs.push({ type: 'dmg_up', value: 0.18, duration: 2 });
-        addLog(`   ✨ [${randomAlly.displayName}] nhận +18% ST trong 1 hiệp!`, 'buff');
-      }
-    }
-  }
-  else if (attacker.templateId === 'hit') {
-    // F.Hit: AoE 110% ATK + [ĂN MÒN] (3% Max HP, cap 23% ATK, max 5 stacks, 4 turns)
-    targetTeam.filter(u => !u.dead).forEach(target => {
-      const res = calcDamage(attacker, target, skill.atkPercent, true);
-      applyDamage(target, res.damage, attacker);
-      addLog(`   💥 Bão thời không gây ${formatNumber(res.damage)} ST lên [${target.displayName}]`, 'damage');
-      
-      target.corrosionStacks = Math.min(5, (target.corrosionStacks || 0) + 1);
-      target.corrosionDuration = 4;
-      target.corrosionCasterAtk = attacker.atk;
-      addLog(`   ☣️ Áp dụng [ĂN MÒN] lên [${target.displayName}] (${target.corrosionStacks}/5 tầng, duy trì 4 hiệp)!`, 'buff');
-    });
-  }
-  else {
-    // Default Skill (như Omega Shenron)
-    const target = getFrontTarget(targetTeam);
-    if (!target) return;
-    const res = calcDamage(attacker, target, skill.atkPercent || 2.5, true);
-    applyDamage(target, res.damage, attacker);
-    addLog(`   💥 Gây ${formatNumber(res.damage)} ST bộc phá lên [${target.displayName}]!`, 'damage');
-  }
-}
 
-function processTurnStart(unit) {
-  // Xử lý DoT [ĂN MÒN]
-  if (unit.corrosionStacks > 0 && !unit.dead) {
-    const dmgPerStack = Math.min(unit.maxHp * 0.03, unit.corrosionCasterAtk * 0.23);
-    const totalCorrosionDmg = Math.max(1, Math.floor(dmgPerStack * unit.corrosionStacks));
-    unit.hp = Math.max(0, unit.hp - totalCorrosionDmg);
-    addLog(`☣️ [${unit.displayName}] chịu ${formatNumber(totalCorrosionDmg)} ST từ [ĂN MÒN] (${unit.corrosionStacks} tầng)`, 'damage');
-    
-    if (unit.hp === 0) {
-      unit.dead = true;
-      addLog(`💀 [${unit.displayName}] đã gục ngã vì [ĂN MÒN]!`, 'system');
-    }
-    
-    unit.corrosionDuration--;
-    if (unit.corrosionDuration <= 0) unit.corrosionStacks = 0;
-  }
-  
-  // Giảm thời hạn buff/debuff
-  unit.buffs = unit.buffs.filter(b => {
-    if (b.permanent) return true;
-    b.duration--;
-    return b.duration > 0;
-  });
-  
-  unit.debuffs = unit.debuffs.filter(d => {
-    d.duration--;
-    return d.duration > 0;
-  });
-}
-
-function buildActionOrder(playerTeam, enemyTeam) {
-  const allUnits = [...playerTeam, ...enemyTeam].filter(u => !u.dead);
-  allUnits.sort((a, b) => b.spd - a.spd);
-  return allUnits;
-}
-
-function checkBattleEnd() {
-  const playerAlive = battleState.playerTeam.some(u => !u.dead);
-  const enemyAlive = battleState.enemyTeam.some(u => !u.dead);
-  if (!playerAlive) return 'defeat';
-  if (!enemyAlive) return 'victory';
-  return null;
-}
-
-function executeBattleStep() {
-  if (!battleState || battleState.ended) return;
-  
-  if (battleState.actionQueue.length === 0) {
-    battleState.round++;
-    addLog(`--- 🔄 Hiệp ${battleState.round} ---`, 'system');
-    battleState.actionQueue = buildActionOrder(battleState.playerTeam, battleState.enemyTeam);
-  }
-  
-  let actor = null;
-  while (battleState.actionQueue.length > 0) {
-    const candidate = battleState.actionQueue.shift();
-    const actual = [...battleState.playerTeam, ...battleState.enemyTeam].find(u => u.id === candidate.id && !u.dead);
-    if (actual) {
-      actor = actual;
-      break;
-    }
-  }
-  
-  if (!actor) {
-    battleState.actionQueue = [];
-    renderBattle();
-    const res = checkBattleEnd();
-    if (res) endBattle(res);
-    else setTimeout(executeBattleStep, battleSpeed * 0.2);
-    return;
-  }
-  
-  battleState.activeUnitId = actor.id;
-  renderBattle();
-  
-  processTurnStart(actor);
-  
-  // Kiểm tra Choáng
-  const isStunned = actor.debuffs.some(d => d.type === 'stun');
-  if (isStunned) {
-    addLog(`💫 [${actor.displayName}] đang bị Choáng, mất lượt hành động!`, 'buff');
-    setTimeout(() => {
-      battleState.activeUnitId = null;
-      checkAndContinue();
-    }, battleSpeed);
-    return;
-  }
-  
-  const targetTeam = actor.isPlayer ? battleState.enemyTeam : battleState.playerTeam;
-  const allyTeam = actor.isPlayer ? battleState.playerTeam : battleState.enemyTeam;
-  
-  setTimeout(() => {
-    if (actor.en >= actor.maxEn) {
-      performSkill(actor, targetTeam, allyTeam);
-    } else {
-      performBasicAttack(actor, targetTeam, allyTeam);
-    }
-    
-    battleState.activeUnitId = null;
-    renderBattle();
-    
-    const result = checkBattleEnd();
-    if (result) endBattle(result);
-    else setTimeout(executeBattleStep, battleSpeed * 0.3);
-  }, battleSpeed * 0.5);
-}
-
-function checkAndContinue() {
-  renderBattle();
-  const res = checkBattleEnd();
-  if (res) endBattle(res);
-  else setTimeout(executeBattleStep, battleSpeed * 0.3);
-}
-
-function initBattle(stageData) {
-  const playerTeam = gameState.team
-    .filter(id => id && gameState.characters[id])
-    .map((id, idx) => createBattleUnit(gameState.characters[id], true, idx));
-  
-  const enemyTeam = stageData.enemies.map((e, idx) => createEnemyUnit(e, idx));
-  
-  battleState = {
-    stageData: stageData,
-    playerTeam: playerTeam,
-    enemyTeam: enemyTeam,
-    round: 0,
-    actionQueue: [],
-    log: [],
-    activeUnitId: null,
-    ended: false
-  };
-  
-  // Random đội đi trước
-  if (Math.random() < 0.5) {
-    addLog('🎲 Đội của bạn may mắn được đi trước!', 'system');
-    playerTeam.forEach(u => u.spd += 0.1);
-  } else {
-    addLog('🎲 Đội địch xuất chiêu trước!', 'system');
-    enemyTeam.forEach(u => u.spd += 0.1);
-  }
-  
-  addLog('⚔️ Trận chiến bắt đầu!', 'system');
-  renderBattle();
-  setTimeout(executeBattleStep, 800);
-}
-
-function endBattle(result) {
-  battleState.ended = true;
-  
-  if (result === 'victory') {
-    addLog('=== 🎉 CHIẾN THẮNG! ===', 'system');
-    const rewards = { ...battleState.stageData.rewards };
-    
-    // Buff Trung Thu: +30% EXP, +40% Kim Cương
-    rewards.exp = Math.floor(rewards.exp * 1.30);
-    rewards.diamond = Math.floor((rewards.diamond || 15) * 1.40);
-    
-    gameState.player.exp += rewards.exp;
-    gameState.resources.gold += rewards.gold;
-    gameState.resources.vpnc += rewards.vpnc;
-    gameState.resources.diamond += rewards.diamond;
-    
-    while (gameState.player.exp >= gameState.player.expToNext && gameState.player.level < gameState.player.maxLevel) {
-      gameState.player.exp -= gameState.player.expToNext;
-      gameState.player.level++;
-      gameState.player.expToNext = Math.floor(100 * Math.pow(1.2, gameState.player.level - 1));
-      showToast(`🎉 Lên cấp tài khoản: Lv.${gameState.player.level}!`, 'success');
-    }
-    
-    const stageKey = `${battleState.stageData.chapter}-${battleState.stageData.stage}`;
-    const stageIndex = (battleState.stageData.chapter - 1) * 7 + battleState.stageData.stage;
-    gameState.stages.cleared[stageKey] = true;
-    if (stageIndex >= gameState.stages.maxUnlocked) {
-      gameState.stages.maxUnlocked = Math.min(35, stageIndex + 1);
-    }
-    
-    saveGame();
-    showResultModal(true, rewards);
-  } else {
-    addLog('=== 💀 THẤT BẠI! ===', 'system');
-    showResultModal(false, null);
-  }
-}
-
-function renderBattle() {
-  renderTeam('playerTeamBattle', battleState.playerTeam, true);
-  renderTeam('enemyTeamBattle', battleState.enemyTeam, false);
-}
-
-function renderTeam(containerId, team, isPlayer) {
-  const container = document.getElementById(containerId);
-  if (!container) return;
-  
-  container.innerHTML = team.map(unit => {
-    const hpPct = Math.max(0, (unit.hp / unit.maxHp) * 100);
-    const enPct = Math.max(0, Math.min(100, (unit.en / unit.maxEn) * 100));
-    const isActive = battleState && battleState.activeUnitId === unit.id;
-    const typeClass = unit.type.toLowerCase();
-    
-    return `
-      <div class="battle-unit ${unit.dead ? 'dead' : ''} ${isActive ? 'active' : ''}">
-        <div class="unit-avatar ${typeClass}">${unit.icon}</div>
-        <div class="unit-data">
-          <div class="unit-name">
-            <span>${unit.displayName} <span style="font-size:0.75rem;color:rgba(255,255,255,0.6)">Lv.${unit.level}</span></span>
-            <span class="type-badge ${typeClass}">${unit.type}</span>
-          </div>
-          <div class="bar-container">
-            <div class="bar hp" style="width:${hpPct}%"></div>
-          </div>
-          <div class="bar-text">
-            <span>HP: ${formatNumber(unit.hp)} / ${formatNumber(unit.maxHp)}</span>
-            <span>DEF: ${unit.def}</span>
-          </div>
-          <div class="bar-container">
-            <div class="bar en" style="width:${enPct}%"></div>
-          </div>
-          <div class="bar-text">
-            <span>EN: ${unit.en.toFixed(1)} / ${unit.maxEn}</span>
-            <span>SPD: ${unit.spd}</span>
-          </div>
-          ${unit.corrosionStacks > 0 ? `<div style="font-size:0.7rem;color:#10b981;font-weight:700;">☣️ Ăn mòn (${unit.corrosionStacks} tầng)</div>` : ''}
-          ${unit.hasRevived ? `<div style="font-size:0.7rem;color:#f59e0b;font-weight:700;">✨ Đã Hồi Sinh</div>` : ''}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function toggleBattleSpeed() {
-  const speeds = [1000, 500, 250];
-  const labels = ['1x (1s)', '2x (0.5s)', '4x (0.25s)'];
-  const currentIdx = speeds.indexOf(battleSpeed);
-  const nextIdx = (currentIdx + 1) % speeds.length;
-  battleSpeed = speeds[nextIdx];
-  document.getElementById('speedBtn').textContent = `Tốc độ: ${labels[nextIdx]}`;
-}
-
-function quitBattle() {
-  if (confirm('Bạn có chắc muốn rời trận?')) {
-    battleState = null;
-    showScreen('stages');
-  }
-}
-
-// ===== UI & NAVIGATION =====
-function showScreen(screenName) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  const target = document.getElementById('screen-' + screenName);
-  if (target) target.classList.add('active');
-  
-  if (screenName === 'stages') renderChapters();
-  if (screenName === 'teamselect') renderTeamSelect();
-  if (screenName === 'roster') renderRoster();
-  if (screenName === 'inventory') renderInventory();
-  if (screenName === 'summon') { renderDailyLogin(); updateGemCount(); }
-  if (screenName === 'events') { renderEvents(); }
-  
-  updateResourceDisplay();
-}
-
-function updateResourceDisplay() {
-  document.getElementById('resDiamond').textContent = formatNumber(gameState.resources.diamond);
-  document.getElementById('resGold').textContent = formatNumber(gameState.resources.gold);
-  document.getElementById('resVpnc').textContent = formatNumber(gameState.resources.vpnc);
-  document.getElementById('resVntb').textContent = formatNumber(gameState.resources.vntb);
-  document.getElementById('resCandle').textContent = formatNumber(gameState.resources.candle || 0);
-  document.getElementById('resLevel').textContent = gameState.player.level;
-  document.getElementById('playerLevelBadge').textContent = gameState.player.level;
-}
-
-function formatNumber(num) {
-  if (num === null || num === undefined || isNaN(num)) return '0';
-  if (num >= 1000000000) return (num / 1000000000).toFixed(2) + 'B';
-  if (num >= 1000000) return (num / 1000000).toFixed(2) + 'M';
-  if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
-  return Math.floor(num).toLocaleString('vi-VN');
-}
-
-function renderChapters() {
-  const container = document.getElementById('chaptersContainer');
-  container.innerHTML = CHAPTERS.map(chapter => {
-    const stages = STAGES[chapter.id];
-    return `
-      <div class="chapter">
-        <div class="chapter-title">
-          <i class="ri-book-open-line"></i>
-          ${chapter.name}
-        </div>
-        <div style="color: var(--muted); margin-bottom: 12px; font-size: 0.9rem;">${chapter.desc}</div>
-        <div class="stages-grid">
-          ${stages.map(stage => {
-            const isBoss = stage.isBoss;
-            return `
-              <div class="stage-btn ${isBoss ? 'boss' : ''}"
-                   onclick="selectStage(${chapter.id}, ${stage.stage})"
-                   title="${stage.name}">
-                <div class="stage-num">${isBoss ? '👹' : stage.stage}</div>
-                <div class="stage-label">${isBoss ? 'BOSS' : `Ải ${stage.stage}`}</div>
-              </div>
+    function renderRoster() {
+        const container = document.getElementById('roster-list');
+        container.innerHTML = '';
+        
+        for (let key in player.roster) {
+            let char = player.roster[key];
+            let stats = getCalcStats(char.id, char.lvl);
+            let roleClass = 'role-' + DB_CHARACTERS[char.id].role;
+            let cost = char.lvl * 150; // Cost VPNC để lên cấp
+            
+            container.innerHTML += `
+                <div class="char-card">
+                    <div class="char-header">
+                        <span>${DB_CHARACTERS[char.id].name} (LV: ${char.lvl}/250) <span class="role-tag ${roleClass}">${DB_CHARACTERS[char.id].role}</span></span>
+                        <span>Vị trí: ${char.pos}</span>
+                    </div>
+                    <div class="char-stats">
+                        <span>❤️ HP: ${formatNum(stats.hp)}</span>
+                        <span>⚔️ ATK: ${formatNum(stats.atk)}</span>
+                        <span>🛡️ DEF: ${stats.def}</span>
+                        <span>⚡ SPD: ${stats.spd}</span>
+                    </div>
+                    <button class="btn-main" style="padding: 5px; margin-top: 5px;" onclick="upgradeChar('${key}', ${cost})">Nâng cấp (-${cost} VPNC)</button>
+                </div>
             `;
-          }).join('')}
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-let selectedStage = null;
-function selectStage(chapter, stage) {
-  selectedStage = STAGES[chapter][stage - 1];
-  document.getElementById('battleStageName').textContent = selectedStage.name;
-  showToast(`Ải [${selectedStage.name}]: Đang mở thử nghiệm!`, 'info');
-  showScreen('teamselect');
-}
-
-function renderTeamSelect() {
-  renderTeamSlots();
-  renderCharList();
-  updateStartBattleBtn();
-}
-
-function renderTeamSlots() {
-  const container = document.getElementById('teamSlots');
-  const slotLabels = [
-    { pos: 'Tướng 1', desc: 'Hàng đầu (Ưu tiên DEF)' },
-    { pos: 'Tướng 2', desc: 'Sau Tướng 1 (Ưu tiên ATK)' },
-    { pos: 'Tướng 3', desc: 'Bên cạnh (Ưu tiên SKL)' }
-  ];
-  
-  container.innerHTML = gameState.team.map((charId, idx) => {
-    const char = charId ? gameState.characters[charId] : null;
-    if (char) {
-      const stats = getCharStats(char);
-      return `
-        <div class="team-slot filled">
-          <div class="slot-pos">${idx + 1}</div>
-          <div class="slot-char">
-            <div class="char-avatar ${char.type.toLowerCase()}">${char.icon}</div>
-            <div class="char-info">
-              <h4>${char.name} <span style="font-size:0.8rem;color:var(--accent)">Lv.${char.level}</span></h4>
-              <div class="char-type">${slotLabels[idx].pos} - ${slotLabels[idx].desc}</div>
-              <div class="char-stats">HP: ${formatNumber(stats.hp)} | ATK: ${formatNumber(stats.atk)} | DEF: ${stats.def}</div>
-            </div>
-          </div>
-          <button class="slot-remove" onclick="removeFromTeam(${idx})" title="Gỡ bỏ">
-            <i class="ri-close-line"></i>
-          </button>
-        </div>
-      `;
-    } else {
-      return `
-        <div class="team-slot">
-          <div class="slot-pos">${idx + 1}</div>
-          <div class="slot-empty">${slotLabels[idx].pos}: ${slotLabels[idx].desc} - Chọn nhân vật bên phải để thêm</div>
-        </div>
-      `;
-    }
-  }).join('');
-}
-
-function renderCharList() {
-  const container = document.getElementById('charList');
-  const chars = Object.values(gameState.characters);
-  
-  container.innerHTML = chars.map(char => {
-    const inTeam = gameState.team.includes(char.id);
-    return `
-      <div class="char-card ${inTeam ? 'in-team' : ''}" onclick="${inTeam ? '' : `addToTeam('${char.id}')`}">
-        <div class="char-avatar ${char.type.toLowerCase()}">${char.icon}</div>
-        <div>
-          <h4>${char.name}</h4>
-          <div class="char-lv">Lv.${char.level} | ${char.type}</div>
-        </div>
-      </div>
-    `;
-  }).join('');
-}
-
-function addToTeam(charId) {
-  const emptySlot = gameState.team.indexOf(null);
-  if (emptySlot === -1) {
-    showToast('Đội hình 3 vị trí đã đầy!', 'error');
-    return;
-  }
-  gameState.team[emptySlot] = charId;
-  saveGame();
-  renderTeamSelect();
-}
-
-function removeFromTeam(slotIdx) {
-  gameState.team[slotIdx] = null;
-  saveGame();
-  renderTeamSelect();
-}
-
-function updateStartBattleBtn() {
-  const hasTeam = gameState.team.some(id => id);
-  document.getElementById('startBattleBtn').disabled = !hasTeam;
-}
-
-function startBattle() {
-  if (!selectedStage) return;
-  if (!gameState.team.some(id => id)) {
-    showToast('Vui lòng chọn ít nhất 1 nhân vật vào đội hình!', 'error');
-    return;
-  }
-  showScreen('battle');
-  document.getElementById('battleLog').innerHTML = '';
-  initBattle(selectedStage);
-}
-
-function showResultModal(victory, rewards) {
-  const modal = document.getElementById('resultModal');
-  const title = document.getElementById('resultTitle');
-  const desc = document.getElementById('resultDesc');
-  const rewardList = document.getElementById('rewardList');
-  
-  if (victory) {
-    title.textContent = '🎉 CHIẾN THẮNG!';
-    title.className = 'victory';
-    desc.textContent = 'Chúc mừng! Đội hình của bạn đã xuất sắc vượt ải!';
-    
-    let html = '';
-    if (rewards.exp) html += `<div class="reward-item"><i class="ri-medal-line" style="color:#7c3aed"></i> +${rewards.exp} EXP</div>`;
-    if (rewards.diamond) html += `<div class="reward-item"><i class="ri-vip-diamond-line" style="color:var(--accent)"></i> +${rewards.diamond} KC</div>`;
-    if (rewards.gold) html += `<div class="reward-item"><i class="ri-coin-line" style="color:var(--warning)"></i> +${formatNumber(rewards.gold)} Xu</div>`;
-    if (rewards.vpnc) html += `<div class="reward-item"><i class="ri-flashlight-line" style="color:var(--accent2)"></i> +${formatNumber(rewards.vpnc)} VPNC</div>`;
-    rewardList.innerHTML = html;
-  } else {
-    title.textContent = '💀 THẤT BẠI!';
-    title.className = 'defeat';
-    desc.textContent = 'Đội hình đã bị đánh bại. Hãy nâng cấp thêm cấp độ tướng nhé!';
-    rewardList.innerHTML = '<div style="color:var(--muted)">Không có phần thưởng</div>';
-  }
-  
-  modal.classList.remove('hidden');
-}
-
-function closeResultModal() {
-  document.getElementById('resultModal').classList.add('hidden');
-  updateResourceDisplay();
-  showScreen('stages');
-}
-
-// ===== SUMMON & DAILY =====
-function switchSummonTab(tab) {
-  document.querySelectorAll('.summon-tab').forEach(t => t.classList.remove('active'));
-  document.getElementById('tab-' + tab).classList.add('active');
-  document.getElementById('summon-daily').classList.toggle('hidden', tab !== 'daily');
-  document.getElementById('summon-gacha').classList.toggle('hidden', tab !== 'gacha');
-  
-  if (tab === 'daily') renderDailyLogin();
-  if (tab === 'gacha') updateGemCount();
-}
-
-function renderDailyLogin() {
-  const container = document.getElementById('dailyGrid');
-  const today = new Date().toDateString();
-  const isTodayClaimed = gameState.daily.claimedDays.includes(today);
-  const currentDay = gameState.daily.streak % 7;
-  
-  container.innerHTML = DAILY_REWARDS.map((reward, idx) => {
-    const isClaimed = idx < currentDay || (idx === currentDay && isTodayClaimed);
-    const isToday = idx === currentDay && !isTodayClaimed;
-    return `
-      <div class="daily-item ${isClaimed ? 'claimed' : ''} ${isToday ? 'today' : ''}"
-           onclick="${isToday ? `claimDailyLogin(${idx})` : ''}">
-        <div class="day">Ngày ${idx + 1}</div>
-        <div class="reward-icon"><i class="${reward.icon}"></i></div>
-        <div class="reward-amt">${formatNumber(reward.amount)}</div>
-      </div>
-    `;
-  }).join('');
-}
-
-function claimDailyLogin(dayIdx) {
-  const today = new Date().toDateString();
-  if (gameState.daily.claimedDays.includes(today)) {
-    showToast('Hôm nay bạn đã điểm danh rồi!', 'error');
-    return;
-  }
-  
-  const reward = DAILY_REWARDS[dayIdx];
-  gameState.resources[reward.type] = (gameState.resources[reward.type] || 0) + reward.amount;
-  gameState.daily.lastLoginDate = today;
-  gameState.daily.streak++;
-  gameState.daily.claimedDays.push(today);
-  
-  saveGame();
-  showToast(`Điểm danh thành công: +${formatNumber(reward.amount)} ${reward.name}!`, 'success');
-  renderDailyLogin();
-  updateResourceDisplay();
-}
-
-function updateGemCount() {
-  document.getElementById('gemCount').textContent = gameState.resources.vntb || 0;
-}
-
-function doSummon(count) {
-  const gems = gameState.resources.vntb || 0;
-  if (gems < count) {
-    showToast(`Không đủ Viên Ngọc Thần Bí (VNTB)! Cần ${count} VNTB.`, 'error');
-    return;
-  }
-  
-  gameState.resources.vntb -= count;
-  const results = [];
-  
-  for (let i = 0; i < count; i++) {
-    const roll = Math.random() * 100;
-    let result;
-    
-    if (roll < 5) {
-      const available = Object.keys(CHARACTER_TEMPLATES);
-      const chosenTemplate = available[Math.floor(Math.random() * available.length)];
-      const owned = Object.values(gameState.characters).some(c => c.templateId === chosenTemplate);
-      
-      if (!owned) {
-        const newChar = createCharacter(chosenTemplate, 1);
-        gameState.characters[newChar.id] = newChar;
-        result = { name: newChar.name, amount: 1, icon: 'ri-user-star-line', rarity: 'rarity-char', isNewChar: true };
-      } else {
-        gameState.resources.vpnc += 3000;
-        result = { name: '3,000 VPNC (Quy đổi)', amount: 3000, icon: 'ri-flashlight-line' };
-      }
-    } else if (roll < 30) {
-      const amt = 100 + Math.floor(Math.random() * 200);
-      gameState.resources.diamond += amt;
-      result = { name: 'Kim Cương', amount: amt, icon: 'ri-vip-diamond-line' };
-    } else if (roll < 65) {
-      const amt = 1000 + Math.floor(Math.random() * 4000);
-      gameState.resources.gold += amt;
-      result = { name: 'Xu Vàng', amount: amt, icon: 'ri-coin-line' };
-    } else if (roll < 95) {
-      const amt = 200 + Math.floor(Math.random() * 800);
-      gameState.resources.vpnc += amt;
-      result = { name: 'VPNC', amount: amt, icon: 'ri-flashlight-line' };
-    } else {
-      const amt = 1 + Math.floor(Math.random() * 2);
-      gameState.resources.vntb += amt;
-      result = { name: 'VNTB', amount: amt, icon: 'ri-diamond-line' };
-    }
-    results.push(result);
-  }
-  
-  saveGame();
-  updateGemCount();
-  updateResourceDisplay();
-  
-  const resultContainer = document.getElementById('summonResult');
-  const resultItems = document.getElementById('resultItems');
-  resultItems.innerHTML = results.map(r => `
-    <div class="result-item ${r.rarity || ''}">
-      <div class="item-icon"><i class="${r.icon}"></i></div>
-      <div class="item-name">${r.name}</div>
-      <div class="item-amount">${r.isNewChar ? 'TƯỚNG MỚI!' : '+' + formatNumber(r.amount)}</div>
-    </div>
-  `).join('');
-  resultContainer.classList.remove('hidden');
-  showToast(`Triệu hồi x${count} thành công!`, 'success');
-}
-
-// ===== ROSTER & DETAIL =====
-let selectedCharId = null;
-
-function renderRoster() {
-  const container = document.getElementById('rosterList');
-  const allTemplates = Object.values(CHARACTER_TEMPLATES);
-  const ownedTemplates = new Set(Object.values(gameState.characters).map(c => c.templateId));
-  
-  container.innerHTML = allTemplates.map(tpl => {
-    const owned = ownedTemplates.has(tpl.id);
-    const char = Object.values(gameState.characters).find(c => c.templateId === tpl.id);
-    const isSelected = char && selectedCharId === char.id;
-    const typeClass = tpl.type.toLowerCase();
-    
-    if (owned && char) {
-      return `
-        <div class="roster-item ${isSelected ? 'selected' : ''}" onclick="selectCharDetail('${char.id}')">
-          <div class="char-avatar ${typeClass}">${tpl.icon}</div>
-          <div>
-            <h4>${char.name}</h4>
-            <div class="char-lv-small">Lv.${char.level} | ${char.type}</div>
-          </div>
-        </div>
-      `;
-    } else {
-      return `
-        <div class="roster-item" style="opacity:0.45; cursor:not-allowed;">
-          <div class="char-avatar ${typeClass}">${tpl.icon}</div>
-          <div>
-            <h4>${tpl.name} 🔒</h4>
-            <div class="char-lv-small">Chưa sở hữu | ${tpl.type}</div>
-          </div>
-        </div>
-      `;
-    }
-  }).join('');
-  
-  if (selectedCharId && gameState.characters[selectedCharId]) {
-    renderCharDetail(gameState.characters[selectedCharId]);
-  } else {
-    const firstOwned = Object.values(gameState.characters)[0];
-    if (firstOwned) selectCharDetail(firstOwned.id);
-  }
-}
-
-function selectCharDetail(charId) {
-  selectedCharId = charId;
-  renderRoster();
-}
-
-function renderCharDetail(char) {
-  const container = document.getElementById('characterDetail');
-  const stats = getCharStats(char);
-  const cost = getUpgradeCost(char.level);
-  const canUpgrade = char.level < char.maxLevel && gameState.resources.vpnc >= cost;
-  const isMaxLevel = char.level >= char.maxLevel;
-  
-  container.innerHTML = `
-    <div class="char-header">
-      <div class="char-avatar ${char.type.toLowerCase()}">${char.icon}</div>
-      <div>
-        <h2>${char.name}</h2>
-        <span class="char-type-badge ${char.type.toLowerCase()}">${char.type === 'DEF' ? '🛡️ Phòng thủ (DEF)' : char.type === 'ATK' ? '⚔️ Tấn công (ATK)' : '✨ Kỹ năng (SKL)'}</span>
-      </div>
-      <div class="char-level">
-        <div class="lv-num">${char.level}</div>
-        <div class="lv-max">/ Max ${char.maxLevel}</div>
-      </div>
-    </div>
-    
-    <div class="stats-grid">
-      <div class="stat-item hp">
-        <div class="stat-label">Sinh Lực (HP)</div>
-        <div class="stat-value">${formatNumber(stats.hp)}</div>
-      </div>
-      <div class="stat-item atk">
-        <div class="stat-label">Tấn Công (ATK)</div>
-        <div class="stat-value">${formatNumber(stats.atk)}</div>
-      </div>
-      <div class="stat-item def">
-        <div class="stat-label">Phòng Thủ (DEF)</div>
-        <div class="stat-value">${stats.def} <small style="font-size:0.7rem;color:var(--muted)">(-${(stats.def/1000).toFixed(1)}%)</small></div>
-      </div>
-      <div class="stat-item spd">
-        <div class="stat-label">Tốc Độ (SPD)</div>
-        <div class="stat-value">${stats.spd}</div>
-      </div>
-      <div class="stat-item en">
-        <div class="stat-label">Năng Lượng Max</div>
-        <div class="stat-value">${char.maxEn} EN</div>
-      </div>
-    </div>
-    
-    <div class="skills-section">
-      <h3><i class="ri-zap-line"></i> Kỹ Năng Chủ Động</h3>
-      <div class="skill-card">
-        <div class="skill-header">
-          <h4><i class="ri-flashlight-fill" style="color:var(--en)"></i> ${char.skill.name}</h4>
-          <span class="skill-en-cost">${char.skill.enCost} EN</span>
-        </div>
-        <div class="skill-desc">${char.skill.desc}</div>
-      </div>
-      
-      <div class="skill-card">
-        <div class="skill-header">
-          <h4><i class="ri-sword-line"></i> ${char.basic.name} (Đánh thường)</h4>
-          <span style="font-size:0.8rem;color:var(--muted)">Hồi +${char.basic.enGain} EN</span>
-        </div>
-        <div class="skill-desc">${char.basic.desc}</div>
-      </div>
-    </div>
-    
-    <div class="skills-section">
-      <h3><i class="ri-shield-star-line"></i> Kỹ Năng Bị Động</h3>
-      ${char.passives.map(p => {
-        const unlocked = !p.unlockLv || char.level >= p.unlockLv;
-        return `
-          <div class="skill-card passive ${!unlocked ? 'locked' : ''}">
-            <div class="skill-header">
-              <h4>${unlocked ? '<i class="ri-check-line" style="color:var(--success)"></i>' : '<i class="ri-lock-line"></i>'} ${p.name}</h4>
-              ${p.unlockLv ? `<span class="skill-unlock">${unlocked ? 'Đã mở khóa' : `Mở ở Lv.${p.unlockLv}`}</span>` : ''}
-            </div>
-            <div class="skill-desc">${p.desc}</div>
-          </div>
-        `;
-      }).join('')}
-    </div>
-    
-    <div class="upgrade-section">
-      <div class="upgrade-info">
-        ${isMaxLevel 
-          ? '<span style="color:var(--success);font-weight:700;">Nhân vật đã đạt cấp tối đa!</span>'
-          : `Chi phí nâng cấp: <span class="cost ${!canUpgrade ? 'insufficient' : ''}">${formatNumber(cost)} VPNC</span>`
         }
-      </div>
-      ${!isMaxLevel ? `
-        <button class="upgrade-btn" onclick="doUpgrade('${char.id}')" ${!canUpgrade ? 'disabled' : ''}>
-          <i class="ri-arrow-up-circle-line"></i> NÂNG CẤP +1 LV
-        </button>
-      ` : ''}
-    </div>
-  `;
-}
-
-function doUpgrade(charId) {
-  const result = upgradeCharacter(charId);
-  showToast(result.msg, result.success ? 'success' : 'error');
-  if (result.success) {
-    renderCharDetail(gameState.characters[charId]);
-    renderRoster();
-    updateResourceDisplay();
-  }
-}
-
-// ===== INVENTORY =====
-function renderInventory() {
-  const container = document.getElementById('inventoryGrid');
-  const items = [
-    { type: 'diamond', name: 'Kim Cương', amount: gameState.resources.diamond, icon: 'ri-vip-diamond-line', desc: 'Tiền tệ quý giá dùng để mua sắm và săn sale' },
-    { type: 'gold', name: 'Xu Vàng', amount: gameState.resources.gold, icon: 'ri-coin-line', desc: 'Tiền tệ thông dụng trong giao dịch' },
-    { type: 'vpnc', name: 'VPNC', amount: gameState.resources.vpnc, icon: 'ri-flashlight-line', desc: 'Vật phẩm nâng cấp cấp độ nhân vật (Max 250)' },
-    { type: 'vntb', name: 'Viên Ngọc Thần Bí (VNTB)', amount: gameState.resources.vntb, icon: 'ri-diamond-line', desc: 'Ngọc thần bí dùng để triệu hồi nhân vật' },
-    { type: 'candle', name: 'Nến Lễ Hội', amount: gameState.resources.candle || 0, icon: 'ri-fire-line', desc: 'Dùng đổi thưởng trong Cửa hàng Nến' }
-  ];
-  
-  container.innerHTML = items.map(item => `
-    <div class="item-card">
-      <div class="item-icon ${item.type}"><i class="${item.icon}"></i></div>
-      <h4>${item.name}</h4>
-      <div class="item-amount">${formatNumber(item.amount)}</div>
-      <div class="item-desc">${item.desc}</div>
-    </div>
-  `).join('');
-}
-
-// ===== EVENTS & SHOP =====
-function renderEvents() {
-  renderShop();
-  renderCandleShop();
-  updateEventCountdowns();
-  
-  if (!gameState.events.flashSale.active && Math.random() < 0.20) {
-    triggerFlashSale();
-  }
-}
-
-function renderShop() {
-  const container = document.getElementById('shopGrid');
-  if (!container) return;
-  
-  const flashSale = gameState.events.flashSale;
-  container.innerHTML = SHOP_ITEMS.map(item => {
-    const alreadyOwned = item.type === 'character' && Object.values(gameState.characters).some(c => c.templateId === item.templateId);
-    let price = item.price;
-    let originalPrice = null;
-    let onSale = false;
-    
-    if (flashSale.active && flashSale.discount > 0) {
-      originalPrice = price;
-      price = Math.floor(price * (1 - flashSale.discount / 100));
-      onSale = true;
     }
-    
-    const canAfford = gameState.resources.diamond >= price;
-    const typeClass = item.charType ? item.charType.toLowerCase() : 'skl';
-    
-    return `
-      <div class="shop-item ${onSale ? 'on-sale' : ''}">
-        ${onSale ? `<div class="sale-badge">-${flashSale.discount}%</div>` : ''}
-        <div class="shop-item-icon char-avatar ${typeClass}">${item.icon}</div>
-        <h4>${item.name}</h4>
-        <div class="item-type">${item.desc}</div>
-        ${originalPrice ? `<div class="price original">${formatNumber(originalPrice)} 💎</div>` : ''}
-        <div class="price ${onSale ? 'sale-price' : ''}">
-          <i class="ri-vip-diamond-line"></i> ${formatNumber(price)} 💎
-        </div>
-        <button onclick="buyShopItem('${item.id}', ${price})" ${alreadyOwned || !canAfford ? 'disabled' : ''}>
-          ${alreadyOwned ? 'Đã sở hữu' : (canAfford ? 'SĂN NGAY' : 'Thiếu KC')}
-        </button>
-      </div>
-    `;
-  }).join('');
-}
 
-function buyShopItem(itemId, price) {
-  const item = SHOP_ITEMS.find(i => i.id === itemId);
-  if (!item) return;
-  if (gameState.resources.diamond < price) {
-    showToast('Kim cương không đủ!', 'error');
-    return;
-  }
-  
-  gameState.resources.diamond -= price;
-  if (item.type === 'character') {
-    const newChar = createCharacter(item.templateId, 1);
-    gameState.characters[newChar.id] = newChar;
-    showToast(`Sở hữu thành công tướng [${item.name}]!`, 'success');
-  } else {
-    gameState.resources[item.resource] += item.amount;
-    showToast(`Mua thành công ${item.name}!`, 'success');
-  }
-  
-  saveGame();
-  updateResourceDisplay();
-  renderShop();
-}
-
-function triggerFlashSale() {
-  const discounts = [10, 20, 35, 50, 75, 88];
-  const discount = discounts[Math.floor(Math.random() * discounts.length)];
-  const duration = 5 * 60 * 1000;
-  
-  gameState.events.flashSale = {
-    active: true,
-    discount: discount,
-    endTime: new Date(Date.now() + duration).toISOString()
-  };
-  
-  const timerEl = document.getElementById('flashSaleTimer');
-  if (timerEl) timerEl.classList.remove('hidden');
-  showToast(`⚡ FLASH SALE: Giảm ${discount}% trong 5 phút!`, 'success');
-  renderShop();
-}
-
-function renderCandleShop() {
-  const container = document.getElementById('candleShopContent');
-  if (!container) return;
-  
-  const balanceEl = document.getElementById('candleShopBalance');
-  if (balanceEl) balanceEl.textContent = formatNumber(gameState.resources.candle || 0);
-  
-  container.innerHTML = `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;">` + 
-    CANDLE_SHOP_ITEMS.map(item => {
-      const canAfford = (gameState.resources.candle || 0) >= item.cost;
-      return `
-        <div class="shop-item">
-          <div style="font-size:2rem;margin-bottom:8px;">${item.icon}</div>
-          <h4>${item.name}</h4>
-          <div class="item-type"><i class="ri-fire-line"></i> ${item.cost} Nến</div>
-          <button onclick="buyCandleItem('${item.id}')" ${!canAfford ? 'disabled' : ''}>
-            ${canAfford ? 'Đổi thưởng' : 'Thiếu nến'}
-          </button>
-        </div>
-      `;
-    }).join('') + `</div>`;
-}
-
-function buyCandleItem(itemId) {
-  const item = CANDLE_SHOP_ITEMS.find(i => i.id === itemId);
-  if (!item) return;
-  const candle = gameState.resources.candle || 0;
-  if (candle < item.cost) {
-    showToast('Nến không đủ!', 'error');
-    return;
-  }
-  
-  gameState.resources.candle -= item.cost;
-  gameState.resources[item.type] += item.amount;
-  saveGame();
-  updateResourceDisplay();
-  renderCandleShop();
-  showToast(`Đổi thành công ${item.name}!`, 'success');
-}
-
-function updateEventCountdowns() {
-  const now = new Date();
-  const saleEnd = new Date(gameState.events.saleEnd);
-  const midEnd = new Date(gameState.events.midAutumnEnd);
-  
-  const saleEl = document.getElementById('saleCountdown');
-  if (saleEl) saleEl.innerHTML = `<i class="ri-time-line"></i> Còn: ${formatCountdown(saleEnd - now)}`;
-  
-  const midEl = document.getElementById('midAutumnCountdown');
-  if (midEl) midEl.innerHTML = `<i class="ri-time-line"></i> Còn: ${formatCountdown(midEnd - now)}`;
-  
-  const flashSale = gameState.events.flashSale;
-  if (flashSale.active && flashSale.endTime) {
-    const remaining = new Date(flashSale.endTime) - now;
-    if (remaining > 0) {
-      const mins = Math.floor(remaining / 60000);
-      const secs = Math.floor((remaining % 60000) / 1000);
-      const flashEl = document.getElementById('flashSaleRemaining');
-      if (flashEl) flashEl.textContent = `${mins}:${secs.toString().padStart(2, '0')}`;
-    } else {
-      flashSale.active = false;
-      document.getElementById('flashSaleTimer').classList.add('hidden');
-      renderShop();
+    function upgradeChar(id, cost) {
+        let char = player.roster[id];
+        if(char.lvl >= 250) return alertSystem("Đã đạt cấp tối đa!");
+        if(player.vpnc >= cost) {
+            player.vpnc -= cost;
+            char.lvl++;
+            updateUI();
+        } else {
+            alertSystem("Không đủ VP Nâng cấp!");
+        }
     }
-  }
-}
 
-function formatCountdown(ms) {
-  if (ms <= 0) return 'Đã kết thúc';
-  const days = Math.floor(ms / 86400000);
-  const hours = Math.floor((ms % 86400000) / 3600000);
-  const mins = Math.floor((ms % 3600000) / 60000);
-  const secs = Math.floor((ms % 60000) / 1000);
-  if (days > 0) return `${days} ngày ${hours} giờ ${mins} phút`;
-  return `${hours} giờ ${mins} phút ${secs} giây`;
-}
+    // ================= ENGINE BATTLE (AUTO BATTLER) =================
+    let battleState = { interval: null, fighters: [], log: [] };
 
-function openGiftTab() {
-  document.getElementById('giftSection').scrollIntoView({ behavior: 'smooth' });
-}
-
-function redeemGiftCode() {
-  const input = document.getElementById('giftCodeInput');
-  const msgEl = document.getElementById('giftMessage');
-  const code = input.value.trim().toUpperCase();
-  
-  if (!code) {
-    msgEl.innerHTML = '<div class="gift-message error">Vui lòng nhập giftcode!</div>';
-    return;
-  }
-  
-  const giftData = GIFT_CODES[code];
-  if (!giftData) {
-    msgEl.innerHTML = '<div class="gift-message error">Giftcode không hợp lệ hoặc đã hết hạn!</div>';
-    return;
-  }
-  if (gameState.giftCodes[code]) {
-    msgEl.innerHTML = '<div class="gift-message error">Bạn đã sử dụng mã này rồi!</div>';
-    return;
-  }
-  
-  const rewards = [];
-  if (giftData.diamond) { gameState.resources.diamond += giftData.diamond; rewards.push(`+${giftData.diamond} Kim cương`); }
-  if (giftData.vntb) { gameState.resources.vntb += giftData.vntb; rewards.push(`+${giftData.vntb} VNTB`); }
-  if (giftData.gold) { gameState.resources.gold += giftData.gold; rewards.push(`+${formatNumber(giftData.gold)} Xu`); }
-  if (giftData.vpnc) { gameState.resources.vpnc += giftData.vpnc; rewards.push(`+${formatNumber(giftData.vpnc)} VPNC`); }
-  
-  gameState.giftCodes[code] = true;
-  saveGame();
-  updateResourceDisplay();
-  
-  msgEl.innerHTML = `<div class="gift-message success">Đổi quà thành công: ${rewards.join(', ')}!</div>`;
-  input.value = '';
-  showToast(`Đổi quà thành công! ${rewards.join(', ')}`, 'success');
-}
-
-// ===== PLAYTIME & VIP =====
-function initPlayTime() {
-  if (!gameState.playTime.sessionStart) gameState.playTime.sessionStart = Date.now();
-  if (!gameState.playTime.lastClaimTime) gameState.playTime.lastClaimTime = Date.now();
-  setInterval(updatePlayTimeDisplay, 1000);
-}
-
-function updatePlayTimeDisplay() {
-  const now = Date.now();
-  const lastClaim = gameState.playTime.lastClaimTime || now;
-  const elapsedSec = Math.floor((now - lastClaim) / 1000);
-  const accumulated = Math.min(elapsedSec, 20 * 60);
-  gameState.playTime.totalAccumulated = accumulated;
-  
-  const minutes = Math.floor(accumulated / 60);
-  const seconds = accumulated % 60;
-  
-  const infoEl = document.getElementById('playtimeInfo');
-  if (infoEl) infoEl.textContent = `${minutes} phút ${seconds.toString().padStart(2,'0')} giây | 100 VPNC, 5 KC, 50 Xu, 10 Nến/phút`;
-  
-  const progressEl = document.getElementById('playtimeProgress');
-  if (progressEl) progressEl.textContent = `${minutes}/20 phút`;
-  
-  const claimBtn = document.getElementById('claimPlaytimeBtn');
-  if (claimBtn) {
-    if (minutes >= 1) {
-      claimBtn.disabled = false;
-      claimBtn.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
-      claimBtn.style.color = 'white';
-      claimBtn.style.cursor = 'pointer';
-      claimBtn.textContent = `Nhận (${minutes}p)`;
-    } else {
-      claimBtn.disabled = true;
-      claimBtn.style.background = 'rgba(34,197,94,0.2)';
-      claimBtn.style.color = '#22c55e';
-      claimBtn.style.cursor = 'not-allowed';
-      claimBtn.textContent = 'Chưa có thưởng';
+    function createFighter(charData, isEnemy, index) {
+        let stats = getCalcStats(charData.id, charData.lvl);
+        return {
+            uid: (isEnemy ? 'E_' : 'P_') + charData.id,
+            name: DB_CHARACTERS[charData.id].name + (isEnemy ? " (Bot)" : ""),
+            id: charData.id,
+            isEnemy: isEnemy,
+            pos: charData.pos, // 1 (Front), 2 (Mid), 3 (Side)
+            lvl: charData.lvl,
+            maxHp: stats.hp, hp: stats.hp,
+            atk: stats.atk, def: stats.def, spd: stats.spd,
+            en: 0, maxEn: stats.enMax,
+            // Buffs/Debuffs & Marks
+            healDebuff: 0, dmgBuff: 0, stun: 0, blockHit: 0, jacoMarks: 0
+        };
     }
-  }
-}
 
-function claimPlayTimeRewards() {
-  const minutes = Math.floor(gameState.playTime.totalAccumulated / 60);
-  if (minutes < 1) return;
-  
-  gameState.resources.vpnc += 100 * minutes;
-  gameState.resources.diamond += 5 * minutes;
-  gameState.resources.gold += 50 * minutes;
-  gameState.resources.candle = (gameState.resources.candle || 0) + 10 * minutes;
-  
-  gameState.playTime.lastClaimTime = Date.now() - (gameState.playTime.totalAccumulated % 60) * 1000;
-  saveGame();
-  updateResourceDisplay();
-  updatePlayTimeDisplay();
-  showToast(`Nhận thưởng online thành công: +${100*minutes} VPNC, +${5*minutes} KC, +${10*minutes} Nến!`, 'success');
-}
+    function startMockBattle() {
+        switchTab('battle');
+        document.getElementById('btn-leave-battle').style.display = 'none';
+        const logUI = document.getElementById('battle-log');
+        logUI.innerHTML = '';
+        
+        battleState.fighters = [];
+        // Khởi tạo Team Player
+        Object.values(player.roster).forEach(c => battleState.fighters.push(createFighter(c, false)));
+        // Khởi tạo Team Bot (Cùng đội hình nhưng lv + 5)
+        Object.values(player.roster).forEach(c => battleState.fighters.push(createFighter({id: c.id, lvl: c.lvl + 5, pos: c.pos}, true)));
 
-function updateVIPDisplay() {
-  const vip = gameState.vip;
-  const badge = document.getElementById('vipLevelBadge');
-  const levelText = document.getElementById('vipLevelText');
-  const expText = document.getElementById('vipExpText');
-  const expBar = document.getElementById('vipExpBar');
-  const dollarDisplay = document.getElementById('dollarDisplay');
-  
-  if (badge) badge.textContent = 'V' + vip.level;
-  if (levelText) levelText.textContent = vip.level > 0 ? `VIP ${vip.level}` : 'Chưa có VIP';
-  if (expText) expText.textContent = `${vip.exp}/${vip.expToNext} EXP`;
-  if (expBar) expBar.style.width = Math.min(100, (vip.exp / vip.expToNext) * 100) + '%';
-  if (dollarDisplay) dollarDisplay.textContent = formatNumber(gameState.resources.dollars || 0);
-}
+        // Áp dụng nội tại đầu game: Mega Ner LV >= 50 nhận 2 EN
+        battleState.fighters.forEach(f => {
+            if(f.id === 'meganer' && f.lvl >= 50) f.en = 2;
+            if(f.id === 'meganer' && f.lvl >= 80) f.blockHit = 1; // "Song Bích" - chặn 1 đòn
+        });
 
-function convertDiamondToDollar() {
-  if (gameState.resources.diamond < 800) {
-    showToast('Cần ít nhất 800 Kim Cương để đổi 1 Dollar!', 'error');
-    return;
-  }
-  const maxDollars = Math.floor(gameState.resources.diamond / 800);
-  const input = prompt(`Quy đổi 800 KC = 1 Dollar\nBạn có ${gameState.resources.diamond} KC, đổi được tối đa ${maxDollars} Dollars\nNhập số Dollar muốn đổi:`, '1');
-  if (!input) return;
-  const d = parseInt(input);
-  if (isNaN(d) || d < 1 || d > maxDollars) {
-    showToast('Số lượng không hợp lệ!', 'error');
-    return;
-  }
-  gameState.resources.diamond -= d * 800;
-  gameState.resources.dollars = (gameState.resources.dollars || 0) + d;
-  saveGame();
-  updateResourceDisplay();
-  updateVIPDisplay();
-  showToast(`Đổi thành công +${d} Dollars!`, 'success');
-}
-
-function showVIPPanel() {
-  let html = `
-    <div id="vipPanel" style="position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;">
-      <div style="background:var(--card);border-radius:20px;padding:28px;max-width:600px;width:100%;max-height:85vh;overflow-y:auto;border:2px solid rgba(234,179,8,0.3);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
-          <h2 style="color:#eab308;"><i class="ri-vip-crown-line"></i> Đặc Quyền VIP & Nạp</h2>
-          <button onclick="document.getElementById('vipPanel').remove()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;">✕</button>
-        </div>
-        <h3 style="margin-bottom:12px;color:#eab308;">💎 Gói Nạp Kim Cương</h3>
-        <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px;">
-          ${RECHARGE_PACKAGES.map(pkg => `
-            <button onclick="recharge('${pkg.id}')" style="padding:14px;border-radius:12px;border:1px solid rgba(59,130,246,0.3);background:rgba(59,130,246,0.08);cursor:pointer;">
-              <div style="font-weight:700;color:#3b82f6;">${pkg.name}</div>
-              <div style="font-size:0.85rem;">+${formatNumber(pkg.diamond)} KC</div>
-            </button>
-          `).join('')}
-        </div>
-      </div>
-    </div>
-  `;
-  const existing = document.getElementById('vipPanel');
-  if (existing) existing.remove();
-  document.body.insertAdjacentHTML('beforeend', html);
-}
-
-function recharge(pkgId) {
-  const pkg = RECHARGE_PACKAGES.find(p => p.id === pkgId);
-  if (!pkg) return;
-  gameState.resources.diamond += pkg.diamond;
-  gameState.vip.exp += pkg.vipExp;
-  if (gameState.vip.exp >= gameState.vip.expToNext) {
-    gameState.vip.level++;
-    gameState.vip.exp -= gameState.vip.expToNext;
-    gameState.vip.expToNext = Math.floor(gameState.vip.expToNext * 1.5);
-  }
-  saveGame();
-  updateResourceDisplay();
-  updateVIPDisplay();
-  showToast(`Nạp thành công +${formatNumber(pkg.diamond)} KC!`, 'success');
-  const p = document.getElementById('vipPanel');
-  if (p) p.remove();
-}
-
-function showToast(message, type = 'info') {
-  const container = document.getElementById('toastContainer');
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  const icons = { success: 'ri-checkbox-circle-fill', error: 'ri-error-warning-fill', info: 'ri-information-fill' };
-  toast.innerHTML = `<i class="${icons[type]}"></i><span>${message}</span>`;
-  container.appendChild(toast);
-  setTimeout(() => {
-    toast.style.animation = 'fadeIn 0.3s ease reverse';
-    setTimeout(() => toast.remove(), 300);
-  }, 3000);
-}
-
-function saveGame() {
-  try {
-    localStorage.setItem('turnBasedRPG_single_save', JSON.stringify(gameState));
-  } catch (e) {}
-}
-
-function loadGame() {
-  try {
-    const saved = localStorage.getItem('turnBasedRPG_single_save');
-    if (saved) {
-      gameState = { ...gameState, ...JSON.parse(saved) };
-      return true;
+        // Xác định team đi trước (Random) -> Xếp theo SPD
+        let teamFirst = Math.random() > 0.5 ? false : true; 
+        logSys(`Trận đấu bắt đầu! Đội ${teamFirst ? 'Bot' : 'Bạn'} được quyền ưu tiên hành động.`);
+        
+        updateBattleUI();
+        
+        // Loop 1s/action
+        battleState.interval = setInterval(battleTick, 1000);
     }
-  } catch (e) {}
-  return false;
-}
 
-function initNewGame() {
-  const kangu = createCharacter('kangu', 1);
-  const megaNer = createCharacter('mega_ner', 1);
-  const jaco = createCharacter('jaco', 1);
-  const hit = createCharacter('hit', 1);
-  
-  gameState.characters[kangu.id] = kangu;
-  gameState.characters[megaNer.id] = megaNer;
-  gameState.characters[jaco.id] = jaco;
-  gameState.characters[hit.id] = hit;
-  
-  gameState.team = [kangu.id, megaNer.id, hit.id];
-  
-  const now = new Date();
-  const saleEnd = new Date(now);
-  saleEnd.setMonth(saleEnd.getMonth() + 1);
-  gameState.events.saleEnd = saleEnd.toISOString();
-  
-  const midEnd = new Date(now);
-  midEnd.setDate(midEnd.getDate() + 14);
-  gameState.events.midAutumnEnd = midEnd.toISOString();
-  
-  saveGame();
-}
+    // Logic xử lý sát thương 
+    function doDamage(attacker, defender, rawDmg, isSkill = false) {
+        if(defender.blockHit > 0) {
+            defender.blockHit--;
+            logAction(`${defender.name} nhờ [Song Bích] đã né/chặn hoàn toàn sát thương!`, 'skill-text');
+            return 0;
+        }
 
-function updateDateTime() {
-  const now = new Date();
-  const el = document.getElementById('currentDateTime');
-  if (el) {
-    el.textContent = now.toLocaleString('vi-VN', {
-      year: 'numeric', month: '2-digit', day: '2-digit',
-      hour: '2-digit', minute: '2-digit', second: '2-digit'
-    });
-  }
-}
+        // Tính giảm ST: 100 DEF giảm 0.1% -> DEF * 0.001 %
+        let defReduction = (defender.def / 100) * 0.001;
+        if(defReduction > 0.9) defReduction = 0.9; // Cap 90%
+        
+        // Nội tại Mega Ner: HP < 20% -> ST +10%
+        let atkMod = 1;
+        if(attacker.id === 'meganer' && (attacker.hp/attacker.maxHp) < 0.2) atkMod += 0.1;
+        // Buff từ kỹ năng (Ví dụ Jaco buff)
+        if(attacker.dmgBuff > 0) atkMod += attacker.dmgBuff;
+        // Nội tại Kangu: Mất 7% hp tăng 1% ST (lv50)
+        if(attacker.id === 'kangu' && attacker.lvl >= 50) {
+            let hpLostPct = 1 - (attacker.hp / attacker.maxHp);
+            atkMod += Math.floor(hpLostPct / 0.07) * 0.01;
+        }
 
-function init() {
-  if (!loadGame()) {
-    initNewGame();
-  }
-  updateDateTime();
-  setInterval(updateDateTime, 1000);
-  updateResourceDisplay();
-  updateVIPDisplay();
-  initPlayTime();
-  showScreen('hall');
-}
+        let finalDmg = Math.floor(rawDmg * atkMod * (1 - defReduction));
+        defender.hp -= finalDmg;
+        if(defender.hp < 0) defender.hp = 0;
+        return finalDmg;
+    }
 
-window.addEventListener('DOMContentLoaded', init);
+    // Logic Hồi máu
+    function doHeal(healer, target, rawHeal) {
+        let finalHeal = rawHeal;
+        // Nội tại Jaco LV80: Đồng đội <50% nhận +20% hồi từ Jaco
+        if(healer.id === 'jaco' && healer.lvl >= 80 && (target.hp/target.maxHp) < 0.5) finalHeal *= 1.2;
+        // Nội tại Jaco: Đồng đội có 3 dấu HP + 10%
+        if(target.jacoMarks >= 3) finalHeal *= 1.1;
+        
+        // Debuff suy giảm (Kangu)
+        if(target.healDebuff > 0) finalHeal *= (1 - target.healDebuff);
+
+        finalHeal = Math.floor(finalHeal);
+        target.hp += finalHeal;
+        if(target.hp > target.maxHp) target.hp = target.maxHp;
+        return finalHeal;
+    }
+
+    function getTarget(attacker, team) {
+        // Tìm Tướng 1 trước, nếu chết tìm 2, rồi 3
+        let t1 = team.find(f => f.hp > 0 && f.pos === 1);
+        if(t1) return t1;
+        let t2 = team.find(f => f.hp > 0 && f.pos === 2);
+        if(t2) return t2;
+        return team.find(f => f.hp > 0 && f.pos === 3);
+    }
+
+    function getLowestHpAlly(team) {
+        let alive = team.filter(f => f.hp > 0);
+        if(alive.length === 0) return null;
+        alive.sort((a,b) => (a.hp/a.maxHp) - (b.hp/b.maxHp));
+        return alive[0];
+    }
+
+    function battleTick() {
+        let aliveFighters = battleState.fighters.filter(f => f.hp > 0);
+        let teamPlayer = aliveFighters.filter(f => !f.isEnemy);
+        let teamEnemy = aliveFighters.filter(f => f.isEnemy);
+
+        if(teamPlayer.length === 0 || teamEnemy.length === 0) {
+            clearInterval(battleState.interval);
+            let win = teamPlayer.length > 0;
+            logSys(`TRẬN ĐẤU KẾT THÚC! ${win ? 'Bạn Thắng!' : 'Bạn Thua!'}`);
+            if(win) { player.exp += 150; updateUI(); }
+            document.getElementById('btn-leave-battle').style.display = 'block';
+            return;
+        }
+
+        // Lấy danh sách queue hiện tại (giả lập SPD order). Để đơn giản, sort theo SPD mỗi tick, lấy người đầu tiên chưa đi turn này.
+        // Bổ sung thuộc tính tickReady
+        aliveFighters.forEach(f => { if(f.tickReady === undefined) f.tickReady = true; });
+        let readyFighters = aliveFighters.filter(f => f.tickReady).sort((a,b) => b.spd - a.spd);
+        
+        // Reset vòng lặp nếu tất cả đã đi
+        if(readyFighters.length === 0) {
+            aliveFighters.forEach(f => f.tickReady = true);
+            readyFighters = aliveFighters.sort((a,b) => b.spd - a.spd);
+        }
+
+        let actor = readyFighters[0];
+        actor.tickReady = false;
+        
+        // Quản lý Buff/Debuff hết hạn (Đơn giản hóa: Trừ đi mỗi khi đến lượt)
+        if(actor.stun > 0) {
+            actor.stun--;
+            logAction(`💢 ${actor.name} bị choáng, mất lượt!`, 'dmg-text');
+            updateBattleUI();
+            return;
+        }
+        actor.dmgBuff = 0; // Xoá buff ST 1 hiệp trước khi đánh
+
+        let myTeam = actor.isEnemy ? teamEnemy : teamPlayer;
+        let enemyTeam = actor.isEnemy ? teamPlayer : teamEnemy;
+        let mainTarget = getTarget(actor, enemyTeam);
+
+        // ===== XỬ LÝ KỸ NĂNG THEO TƯỚNG =====
+        if(actor.en >= actor.maxEn) {
+            // == TUNG KỸ NĂNG CHỦ ĐỘNG ==
+            actor.en = 0;
+            logAction(`🌟 ${actor.name} kích hoạt <span class="skill-text">Kỹ Năng Chủ Động</span>!`);
+            
+            if(actor.id === 'kangu') {
+                // Kangu: 200% ATK + 5% máu địch + Suy giảm 40% hồi
+                let atkMod = actor.lvl >= 150 ? 2.3 : 2.0;
+                let dmg = doDamage(actor, mainTarget, actor.atk * atkMod, true);
+                let extraDmg = Math.floor(mainTarget.hp * 0.05);
+                mainTarget.hp = Math.max(0, mainTarget.hp - extraDmg);
+                mainTarget.healDebuff = 0.4; // Giảm 40% hồi phục
+                logAction(`> Phóng tia năng lượng vào ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} + ${formatNum(extraDmg)} ST</span> và suy giảm hồi phục!`);
+                
+                // Nội tại 3 (LV100): 75% thêm 1 tia
+                if(actor.lvl >= 100 && Math.random() < 0.75) {
+                    let dmg2 = doDamage(actor, mainTarget, (actor.atk * atkMod) * 0.75, true);
+                    logAction(`> ⚡ Nội tại: Bắn tia thứ 2 gây <span class="dmg-text">${formatNum(dmg2)} ST</span>!`);
+                }
+            } 
+            else if(actor.id === 'meganer') {
+                // Mega Ner: 280% ATK, tăng 15% ST hiệp sau
+                let dmg = doDamage(actor, mainTarget, actor.atk * 2.8, true);
+                actor.dmgBuff = 0.15;
+                logAction(`> Dịch chuyển và chém ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>, nhận buff Tăng ST hiệp sau!`);
+            }
+            else if(actor.id === 'jaco') {
+                // Jaco: 105% ATK, hồi máu toàn đội 150% (175% ở lv150)
+                let dmg = doDamage(actor, mainTarget, actor.atk * 1.05, true);
+                let healMod = actor.lvl >= 150 ? 1.75 : 1.5;
+                myTeam.forEach(ally => doHeal(actor, ally, actor.atk * healMod));
+                logAction(`> Đánh cường hoá ${mainTarget.name} <span class="dmg-text">${formatNum(dmg)} ST</span> và Hồi phục <span class="heal-text">toàn đội</span>!`);
+                
+                // Nội tại 1: Buff 18% ST cho 1 đồng đội
+                if(actor.lvl >= 50) {
+                    let others = myTeam.filter(a => a.uid !== actor.uid);
+                    if(others.length > 0) {
+                        let lucky = others[Math.floor(Math.random()*others.length)];
+                        lucky.dmgBuff = 0.18;
+                        logAction(`> 🛡️ ${lucky.name} nhận 18% ST cho hiệp tới!`);
+                    }
+                }
+            }
+        } else {
+            // == ĐÁNH THƯỜNG ==
+            if(actor.id === 'kangu') {
+                let dmg = doDamage(actor, mainTarget, actor.atk * 0.85);
+                actor.en += 1.7;
+                let stunTxt = "";
+                // Nội tại 2 (LV80): 10% Choáng
+                if(actor.lvl >= 80 && Math.random() < 0.1) {
+                    mainTarget.stun = 1; stunTxt = " kèm <b>CHOÁNG</b>!";
+                }
+                logAction(`🗡️ ${actor.name} đập ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>${stunTxt}`);
+            }
+            else if(actor.id === 'meganer') {
+                // Đánh AoE
+                let totalDmg = 0;
+                enemyTeam.forEach(e => { totalDmg += doDamage(actor, e, actor.atk * 0.95); });
+                actor.en += 1.4;
+                if(actor.lvl >= 150) actor.dmgBuff = 0.08;
+                logAction(`🌪️ ${actor.name} quét Nộ diện rộng gây <span class="dmg-text">${formatNum(totalDmg)} tổng ST</span>`);
+            }
+            else if(actor.id === 'jaco') {
+                let dmg = doDamage(actor, mainTarget, actor.atk * 0.88);
+                actor.en += 1.2;
+                let lowestAlly = getLowestHpAlly(myTeam);
+                if(lowestAlly && lowestAlly.jacoMarks < 3) lowestAlly.jacoMarks++;
+                logAction(`🪄 ${actor.name} bắn ${mainTarget.name} gây <span class="dmg-text">${formatNum(dmg)} ST</span>. Gắn dấu HP lên ${lowestAlly ? lowestAlly.name : ''}`);
+            }
+        }
+        
+        updateBattleUI();
+    }
+
+    function logAction(msg) {
+        const log = document.getElementById('battle-log');
+        log.innerHTML += `<div class="log-item">${msg}</div>`;
+        log.scrollTop = log.scrollHeight;
+    }
+    function logSys(msg) { logAction(`<span style="color:#03dac6; font-weight:bold;">[HỆ THỐNG] ${msg}</span>`); }
+
+    function updateBattleUI() {
+        const pUI = document.getElementById('team-player-ui');
+        const eUI = document.getElementById('team-enemy-ui');
+        
+        let pHTML = '<h4 style="color:#3498db; text-align:center;">Đội Bạn</h4>';
+        let eHTML = '<h4 style="color:#e74c3c; text-align:center;">Bot Hệ Thống</h4>';
+
+        battleState.fighters.forEach(f => {
+            let hpPct = (f.hp / f.maxHp) * 100;
+            let enPct = Math.min(100, (f.en / f.maxEn) * 100);
+            let barColor = hpPct < 30 ? '#c0392b' : '#3498db';
+            if(f.isEnemy) barColor = '#e74c3c';
+
+            let html = `
+                <div style="margin-bottom: 8px; opacity: ${f.hp <= 0 ? 0.3 : 1}">
+                    <div style="display:flex; justify-content:space-between; font-size:0.75rem;">
+                        <span>${f.name} (P${f.pos}) ${f.stun>0?'💫':''}</span>
+                        <span>${formatNum(Math.floor(f.hp))}</span>
+                    </div>
+                    <div class="fighter-bar">
+                        <div class="hp-fill" style="width:${hpPct}%; background:${barColor};"></div>
+                        <div class="en-fill" style="width:${enPct}%;"></div>
+                    </div>
+                </div>
+            `;
+            if(f.isEnemy) eHTML += html; else pHTML += html;
+        });
+
+        pUI.innerHTML = pHTML;
+        eUI.innerHTML = eHTML;
+    }
+
+    function leaveBattle() {
+        clearInterval(battleState.interval);
+        switchTab('roster');
+    }
+
+    // Start 
+    initGame();
 </script>
 
 </body>
