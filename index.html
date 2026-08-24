@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Siêu Chiến Binh - Kỷ Nguyên Thần Thánh v4.1 (Full Edition)</title>
+    <title>Siêu Chiến Binh - Kỷ Nguyên Thần Thánh v4.3 (UI Optimized)</title>
     <style>
         :root { --bg: #0f172a; --primary: #3b82f6; --secondary: #10b981; --danger: #ef4444; --warning: #f59e0b; --text: #f8fafc; --glass: rgba(30, 41, 59, 0.9); --border: rgba(255, 255, 255, 0.15); }
         * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: 'Segoe UI', Tahoma, sans-serif; }
@@ -20,74 +20,79 @@
         .btn:hover:not(:disabled) { transform: translateY(-2px) scale(1.02); filter: brightness(1.2); }
         .btn:disabled { filter: grayscale(100%); opacity: 0.5; cursor: not-allowed; }
         
-        #menu-screen h1 { font-size: 4rem; text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; margin-bottom: 2rem; text-shadow: 0px 5px 15px rgba(96,165,250,0.3); text-align: center; }
+        #menu-screen h1 { font-size: 4.5rem; text-transform: uppercase; background: linear-gradient(to right, #60a5fa, #c084fc); -webkit-background-clip: text; color: transparent; margin-bottom: 2rem; text-shadow: 0px 5px 15px rgba(96,165,250,0.3); text-align: center; }
         
-        /* Info Modal / Screen */
+        /* Info Modal */
         .info-container { width: 90%; max-width: 1000px; height: 85%; background: rgba(15,23,42,0.95); border-radius: 16px; padding: 25px; display: flex; flex-direction: column; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.8); }
-        .info-scroll { flex: 1; overflow-y: auto; margin-top: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-right: 5px; }
+        .info-scroll { flex: 1; overflow-y: auto; margin-top: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding-right: 10px; }
+        .info-scroll::-webkit-scrollbar { width: 8px; }
+        .info-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
         .info-card { background: rgba(30,41,59,0.8); padding: 15px; border-radius: 10px; border: 1px solid #334155; }
-        .info-card h3 { color: #60a5fa; margin-bottom: 6px; font-size: 1.1rem; }
-        .info-card p { font-size: 0.8rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 4px; }
+        .info-card h3 { color: #60a5fa; margin-bottom: 6px; font-size: 1.2rem; }
+        .info-card p { font-size: 0.85rem; color: #cbd5e1; line-height: 1.4; margin-bottom: 4px; }
 
         /* Ban Pick */
-        .phase-header { font-size: 2rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
-        .timer { font-size: 3rem; color: var(--danger); font-weight: 900; margin-bottom: 15px; text-align: center; }
-        .hero-pool { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; max-width: 1050px; margin-bottom: 20px; }
-        .hero-card { background: linear-gradient(180deg, #334155, #1e293b); border: 2px solid #475569; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; transition: 0.2s; height: 110px; justify-content: center; }
+        .phase-header { font-size: 2.2rem; font-weight: 800; margin-bottom: 10px; text-align: center; }
+        .timer { font-size: 3.5rem; color: var(--danger); font-weight: 900; margin-bottom: 15px; text-align: center; }
+        .hero-pool { display: grid; grid-template-columns: repeat(7, 1fr); gap: 12px; max-width: 1100px; margin-bottom: 20px; }
+        .hero-card { background: linear-gradient(180deg, #334155, #1e293b); border: 2px solid #475569; border-radius: 12px; padding: 10px; display: flex; flex-direction: column; align-items: center; cursor: pointer; position: relative; transition: 0.2s; height: 120px; justify-content: center; }
         .hero-card:hover:not(.banned) { border-color: #94a3b8; transform: translateY(-3px); }
         .hero-card.selected-t1 { border-color: var(--primary); box-shadow: 0 0 15px var(--primary); }
         .hero-card.selected-t2 { border-color: var(--danger); box-shadow: 0 0 15px var(--danger); }
         .hero-card.banned { filter: grayscale(100%) brightness(0.3); pointer-events: none; }
-        .hero-card.banned::after { content: 'LOCKED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); color: #ef4444; font-weight: 900; font-size: 0.9rem; border: 2px solid #ef4444; padding: 2px 4px; background: rgba(0,0,0,0.9); }
-        .hero-abbr { width: 42px; height: 42px; border-radius: 50%; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 900; color: #e2e8f0; border: 2px solid #64748b; margin-bottom: 6px; }
-        .hero-name { font-size: 0.7rem; font-weight: 700; text-align: center; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
-        .hero-role { font-size: 0.55rem; padding: 1px 4px; background: #475569; border-radius: 3px; margin-top: 3px; color: #f8fafc; }
+        .hero-card.banned::after { content: 'LOCKED'; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%) rotate(-25deg); color: #ef4444; font-weight: 900; font-size: 1rem; border: 2px solid #ef4444; padding: 2px 4px; background: rgba(0,0,0,0.9); }
+        .hero-abbr { width: 50px; height: 50px; border-radius: 50%; background: #0f172a; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; font-weight: 900; color: #e2e8f0; border: 2px solid #64748b; margin-bottom: 6px; }
+        .hero-name { font-size: 0.8rem; font-weight: 700; text-align: center; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; }
+        .hero-role { font-size: 0.65rem; padding: 2px 5px; background: #475569; border-radius: 4px; margin-top: 3px; color: #f8fafc; }
 
-        /* Battle */
+        /* Battle - Enlarged UI */
         .battle-header { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 15px 40px; background: rgba(15, 23, 42, 0.9); border-bottom: 1px solid var(--border); }
-        .team-title { font-size: 1.4rem; font-weight: 900; padding: 6px 20px; border-radius: 8px; }
+        .team-title { font-size: 1.6rem; font-weight: 900; padding: 8px 25px; border-radius: 8px; }
         .tt-1 { background: linear-gradient(90deg, #1d4ed8, #3b82f6); } .tt-2 { background: linear-gradient(-90deg, #b91c1c, #ef4444); }
         
-        .arena { display: flex; width: 100%; flex: 1; padding: 20px 50px; justify-content: space-between; }
-        .team-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; align-content: center; width: 42%; }
+        .arena { display: flex; width: 100%; flex: 1; padding: 20px 40px; justify-content: space-between; align-items: center; }
+        .team-side { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; width: 45%; justify-items: center; }
         .team2-side { direction: rtl; }
         
-        .entity { background: rgba(30,41,59,0.85); border: 2px solid #475569; border-radius: 12px; width: 155px; padding: 10px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; }
-        .entity.active-turn { border-color: var(--warning); box-shadow: 0 0 25px rgba(245, 158, 11, 0.6); transform: scale(1.05) translateY(-5px); z-index: 5; }
-        .entity.dead { filter: grayscale(100%) opacity(0.3); pointer-events: none; }
+        .entity { background: rgba(30,41,59,0.85); border: 2px solid #475569; border-radius: 16px; width: 200px; padding: 15px; position: relative; transition: 0.3s; display: flex; flex-direction: column; align-items: center; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .entity.active-turn { border-color: var(--warning); box-shadow: 0 0 30px rgba(245, 158, 11, 0.7); transform: scale(1.05) translateY(-8px); z-index: 5; }
+        .entity.dead { filter: grayscale(100%) opacity(0.35); pointer-events: none; }
         
-        .e-abbr { width: 50px; height: 50px; border-radius: 50%; background: #0f172a; font-size: 1.4rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 3px solid #64748b; margin-bottom: 6px; }
+        .e-abbr { width: 70px; height: 70px; border-radius: 50%; background: #0f172a; font-size: 2rem; font-weight: 900; display: flex; align-items: center; justify-content: center; border: 3px solid #64748b; margin-bottom: 10px; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
         .tt-1 ~ .arena #team1-side .e-abbr { border-color: var(--primary); } 
         .tt-2 ~ .arena #team2-side .e-abbr { border-color: var(--danger); }
         
-        .e-name { font-size: 0.8rem; font-weight: 700; margin-bottom: 6px; direction: ltr; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
-        .bar-wrap { width: 100%; background: #0f172a; height: 9px; border-radius: 4px; margin-bottom: 3px; overflow: hidden; position: relative; border: 1px solid #334155; }
+        .e-name { font-size: 1.1rem; font-weight: 800; margin-bottom: 8px; direction: ltr; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%; text-align: center; }
+        .bar-wrap { width: 100%; background: #0f172a; height: 12px; border-radius: 6px; margin-bottom: 5px; overflow: hidden; position: relative; border: 1px solid #334155; }
         .hp-bar { height: 100%; background: linear-gradient(90deg, #16a34a, #22c55e); transition: 0.3s; }
-        .shield-bar { height: 100%; background: rgba(255,255,255,0.8); position: absolute; top: 0; right: 0; transition: 0.3s; }
+        .shield-bar { height: 100%; background: rgba(255,255,255,0.85); position: absolute; top: 0; right: 0; transition: 0.3s; }
         .en-bar { height: 100%; background: linear-gradient(90deg, #9333ea, #a855f7); transition: 0.3s; }
-        .stats-text { font-size: 0.6rem; color: #94a3b8; font-weight: 600; direction: ltr; margin-bottom: 4px; text-align: center; }
+        .stats-text { font-size: 0.8rem; color: #94a3b8; font-weight: 700; direction: ltr; margin-bottom: 8px; text-align: center; line-height: 1.2; }
         
-        .buff-zone { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; min-height: 18px; width: 100%; }
-        .b-pill { padding: 1px 5px; border-radius: 4px; font-size: 0.6rem; font-weight: 700; color: white; white-space: nowrap; direction: ltr; }
+        /* Buff Zone - Scrollable & Grouped */
+        .buff-zone { display: flex; gap: 4px; flex-wrap: wrap; justify-content: center; width: 100%; max-height: 65px; overflow-y: auto; padding: 2px; }
+        .buff-zone::-webkit-scrollbar { width: 4px; }
+        .buff-zone::-webkit-scrollbar-thumb { background: #64748b; border-radius: 4px; }
+        .b-pill { padding: 3px 6px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: white; white-space: nowrap; direction: ltr; box-shadow: 0 1px 3px rgba(0,0,0,0.5); }
         .bg-buff { background: #2563eb; } .bg-debuff { background: #dc2626; } .bg-mark { background: #d97706; color: #fff; }
         
         .controls { width: 100%; background: rgba(15,23,42,0.95); padding: 15px; display: flex; justify-content: center; gap: 20px; border-top: 1px solid var(--border); z-index: 10; }
-        .skill-btn { flex: 1; max-width: 260px; background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; padding: 12px; color: white; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
+        .skill-btn { flex: 1; max-width: 300px; background: rgba(30,41,59,0.8); border: 2px solid #475569; border-radius: 12px; padding: 15px; color: white; cursor: pointer; transition: 0.2s; display: flex; flex-direction: column; align-items: center; }
         .skill-btn:hover:not(:disabled) { background: #334155; border-color: var(--primary); transform: translateY(-3px); }
         .skill-btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .sk-name { font-size: 1rem; font-weight: 800; color: #60a5fa; margin-bottom: 3px; }
-        .sk-desc { font-size: 0.7rem; color: #cbd5e1; text-align: center; }
+        .sk-name { font-size: 1.1rem; font-weight: 900; color: #60a5fa; margin-bottom: 5px; }
+        .sk-desc { font-size: 0.8rem; color: #cbd5e1; text-align: center; }
         
-        .combat-log { position: absolute; bottom: 105px; left: 50%; transform: translateX(-50%); width: 550px; height: 120px; background: rgba(0,0,0,0.85); border: 1px solid #334155; border-radius: 10px; padding: 10px; overflow-y: auto; font-size: 0.75rem; font-family: monospace; z-index: 5; }
+        .combat-log { position: absolute; bottom: 110px; left: 50%; transform: translateX(-50%); width: 600px; height: 130px; background: rgba(0,0,0,0.85); border: 1px solid #334155; border-radius: 12px; padding: 12px; overflow-y: auto; font-size: 0.85rem; font-family: monospace; z-index: 5; }
         .log-row { margin-bottom: 4px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 3px; }
         .c-t1 { color: #60a5fa; font-weight: bold; } .c-t2 { color: #f87171; font-weight: bold; } .c-sys { color: #a78bfa; font-style: italic; }
         
-        .dmg-text { position: absolute; font-weight: 900; font-size: 1.6rem; text-shadow: 0 0 5px #000, 0 0 10px #000; animation: floatTxt 1s forwards ease-out; z-index: 100; pointer-events: none; white-space: nowrap; }
-        @keyframes floatTxt { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-55px) scale(1.3); } }
+        .dmg-text { position: absolute; font-weight: 900; font-size: 2rem; text-shadow: 0 0 5px #000, 0 0 10px #000; animation: floatTxt 1s forwards ease-out; z-index: 100; pointer-events: none; white-space: nowrap; }
+        @keyframes floatTxt { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(-60px) scale(1.4); } }
         
         #end-overlay { position: fixed; top:0; left:0; width:100vw; height:100vh; background: rgba(0,0,0,0.9); z-index: 999; display: none; flex-direction: column; align-items: center; justify-content: center; color: white; }
-        #end-overlay h2 { font-size: 3.5rem; margin-bottom: 15px; text-transform: uppercase; }
-        #end-overlay p { font-size: 1.4rem; color: #cbd5e1; }
+        #end-overlay h2 { font-size: 4rem; margin-bottom: 15px; text-transform: uppercase; }
+        #end-overlay p { font-size: 1.5rem; color: #cbd5e1; }
     </style>
 </head>
 <body>
@@ -100,9 +105,9 @@
     <!-- MAIN MENU SCREEN -->
     <div id="menu-screen" class="screen active">
         <h1>SIÊU CHIẾN BINH</h1>
-        <div class="glass-panel" style="text-align: center; min-width: 420px;">
-            <p style="margin-bottom: 25px; font-size: 1.1rem; color: #cbd5e1;">Turn-Base Chiến Thuật - Kỷ Nguyên Thần Thánh v4.1</p>
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+        <div class="glass-panel" style="text-align: center; min-width: 450px;">
+            <p style="margin-bottom: 25px; font-size: 1.2rem; color: #cbd5e1;">Turn-Base Chiến Thuật - Kỷ Nguyên Thần Thánh v4.3</p>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
                 <button class="btn btn-primary" onclick="App.enterBP()">BẮT ĐẦU CHIẾN ĐẤU</button>
                 <button class="btn btn-info" onclick="App.show('info-screen')">THÔNG SỐ & KỸ NĂNG</button>
             </div>
@@ -112,9 +117,9 @@
     <!-- INFO SCREEN -->
     <div id="info-screen" class="screen">
         <div class="info-container">
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 10px;">
-                <h2 style="color: #60a5fa;">TỪ ĐIỂN TƯỚNG & HIỆU ỨNG CHI TIẾT</h2>
-                <button class="btn btn-danger" style="padding: 6px 16px; font-size: 0.85rem;" onclick="App.show('menu-screen')">Quay Lại</button>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #334155; padding-bottom: 15px;">
+                <h2 style="color: #60a5fa; font-size: 1.8rem;">TỪ ĐIỂN TƯỚNG & HIỆU ỨNG CHI TIẾT</h2>
+                <button class="btn btn-danger" onclick="App.show('menu-screen')">Quay Lại</button>
             </div>
             <div class="info-scroll" id="info-grid"></div>
         </div>
@@ -122,15 +127,15 @@
 
     <!-- BAN / PICK SCREEN -->
     <div id="bp-screen" class="screen">
-        <div class="glass-panel" style="display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1100px;">
+        <div class="glass-panel" style="display: flex; flex-direction: column; align-items: center; width: 95%; max-width: 1200px;">
             <div class="phase-header" id="bp-title">...</div>
             <div class="timer" id="bp-timer">30</div>
             <div class="hero-pool" id="bp-pool"></div>
-            <div style="display: flex; gap: 20px;">
+            <div style="display: flex; gap: 25px;">
                 <button class="btn btn-danger" id="bp-btn" onclick="App.confirmBP()">Xác Nhận</button>
                 <button class="btn" id="bp-skip" style="background:#475569;" onclick="App.skipBP()">Bỏ Qua (Đồng thuận)</button>
             </div>
-            <div style="margin-top: 20px; width: 100%; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 12px 20px; border-radius: 8px;">
+            <div style="margin-top: 25px; width: 100%; display: flex; justify-content: space-between; background: rgba(0,0,0,0.3); padding: 15px 25px; border-radius: 10px; font-size: 1.1rem;">
                 <div style="color: #60a5fa;"><strong>Đội 1:</strong> <span id="bp-t1-list">Chưa chọn</span></div>
                 <div style="color: #f87171;"><strong>Đội 2:</strong> <span id="bp-t2-list">Chưa chọn</span></div>
             </div>
@@ -141,7 +146,7 @@
     <div id="battle-screen" class="screen">
         <div class="battle-header">
             <div class="team-title tt-1">ĐỘI 1</div>
-            <div id="turn-banner" style="font-size: 1.4rem; font-weight: 900; color: #f59e0b; text-transform: uppercase;">Đang chuẩn bị...</div>
+            <div id="turn-banner" style="font-size: 1.6rem; font-weight: 900; color: #f59e0b; text-transform: uppercase;">Đang chuẩn bị...</div>
             <div class="team-title tt-2">ĐỘI 2</div>
         </div>
         <div class="arena">
@@ -160,11 +165,11 @@
     </div>
 
 <script>
-/** DATABASE 14 TƯỚNG HOÀN CHỈNH */
+/** DATABASE 14 TƯỚNG (Bản Cập Nhật v4.3) */
 const DB = [
     { id: 'jiren', abbr: 'JR', name: 'Jiren', role: 'ATK', hp: 235549000, atk: 18750000, def: 3000, spd: 150, en: 4.6, desc: 'Đánh thường hồi 1.8 EN, áp [Severe wound]. Cuồng nộ tăng sát thương khi HP < 40%.' },
     { id: 'goku_xeno', abbr: 'GX', name: 'Goku (Xeno)', role: 'DEF', hp: 290000000, atk: 13500000, def: 6550, spd: 145, en: 3, desc: 'Bảo vệ đồng minh yếu nhất, chia sẻ 25% sát thương nhận vào, tự hồi sinh 50% HP.' },
-    { id: 'cooler', abbr: 'CG', name: 'Cooler (Gold)', role: 'DEF', hp: 285000000, atk: 13830000, def: 5780, spd: 145, en: 4, desc: 'Hồi phục 190% ATK + 0.8% HP tối đa khi dính debuff. Xóa bỏ buff của mục tiêu.' },
+    { id: 'cooler', abbr: 'CG', name: 'Cooler (Gold)', role: 'DEF', hp: 285000000, atk: 13830000, def: 5780, spd: 145, en: 4, desc: 'Hồi phục 180% ATK khi dính debuff ở đầu lượt. Tuyệt kỹ tạo lá chắn bằng 30% sát thương gây ra.' },
     { id: 'broly_sp', abbr: 'BS', name: 'Broly (SP)', role: 'ATK', hp: 224500000, atk: 20000000, def: 4300, spd: 150, en: 3, desc: 'Miễn nhiễm mọi hiệu ứng khi HP > 80%, cấm hồi sinh kẻ địch bị hạ gục.' },
     { id: 'zamasu', abbr: 'ZC', name: 'Zamasu', role: 'SKL', hp: 276688000, atk: 14348000, def: 4200, spd: 155, en: 4.4, desc: 'Đánh thường toàn đội 92% ATK kèm Chảy Máu. Khống chế Terror diện rộng.' },
     { id: 'vegeta_ssg', abbr: 'VS', name: 'Vegeta (SSG)', role: 'ATK', hp: 219000000, atk: 18654000, def: 3500, spd: 150, en: 2, desc: 'SPD cao, tạo giáp ảo 185% ATK và buff tỷ lệ Né Tránh cho đồng minh.' },
@@ -172,7 +177,7 @@ const DB = [
     { id: 'madara', abbr: 'MD', name: 'Madara (Lục đạo)', role: 'ATK', hp: 235888000, atk: 17900000, def: 4200, spd: 150, en: 3, desc: 'Tuyệt kỹ 300% ATK AoE kèm 53% Choáng 2 hiệp. Hồi EN khi nhận sát thương.' },
     { id: 'zhuang_fa', abbr: 'ZF', name: 'Zhuang Fa', role: 'SKL', hp: 261000000, atk: 19450000, def: 6400, spd: 156, en: 8, desc: 'Hút 80% đòn đánh, phản sát thương 50%, áp Nọc Độc rút % HP tối đa.' },
     { id: 'omega', abbr: 'OS', name: 'Omega Shenron', role: 'DEF', hp: 300000000, atk: 12880000, def: 5000, spd: 145, en: 5, desc: 'Lá chắn 50% HP miễn nhiễm tuyệt đối với sát thương Bạo Kích.' },
-    { id: 'pain', abbr: 'PT', name: 'Pain Thiên Đạo', role: 'SKL', hp: 275600000, atk: 16890000, def: 4100, spd: 150, en: 4, desc: 'Giảm 30-50% ST địch, tăng tỷ lệ Dịch Chuyển/Né tránh mỗi khi bị tấn công.' },
+    { id: 'pain', abbr: 'PT', name: 'Pain Thiên Đạo', role: 'SKL', hp: 275600000, atk: 16890000, def: 4100, spd: 150, en: 4, desc: 'Dưới 50% HP nhận [Super Teleport] tăng 2% Né mỗi 4% HP mất. Giảm ST địch.' },
     { id: 'vegito', abbr: 'VG', name: 'Vegito', role: 'SKL', hp: 278590000, atk: 15890000, def: 5800, spd: 150, en: 3, desc: 'Sở hữu Bleeding2 độc lập gây 44% ATK mỗi hiệp không thể bị xóa bỏ.' },
     { id: 'timekaishin', abbr: 'TK', name: 'TimeKaishin', role: 'SKL', hp: 285873000, atk: 15670000, def: 5800, spd: 150, en: 4, desc: 'Hồi HP toàn đội dựa trên tổng ST gây ra, cấp khiên và buff Crit/DEF.' },
     { id: 'itachi', abbr: 'IT', name: 'Itachi (Uế Thổ)', role: 'DEF', hp: 300000000, atk: 17550000, def: 5000, spd: 145, en: 3, desc: 'Áp dấu ấn [Fire] phản sát thương, Bất tử 3 hiệp và nạp đầy 4 EN khi cạn HP.' }
@@ -190,8 +195,8 @@ class Hero {
         this.atk = d.atk; this.def = d.def; this.spd = d.spd;
         this.en = 0; this.maxEn = d.en;
         
-        // Advanced
-        this.critR = this.role === 'ATK' ? 0.13 : 0; // ATK class base 13% crit
+        // Advanced Base
+        this.critR = this.role === 'ATK' ? 0.13 : 0;
         this.critD = 1.5; this.armorP = 0; this.dmgRed = 0; this.dodge = 0; 
         this.healBonus = 0; this.dmgBonus = 0;
         this.shield = 0; this.buffs = []; this.dead = false; this.cantRevive = false;
@@ -208,7 +213,7 @@ class Hero {
         if(this.id==='vegeta_ssg'){ this.atk*=1.25; this.armorP+=0.10; this.spd*=1.10; }
         if(this.id==='vegeta_xeno'){ this.maxHp*=1.25; this.armorP+=0.08; this.critD+=0.15; this.def*=1.10; }
         if(this.id==='madara'){ this.def*=1.20; this.critR+=0.08; this.dmgRed+=0.07; }
-        if(this.id==='zhuang_fa'){ this.atk*=1.30; this.maxHp*=0.87; this.dmgRed+=0.08; } // Giảm 13% HP theo yêu cầu mới
+        if(this.id==='zhuang_fa'){ this.atk*=1.30; this.maxHp*=0.87; this.dmgRed+=0.08; } 
         if(this.id==='omega'){ this.dmgRed+=0.06; this.armorP+=0.15; }
         if(this.id==='pain'){ this.maxHp*=1.10; this.def*=1.10; }
         if(this.id==='vegito'){ this.atk*=1.25; this.maxHp*=1.14; this.dmgBonus+=0.30; }
@@ -225,7 +230,25 @@ class Hero {
         this.dom.querySelector('.stats-text').innerHTML = `HP: ${Math.floor(this.hp).toLocaleString()}<br>EN: ${this.en.toFixed(1)}/${this.maxEn.toFixed(1)}`;
         
         let bfHtml = this.shield > 0 ? `<div class="b-pill bg-mark">Lá Chắn</div>` : '';
-        this.buffs.forEach(b => bfHtml += `<div class="b-pill ${b.type==='buff'?'bg-buff':(b.type==='debuff'?'bg-debuff':'bg-mark')}">${b.name}</div>`);
+        
+        if(this.id === 'pain' && this.hp < this.maxHp * 0.5) {
+            bfHtml += `<div class="b-pill bg-buff">Super Teleport</div>`;
+        }
+
+        // Tối ưu hóa UI: Gộp chung các Buff trùng tên
+        let buffGroups = {};
+        this.buffs.forEach(b => {
+            if(!buffGroups[b.name]) buffGroups[b.name] = { type: b.type, count: 0 };
+            buffGroups[b.name].count++;
+        });
+
+        for(let name in buffGroups) {
+            let b = buffGroups[name];
+            let displayName = b.count > 1 ? `${name} x${b.count}` : name;
+            let bgClass = b.type==='buff' ? 'bg-buff' : (b.type==='debuff' ? 'bg-debuff' : 'bg-mark');
+            bfHtml += `<div class="b-pill ${bgClass}">${displayName}</div>`;
+        }
+
         this.dom.querySelector('.buff-zone').innerHTML = bfHtml;
     }
 
@@ -239,7 +262,16 @@ class Hero {
     receiveDamage(raw, source, isSkill=false, dodgeable=true) {
         if(this.dead) return 0;
         
-        let dRate = this.dodge + (this.id==='pain' ? this.mem.painDodge : 0);
+        let dRate = this.dodge;
+        if(this.id==='pain') {
+            dRate += this.mem.painDodge;
+            if(this.hp < this.maxHp * 0.5) {
+                let lostPct = ((this.maxHp - this.hp) / this.maxHp) * 100;
+                let bonusDodge = Math.floor(lostPct / 4) * 0.02;
+                dRate += bonusDodge;
+            }
+        }
+
         if(dodgeable && Math.random() < dRate) {
             Battle.float(this.dom, "NÉ TRÁNH", "#ffffff");
             if(this.id==='pain' && source) source.addBuff(new Buff('Giảm ST', 'debuff', 2));
@@ -272,7 +304,7 @@ class Hero {
             if(Math.random() < cr) { 
                 isCrit = true; 
                 let cd = source.critD;
-                if(source.role === 'ATK' && isSkill) cd = 3.0; // ATK class active crit rule (300% ST)
+                if(source.role === 'ATK' && isSkill) cd = 3.0; 
                 dmg *= cd; 
             }
         }
@@ -280,7 +312,7 @@ class Hero {
         if(this.id==='omega' && this.shield > 0 && isCrit) { isCrit = false; dmg /= (source.role==='ATK'&&isSkill?3.0:1.5); }
 
         let tRed = this.dmgRed;
-        if(isSkill && Math.random() < 0.15) { tRed += 0.3; Battle.float(this.dom, "CHỐNG ĐỠ", "#a78bfa"); } // 15% giảm 30% ST kỹ năng
+        if(isSkill && Math.random() < 0.15) { tRed += 0.3; Battle.float(this.dom, "CHỐNG ĐỠ", "#a78bfa"); } 
         if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) tRed += 0.2;
         if(this.has('Bảo vệ')) tRed += 0.15;
         if(Battle.getTeam(this.team).some(h=>h.id==='zamasu')) tRed += 0.05;
@@ -296,7 +328,6 @@ class Hero {
             if(gk && !gk.dead) { let split = dmg*0.25; dmg -= split; gk.takeDirect(split, source); }
         }
 
-        // Zhuang Fa Light Stacks Process (Đủ 3 cộng dồn reset, gây Choáng 1 hiệp)
         if(source && source.id==='zhuang_fa') {
             let light = this.buffs.find(b=>b.name==='Ánh Sáng');
             if(light) {
@@ -425,7 +456,8 @@ class Hero {
 
         if(this.dead) return;
 
-        if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) this.heal(this.atk*1.9 + this.maxHp*0.008);
+        if(this.id==='cooler' && this.buffs.some(b=>b.type==='debuff')) this.heal(this.atk*1.8);
+        
         if(this.id==='broly_sp') {
             if(this.hp > this.maxHp*0.8) this.gainEn(2);
             this.mem.brolyStk=(this.mem.brolyStk||0)+1; if(this.mem.brolyStk%2===0 && this.dmgBonus < 1.4) this.dmgBonus += 0.25;
@@ -535,7 +567,6 @@ const Battle = {
         hero.onTurnStart();
         if(hero.dead) return this.nextTurn();
         
-        // Kiểm tra Choáng và Terror bỏ lượt chuẩn xác 100%
         let isStun = hero.has('Choáng');
         let terror = hero.buffs.find(b=>b.name==='Terror');
         if(terror && Math.random()<0.5) isStun = true;
@@ -619,7 +650,10 @@ const Battle = {
             if(h.hp > h.maxHp*0.5) { let pals = this.getTeam(h.team).filter(a=>a.id!=='goku_xeno'); if(pals.length) pals.reduce((m,a)=>a.hp<m.hp?a:m, pals[0]).addBuff(new Buff('Bảo vệ','buff',1)); }
         }
         else if(h.id==='cooler') {
-            let t = this.getTar(h,'back')[0]; t.receiveDamage(atk*3.52, h, true);
+            let t = this.getTar(h,'back')[0];
+            let dmgDealt = t.receiveDamage(atk*3.52, h, true);
+            h.gainShield(dmgDealt * 0.3); 
+            
             if(Math.random()<0.4) t.addBuff(new Buff('Choáng','debuff',1));
             if(Math.random()<0.6) t.buffs = t.buffs.filter(b=>b.type!=='buff');
         }
@@ -734,7 +768,6 @@ const App = {
     }
 };
 
-// Khởi chạy render từ điển ngay khi load script
 App.renderInfo();
 </script>
 </body>
